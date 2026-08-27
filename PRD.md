@@ -1,7 +1,7 @@
 # Product Requirements Document (PRD) - Copa Ataci (4ª Edição)
 
 ## 1. Visão Geral do Produto
-O projeto visa o desenvolvimento de uma aplicação web responsiva (Mobile-First) para acompanhar a 5ª Edição da **Copa Ataci**. A plataforma servirá como o portal oficial do torneio, apresentando classificação, calendário de jogos, chaveamento do mata-mata e detalhes dos elencos de forma interativa.
+O projeto visa o desenvolvimento de uma aplicação web responsiva (Mobile-First) para acompanhar a 4ª Edição da **Copa Ataci**. A plataforma servirá como o portal oficial do torneio, apresentando classificação, calendário de jogos, chaveamento do mata-mata e detalhes dos elencos de forma interativa.
 
 A grande premissa técnica é a **ausência de um backend tradicional**. Toda a aplicação será alimentada por arquivos estáticos `.json` hospedados junto com o frontend na **Cloudflare Pages**, garantindo alta velocidade, disponibilidade global (CDN) e custo zero de infraestrutura.
 

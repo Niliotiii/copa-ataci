@@ -14,5 +14,10 @@ dist/
 *.log
 npm-debug.log*
 
+# Playwright
+test-results/
+playwright-report/
+.playwright/
+
 # OS
 .DS_Store

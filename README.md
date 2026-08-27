@@ -138,39 +138,60 @@ tabela e o chaveamento automaticamente — sem novo deploy.
 
 ## Deploy na Cloudflare
 
+Passo a passo (primeira publicação):
+
 ```bash
-# 1. Autenticar
+# 1. Autenticar na Cloudflare
 npx wrangler login
 
-# 2. Criar o banco D1 (uma vez)
+# 2. Criar o banco D1 (uma vez) e copiar o database_id retornado
 npx wrangler d1 create copa-ataci
-#   → copie o "database_id" retornado
 
 # 3. Colar o database_id no wrangler.toml (campo database_id)
 
-# 4. Criar as tabelas e popular o D1 de produção
-npm run db:schema:remote
-npm run db:seed:remote
+# 4. Aplicar o schema via MIGRATIONS versionadas (não-destrutivo) e popular
+npm run db:migrate:remote     # aplica migrations/*.sql no D1 de produção
+npm run db:seed:remote        # popula com os dados iniciais (db/seed.sql)
 
-# 5. Definir o token de admin como secret (produção)
-npx wrangler pages secret put ADMIN_TOKEN
+# 5. Gerar um token de admin forte e defini-lo como secret do Pages
+openssl rand -hex 32          # copie a saída
+npx wrangler pages secret put ADMIN_TOKEN   # cole quando solicitado
 
-# 6. Deploy
+# 6. Build + deploy
 npm run build
 npx wrangler pages deploy dist
 ```
 
-### CI/CD via GitHub (opcional)
+> **Migrations vs. schema:remote.** Prefira `db:migrate:remote` (aplica
+> `migrations/*.sql` de forma incremental e idempotente). O `db:schema:remote`
+> existe para conveniência, mas roda `db/schema.sql`, que **recria as tabelas do
+> zero (DROP)** — use só num banco vazio.
 
-Conecte o repositório em **Cloudflare Pages → Create project → Connect to Git**:
+Publicações seguintes: `npm run build && npx wrangler pages deploy dist`
+(e `npm run db:migrate:remote` quando houver novas migrations).
+
+### CI/CD via GitHub (recomendado)
+
+O repositório já traz `.github/workflows/ci.yml` (typecheck + testes + build +
+suíte no runtime workerd). Para deploy contínuo, conecte o repo em
+**Cloudflare Pages → Create project → Connect to Git**:
 
 - Build command: `npm run build`
 - Build output directory: `dist`
-- Adicione o binding do D1 (`DB` → `copa-ataci`) em
-  *Settings → Functions → D1 database bindings*.
-- Adicione a variável/secret `ADMIN_TOKEN` em *Settings → Environment variables*.
+- Binding do D1 (`DB` → `copa-ataci`) em *Settings → Functions → D1 database bindings*.
+- Secret `ADMIN_TOKEN` em *Settings → Environment variables and secrets*.
 
 Cada push na branch principal dispara build + deploy automáticos.
+
+### Notas de produção
+
+- **OG image:** o banner de compartilhamento fica em `public/og-image.png`
+  (1200×630, referenciado por `site.config.json`). Para trocar a arte, substitua
+  o PNG mantendo as dimensões.
+- **Fontes:** Inter e Oswald são *self-hosted* (`public/fonts/*.woff2`), sem
+  dependência do Google Fonts em runtime.
+- **Cache:** leituras (`GET /api/*`) têm `cache-control` curto no edge; mutações
+  (`PUT`) usam `no-store`.
 
 ## Segurança
 
@@ -234,6 +255,17 @@ e o mesmo `db/*.sql`, provando o comportamento no runtime de produção
 > a suíte workerd vive isolada em `test-workerd/` com seu próprio
 > `node_modules` (Vitest 3). A suíte principal (Node/SQLite) segue sendo a de
 > desenvolvimento diário por ser mais rápida; a workerd valida o runtime real.
+
+### 3. E2E no navegador (Playwright)
+
+```bash
+npm run test:e2e
+```
+
+Sobe o app real (build + `wrangler pages dev` + D1 local, com o banco resetado)
+e roda 2 smokes no Chromium: navegação pelas abas com a classificação calculada,
+e o fluxo do admin (colar token → finalizar um jogo → salvar → ver o sucesso).
+Requer o browser do Playwright: `npx playwright install chromium`.
 
 ## Atualizando os dados do torneio
 

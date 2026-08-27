@@ -4,7 +4,7 @@
   "language": "pt-BR",
   "robots": { "index": true },
   "openGraph": {
-    "image": "/og-image.svg"
+    "image": "/og-image.png"
   },
   "accessibility": { "addBypassLinks": true }
 }
