@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { useApi } from "../../data/useApi";
 import type { Team, TeamDetail, Player, Position } from "../../data/types";
 import { LoadingState, ErrorState } from "../States";
-import { authedPut, adminStyles, labelClass, type SaveResult } from "./shared";
+import { authedPut, authedPost, authedDelete, adminStyles, labelClass, type SaveResult } from "./shared";
 import PitchEditor from "./PitchEditor";
 import ImageUpload from "./ImageUpload";
+import ConfirmDialog from "./ConfirmDialog";
 import { CloseIcon } from "../icons";
 
 const POSITIONS: Position[] = ["GOL", "DEF", "ALA", "MED", "ATA"];
@@ -40,6 +41,10 @@ export default function AdminTeams({ token }: { token: string }) {
   const [color, setColor] = useState("#16a34a");
   const [crestUrl, setCrestUrl] = useState<string | null>(null);
   const [players, setPlayers] = useState<EditablePlayer[]>([]);
+  // Novo time (criação) + confirmação de exclusão.
+  const [newTeam, setNewTeam] = useState({ name: "", abbr: "", color: "#16a34a" });
+  const [creating, setCreating] = useState(false);
+  const [confirmDel, setConfirmDel] = useState(false);
 
   const [savingTeam, setSavingTeam] = useState(false);
   const [savingSquad, setSavingSquad] = useState(false);
@@ -66,6 +71,25 @@ export default function AdminTeams({ token }: { token: string }) {
     });
     setTeamResult(res);
     setSavingTeam(false);
+  }
+
+  async function createTeam() {
+    setCreating(true);
+    setTeamResult(null);
+    const res = await authedPost("/api/teams", token, { name: newTeam.name, abbr: newTeam.abbr, color: newTeam.color });
+    if (res.ok) {
+      setNewTeam({ name: "", abbr: "", color: "#16a34a" });
+      setSelectedId(newTeam.abbr.toUpperCase());
+    }
+    setTeamResult(res.ok ? { ok: true } : res);
+    setCreating(false);
+  }
+
+  async function deleteTeam() {
+    if (!activeId) return;
+    const res = await authedDelete(`/api/teams/${activeId}`, token);
+    setTeamResult(res);
+    if (res.ok) setSelectedId(null);
   }
 
   async function saveSquad() {
@@ -118,7 +142,37 @@ export default function AdminTeams({ token }: { token: string }) {
 
       {!loading && !error && teams && (
         <>
-          <label className={labelClass} style={adminStyles.label}>Time</label>
+          {/* Criar novo time */}
+          <div className="rounded-xl p-4 mb-4" style={adminStyles.card}>
+            <label className={labelClass} style={adminStyles.label}>Novo time</label>
+            <div className="grid gap-2 mt-1.5" style={{ gridTemplateColumns: "1fr 72px 40px auto" }}>
+              <input value={newTeam.name} onChange={(e) => setNewTeam((t) => ({ ...t, name: e.target.value }))}
+                placeholder="Nome" aria-label="Nome do novo time"
+                className="rounded-lg px-2 py-2 text-sm outline-none" style={adminStyles.input} />
+              <input value={newTeam.abbr} onChange={(e) => setNewTeam((t) => ({ ...t, abbr: e.target.value }))}
+                placeholder="Sigla" maxLength={4} aria-label="Sigla do novo time"
+                className="rounded-lg px-1 py-2 text-sm outline-none text-center uppercase" style={adminStyles.input} />
+              <input type="color" value={newTeam.color} onChange={(e) => setNewTeam((t) => ({ ...t, color: e.target.value }))}
+                aria-label="Cor do novo time" className="w-full h-10 rounded cursor-pointer"
+                style={{ background: "var(--secondary)", border: "1px solid var(--border)" }} />
+              <button onClick={createTeam} disabled={creating || !token || !newTeam.name || !newTeam.abbr}
+                className="px-3 rounded-lg text-xs font-semibold uppercase disabled:opacity-50"
+                style={{ background: "var(--primary)", color: "#fff", fontFamily: "Oswald, sans-serif" }}>
+                {creating ? "…" : "Criar"}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between mb-1.5">
+            <label className={labelClass} style={adminStyles.label}>Time</label>
+            {activeId && (
+              <button onClick={() => setConfirmDel(true)} disabled={!token}
+                className="text-xs px-3 py-1.5 rounded-lg font-semibold uppercase disabled:opacity-50"
+                style={{ background: "transparent", color: "#dc2626", border: "1px solid rgba(220,38,38,0.4)", fontFamily: "Oswald, sans-serif" }}>
+                Excluir time
+              </button>
+            )}
+          </div>
           <select value={activeId ?? ""} onChange={(e) => setSelectedId(e.target.value)}
             className="w-full mt-1.5 mb-4 rounded-lg px-3 py-2 text-sm outline-none cursor-pointer" style={adminStyles.input}>
             {teams.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -229,6 +283,16 @@ export default function AdminTeams({ token }: { token: string }) {
           </div>
         </>
       )}
+
+      <ConfirmDialog
+        open={confirmDel}
+        title="Excluir time"
+        message={`Excluir o time ${name || activeId}? O elenco também será removido. Não é permitido se o time estiver em jogos.`}
+        destructive
+        confirmLabel="Excluir"
+        onCancel={() => setConfirmDel(false)}
+        onConfirm={() => { setConfirmDel(false); deleteTeam(); }}
+      />
     </div>
   );
 }

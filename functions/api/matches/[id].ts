@@ -238,3 +238,37 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
     return serverError("PUT matches/:id", e);
   }
 };
+
+// DELETE /api/matches/:id — remove um jogo (PROTEGIDO). Eventos do jogo saem
+// por ON DELETE CASCADE. Se for jogo de mata-mata, limpa o lado que ele
+// alimentava no slot seguinte (o vencedor deixa de existir).
+export const onRequestDelete = async (ctx: PagesContext): Promise<Response> => {
+  const unauthorized = await requireAuth(ctx);
+  if (unauthorized) return unauthorized;
+
+  try {
+    const id = Number(ctx.params.id);
+    if (!Number.isInteger(id)) return error("ID inválido.", 400);
+
+    const m = (await ctx.env.DB.prepare("SELECT bracket_slot AS slot FROM matches WHERE id = ?;")
+      .bind(id)
+      .first()) as { slot: string | null } | null;
+    if (!m) return error("Jogo não encontrado.", 404);
+
+    const stmts: D1PreparedStatement[] = [
+      ctx.env.DB.prepare("DELETE FROM matches WHERE id = ?;").bind(id),
+    ];
+    if (m.slot && ADVANCE[m.slot]) {
+      const rule = ADVANCE[m.slot];
+      const col = rule.side === "home" ? "home_team_id" : "away_team_id";
+      stmts.push(
+        ctx.env.DB.prepare(`UPDATE matches SET ${col} = NULL WHERE bracket_slot = ?;`).bind(rule.next),
+      );
+    }
+    await ctx.env.DB.batch(stmts);
+
+    return jsonMutation({ ok: true });
+  } catch (e) {
+    return serverError("DELETE matches/:id", e);
+  }
+};

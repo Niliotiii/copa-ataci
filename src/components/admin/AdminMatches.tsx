@@ -2,8 +2,9 @@ import { useMemo, useState, useEffect } from "react";
 import { useApi } from "../../data/useApi";
 import type { Match, Team, MatchStatus } from "../../data/types";
 import { LoadingState, ErrorState } from "../States";
-import { authedPut, authedPost, adminStyles, labelClass, type SaveResult } from "./shared";
+import { authedPut, authedPost, authedDelete, adminStyles, labelClass, type SaveResult } from "./shared";
 import AdminEvents from "./AdminEvents";
+import ConfirmDialog from "./ConfirmDialog";
 
 const statusOptions: { value: MatchStatus; label: string }[] = [
   { value: "agendado", label: "Agendado" },
@@ -35,6 +36,8 @@ export default function AdminMatches({ token }: { token: string }) {
   // Gerador do mata-mata.
   const [generatingKO, setGeneratingKO] = useState(false);
   const [koResult, setKoResult] = useState<(SaveResult & { info?: string }) | null>(null);
+  // Confirmação in-app para ações destrutivas (gerar/excluir).
+  const [confirm, setConfirm] = useState<{ title: string; message: string; destructive?: boolean; run: () => void } | null>(null);
 
   const selected = matches.find((m) => m.id === selectedId) ?? null;
 
@@ -83,39 +86,55 @@ export default function AdminMatches({ token }: { token: string }) {
 
   const teamOptions = teams ?? [];
 
-  async function handleGenerate() {
-    const ok = window.confirm(
-      "Gerar a tabela da fase de grupos (todos-contra-todos, turno único)?\n\n" +
-        "Isso substitui os jogos de grupos atuais. A ação é bloqueada se já houver placares lançados.",
-    );
-    if (!ok) return;
+  async function runGenerateGroups() {
     setGenerating(true);
     setGenResult(null);
     const res = await authedPost("/api/matches/generate-groups", token, { location: "Arena Ataci" });
-    if (res.ok) {
-      setGenResult({ ok: true, info: "Tabela da fase de grupos gerada. Confira a aba Jogos." });
-    } else {
-      setGenResult(res);
-    }
+    setGenResult(res.ok ? { ok: true, info: "Tabela da fase de grupos gerada. Confira a aba Jogos." } : res);
     setGenerating(false);
   }
+  function handleGenerate() {
+    setConfirm({
+      title: "Gerar tabela de grupos",
+      message: "Gera o todos-contra-todos (turno único) e SUBSTITUI os jogos de grupos atuais. Bloqueado se já houver placares lançados.",
+      destructive: true,
+      run: runGenerateGroups,
+    });
+  }
 
-  async function handleGenerateBracket() {
-    const ok = window.confirm(
-      "Gerar o mata-mata a partir da classificação atual?\n\n" +
-        "Semifinais: 1º × 4º e 2º × 3º (mando do melhor colocado). Substitui o mata-mata atual. " +
-        "A ação é bloqueada se já houver placares lançados no mata-mata.",
-    );
-    if (!ok) return;
+  async function runGenerateBracket() {
     setGeneratingKO(true);
     setKoResult(null);
     const res = await authedPost("/api/matches/generate-bracket", token, { location: "Arena Ataci" });
-    if (res.ok) {
-      setKoResult({ ok: true, info: "Mata-mata gerado a partir da classificação. Confira a aba Mata-Mata." });
-    } else {
-      setKoResult(res);
-    }
+    setKoResult(res.ok ? { ok: true, info: "Mata-mata gerado a partir da classificação. Confira a aba Mata-Mata." } : res);
     setGeneratingKO(false);
+  }
+  function handleGenerateBracket() {
+    setConfirm({
+      title: "Gerar mata-mata",
+      message: "Semifinais 1º×4º e 2º×3º (mando do melhor). SUBSTITUI o mata-mata atual. Bloqueado se já houver placares lançados.",
+      destructive: true,
+      run: runGenerateBracket,
+    });
+  }
+
+  async function handleCreateMatch() {
+    const res = await authedPost("/api/matches", token, { phase: "grupos", date: "A definir", location: "Arena Ataci" });
+    setResult(res.ok ? { ok: true } : res);
+  }
+
+  function handleDeleteMatch() {
+    if (!selected) return;
+    setConfirm({
+      title: "Excluir jogo",
+      message: `Excluir o jogo ${selected.teamA.name} × ${selected.teamB.name}? Os eventos do jogo também serão removidos.`,
+      destructive: true,
+      run: async () => {
+        const res = await authedDelete(`/api/matches/${selected.id}`, token);
+        setResult(res);
+        if (res.ok) setSelectedId(null);
+      },
+    });
   }
 
   return (
@@ -165,7 +184,14 @@ export default function AdminMatches({ token }: { token: string }) {
 
       {!loading && !error && (
         <div className="rounded-xl p-4" style={adminStyles.card}>
-          <label className={labelClass} style={adminStyles.label}>Jogo</label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className={labelClass} style={adminStyles.label}>Jogo</label>
+            <button onClick={handleCreateMatch} disabled={!token}
+              className="text-xs px-3 py-1.5 rounded-lg font-semibold uppercase disabled:opacity-50"
+              style={{ background: "var(--secondary)", color: "var(--primary)", border: "1px solid var(--primary)", fontFamily: "Oswald, sans-serif" }}>
+              + Novo jogo
+            </button>
+          </div>
           <select
             value={selectedId ?? ""}
             onChange={(e) => setSelectedId(e.target.value ? Number(e.target.value) : null)}
@@ -282,6 +308,12 @@ export default function AdminMatches({ token }: { token: string }) {
                 {saving ? "Salvando…" : "Salvar jogo"}
               </button>
 
+              <button onClick={handleDeleteMatch} disabled={!token}
+                className="w-full mt-2 rounded-xl py-2.5 font-semibold text-xs uppercase transition-opacity disabled:opacity-50"
+                style={{ background: "transparent", color: "#dc2626", border: "1px solid rgba(220,38,38,0.4)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
+                Excluir jogo
+              </button>
+
               {result && (
                 <div className="mt-4 rounded-lg p-3 text-sm" role="status" aria-live="polite"
                   style={{
@@ -300,6 +332,16 @@ export default function AdminMatches({ token }: { token: string }) {
       {!loading && !error && selected && (selected.teamA.abbr || selected.teamB.abbr) && (
         <AdminEvents match={selected} token={token} />
       )}
+
+      <ConfirmDialog
+        open={confirm !== null}
+        title={confirm?.title ?? ""}
+        message={confirm?.message ?? ""}
+        destructive={confirm?.destructive}
+        confirmLabel="Confirmar"
+        onCancel={() => setConfirm(null)}
+        onConfirm={() => { const c = confirm; setConfirm(null); c?.run(); }}
+      />
     </div>
   );
 }

@@ -117,3 +117,28 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
     return serverError("PUT teams/:id", e);
   }
 };
+
+// DELETE /api/teams/:id — remove um time (PROTEGIDO). Recusa se o time ainda
+// é referenciado por jogos (integridade). O elenco sai por ON DELETE CASCADE.
+export const onRequestDelete = async (ctx: PagesContext): Promise<Response> => {
+  const unauthorized = await requireAuth(ctx);
+  if (unauthorized) return unauthorized;
+
+  try {
+    const id = ctx.params.id as string;
+    const existing = await ctx.env.DB.prepare("SELECT id FROM teams WHERE id = ?;").bind(id).first();
+    if (!existing) return error("Time não encontrado", 404);
+
+    const used = (await ctx.env.DB.prepare(
+      "SELECT COUNT(*) AS n FROM matches WHERE home_team_id = ? OR away_team_id = ?;",
+    ).bind(id, id).first()) as { n: number } | null;
+    if ((used?.n ?? 0) > 0) {
+      return error("Não é possível excluir: o time está em jogos. Remova/edite os jogos antes.", 409);
+    }
+
+    await ctx.env.DB.prepare("DELETE FROM teams WHERE id = ?;").bind(id).run();
+    return jsonMutation({ ok: true });
+  } catch (e) {
+    return serverError("DELETE teams/:id", e);
+  }
+};

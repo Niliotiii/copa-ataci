@@ -1,4 +1,4 @@
-import { json, serverError, teamSide, type PagesContext } from "./_shared";
+import { json, jsonMutation, error, serverError, requireAuth, teamSide, type PagesContext } from "./_shared";
 
 // GET /api/matches?phase=grupos&round=2
 // Lista de jogos com dados dos times (join). Filtros opcionais por fase e rodada.
@@ -77,5 +77,66 @@ export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
     return json(matches);
   } catch (e) {
     return serverError("GET matches", e);
+  }
+};
+
+const VALID_PHASE = new Set(["grupos", "quartas", "semis", "final"]);
+
+// POST /api/matches — cria um jogo avulso (PROTEGIDO).
+// Corpo: { phase, round?, bracketSlot?, date, time, location, homeTeamId?, awayTeamId? }
+export const onRequestPost = async (ctx: PagesContext): Promise<Response> => {
+  const unauthorized = await requireAuth(ctx);
+  if (unauthorized) return unauthorized;
+
+  try {
+    let b: Record<string, unknown>;
+    try {
+      b = (await ctx.request.json()) as Record<string, unknown>;
+    } catch {
+      return error("Corpo JSON inválido.", 400);
+    }
+
+    const phase = b.phase;
+    if (typeof phase !== "string" || !VALID_PHASE.has(phase)) {
+      return error("phase inválida (grupos|quartas|semis|final).", 400);
+    }
+    const text = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+    const date = text(b.date) || "A definir";
+    const time = text(b.time);
+    const location = text(b.location) || "A definir";
+
+    let round: number | null = null;
+    if (b.round != null) {
+      round = Number(b.round);
+      if (!Number.isInteger(round) || round < 1 || round > 999) return error("round inválido.", 400);
+    }
+    const bracketSlot = text(b.bracketSlot) || null;
+
+    // Valida times informados (opcionais).
+    const teamIds: (string | null)[] = [];
+    for (const key of ["homeTeamId", "awayTeamId"] as const) {
+      const v = b[key];
+      if (v == null || v === "") {
+        teamIds.push(null);
+      } else if (typeof v === "string") {
+        const t = await ctx.env.DB.prepare("SELECT id FROM teams WHERE id = ?;").bind(v).first();
+        if (!t) return error(`${key}: time '${v}' não existe.`, 400);
+        teamIds.push(v);
+      } else {
+        return error(`${key} inválido.`, 400);
+      }
+    }
+
+    await ctx.env.DB.prepare(
+      `INSERT INTO matches (phase, round, bracket_slot, match_date, match_time, location, home_team_id, away_team_id, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'agendado');`,
+    )
+      .bind(phase, round, bracketSlot, date, time, location, teamIds[0], teamIds[1])
+      .run();
+
+    const row = (await ctx.env.DB.prepare("SELECT last_insert_rowid() AS id;").first()) as { id: number } | null;
+    return jsonMutation({ ok: true, id: row?.id ?? null });
+  } catch (e) {
+    return serverError("POST matches", e);
   }
 };

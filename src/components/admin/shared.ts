@@ -52,16 +52,16 @@ export async function authedPost(
 }
 
 async function authedMutation(
-  method: "PUT" | "POST",
+  method: "PUT" | "POST" | "DELETE",
   path: string,
   token: string,
-  body: unknown,
+  body?: unknown,
 ): Promise<SaveResult> {
   try {
     const res = await fetch(path, {
       method,
       headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
-      body: JSON.stringify(body),
+      body: body === undefined ? undefined : JSON.stringify(body),
     });
     if (!res.ok) {
       const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -73,6 +73,11 @@ async function authedMutation(
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
+}
+
+/** DELETE autenticado; invalida o cache ao dar certo. */
+export async function authedDelete(path: string, token: string): Promise<SaveResult> {
+  return authedMutation("DELETE", path, token);
 }
 
 // Estilos compartilhados das seções do admin.
