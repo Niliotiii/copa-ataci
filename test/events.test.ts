@@ -60,6 +60,20 @@ describe("Eventos por jogador", () => {
     expect(m.homeYellow).toBe(2); // ATA (casa)
     expect(m.awayRed).toBe(1);    // LEO (visitante)
   });
+
+  it("recalcula o PLACAR do jogo a partir dos gols nos eventos", async () => {
+    const ata = await playerIds("ATA"); // casa
+    const leo = await playerIds("LEO"); // visitante
+    await setupEvents([
+      { playerId: ata[0], type: "gol" },
+      { playerId: ata[1], type: "gol" },
+      { playerId: ata[0], type: "gol" },
+      { playerId: leo[0], type: "gol" },
+    ]);
+    const m = (await (await getMatch(makeCtx(req("/api/matches/5"), { id: "5" }))).json()) as any;
+    expect(m.homeScore).toBe(3); // ATA marcou 3
+    expect(m.awayScore).toBe(1); // LEO marcou 1
+  });
 });
 
 describe("Artilharia", () => {

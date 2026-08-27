@@ -80,15 +80,16 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
       ...resolved.map((r) => insertEvent.bind(id, r.playerId, r.teamId, r.playerName, r.type)),
     ];
 
-    // Recalcula os agregados de cartões DO JOGO a partir dos eventos.
+    // Recalcula os agregados (cartões E gols) DO JOGO a partir dos eventos.
     const tally = (team: string | null, type: string) =>
       team == null ? 0 : resolved.filter((r) => r.teamId === team && r.type === type).length;
     stmts.push(
       ctx.env.DB
         .prepare(
-          `UPDATE matches SET home_red=?, away_red=?, home_yellow=?, away_yellow=? WHERE id=?;`,
+          `UPDATE matches SET home_score=?, away_score=?, home_red=?, away_red=?, home_yellow=?, away_yellow=? WHERE id=?;`,
         )
         .bind(
+          tally(match.home, "gol"), tally(match.away, "gol"),
           tally(match.home, "vermelho"), tally(match.away, "vermelho"),
           tally(match.home, "amarelo"), tally(match.away, "amarelo"),
           id,

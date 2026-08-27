@@ -17,18 +17,14 @@ export default function AdminMatches({ token }: { token: string }) {
   const matches = useMemo(() => data ?? [], [data]);
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [homeScore, setHomeScore] = useState("");
-  const [awayScore, setAwayScore] = useState("");
   const [status, setStatus] = useState<MatchStatus>("agendado");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [location, setLocation] = useState("");
   const [homeTeamId, setHomeTeamId] = useState("");
   const [awayTeamId, setAwayTeamId] = useState("");
-  // Disciplina (cartões e faltas) por lado.
-  const [disc, setDisc] = useState({
-    homeRed: "", awayRed: "", homeYellow: "", awayYellow: "", homeFouls: "", awayFouls: "",
-  });
+  // Faltas por lado (gols e cartões vêm dos eventos por jogador).
+  const [disc, setDisc] = useState({ homeFouls: "", awayFouls: "" });
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<SaveResult | null>(null);
   // Gerador da tabela de grupos.
@@ -42,8 +38,6 @@ export default function AdminMatches({ token }: { token: string }) {
 
   useEffect(() => {
     if (!selected) return;
-    setHomeScore(selected.teamA.score != null ? String(selected.teamA.score) : "");
-    setAwayScore(selected.teamB.score != null ? String(selected.teamB.score) : "");
     setStatus(selected.status);
     setDate(selected.date);
     setTime(selected.time);
@@ -51,10 +45,6 @@ export default function AdminMatches({ token }: { token: string }) {
     setHomeTeamId(selected.teamA.abbr ?? "");
     setAwayTeamId(selected.teamB.abbr ?? "");
     setDisc({
-      homeRed: String(selected.teamA.red ?? 0),
-      awayRed: String(selected.teamB.red ?? 0),
-      homeYellow: String(selected.teamA.yellow ?? 0),
-      awayYellow: String(selected.teamB.yellow ?? 0),
       homeFouls: String(selected.teamA.fouls ?? 0),
       awayFouls: String(selected.teamB.fouls ?? 0),
     });
@@ -68,15 +58,11 @@ export default function AdminMatches({ token }: { token: string }) {
     const num = (v: string) => (v === "" ? 0 : Number(v));
     const body: Record<string, unknown> = {
       status,
-      homeScore: homeScore === "" ? null : Number(homeScore),
-      awayScore: awayScore === "" ? null : Number(awayScore),
       date,
       time,
       location,
       homeTeamId: homeTeamId || null,
       awayTeamId: awayTeamId || null,
-      homeRed: num(disc.homeRed), awayRed: num(disc.awayRed),
-      homeYellow: num(disc.homeYellow), awayYellow: num(disc.awayYellow),
       homeFouls: num(disc.homeFouls), awayFouls: num(disc.awayFouls),
     };
     const res = await authedPut(`/api/matches/${selected.id}`, token, body);
@@ -208,20 +194,6 @@ export default function AdminMatches({ token }: { token: string }) {
                 </div>
               </div>
 
-              {/* Placar */}
-              <div className="grid grid-cols-2 gap-3 mb-3">
-                <div>
-                  <label className={labelClass} style={adminStyles.label}>Gols casa</label>
-                  <input type="number" min={0} max={999} value={homeScore} onChange={(e) => setHomeScore(e.target.value)}
-                    placeholder="—" className="w-full mt-1.5 rounded-lg px-3 py-2 text-sm outline-none text-center" style={adminStyles.input} />
-                </div>
-                <div>
-                  <label className={labelClass} style={adminStyles.label}>Gols visitante</label>
-                  <input type="number" min={0} max={999} value={awayScore} onChange={(e) => setAwayScore(e.target.value)}
-                    placeholder="—" className="w-full mt-1.5 rounded-lg px-3 py-2 text-sm outline-none text-center" style={adminStyles.input} />
-                </div>
-              </div>
-
               {/* Data / hora / local */}
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
@@ -241,29 +213,18 @@ export default function AdminMatches({ token }: { token: string }) {
                   placeholder="Arena Ataci" className="w-full mt-1.5 rounded-lg px-3 py-2 text-sm outline-none" style={adminStyles.input} />
               </div>
 
-              {/* Disciplina: cartões e faltas (usados nos critérios de desempate) */}
+              {/* Faltas (casa / visitante) — cartões e gols vêm dos eventos por jogador */}
               <div className="mb-3">
-                <label className={labelClass} style={adminStyles.label}>Disciplina (casa / visitante)</label>
-                <div className="grid gap-2 mt-1.5" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
-                  {([
-                    ["Vermelhos", "homeRed", "awayRed"],
-                    ["Amarelos", "homeYellow", "awayYellow"],
-                    ["Faltas", "homeFouls", "awayFouls"],
-                  ] as const).map(([lbl, hk, ak]) => (
-                    <div key={lbl}>
-                      <div className="text-xs mb-1 text-center" style={{ color: "var(--muted-foreground)" }}>{lbl}</div>
-                      <div className="flex gap-1">
-                        <input type="number" min={0} max={999} value={disc[hk]}
-                          onChange={(e) => setDisc((d) => ({ ...d, [hk]: e.target.value }))}
-                          aria-label={`${lbl} casa`} placeholder="0"
-                          className="w-full rounded-lg px-1 py-2 text-sm outline-none text-center" style={adminStyles.input} />
-                        <input type="number" min={0} max={999} value={disc[ak]}
-                          onChange={(e) => setDisc((d) => ({ ...d, [ak]: e.target.value }))}
-                          aria-label={`${lbl} visitante`} placeholder="0"
-                          className="w-full rounded-lg px-1 py-2 text-sm outline-none text-center" style={adminStyles.input} />
-                      </div>
-                    </div>
-                  ))}
+                <label className={labelClass} style={adminStyles.label}>Faltas (casa / visitante)</label>
+                <div className="grid grid-cols-2 gap-2 mt-1.5">
+                  <input type="number" min={0} max={999} value={disc.homeFouls}
+                    onChange={(e) => setDisc((d) => ({ ...d, homeFouls: e.target.value }))}
+                    aria-label="Faltas casa" placeholder="0"
+                    className="w-full rounded-lg px-3 py-2 text-sm outline-none text-center" style={adminStyles.input} />
+                  <input type="number" min={0} max={999} value={disc.awayFouls}
+                    onChange={(e) => setDisc((d) => ({ ...d, awayFouls: e.target.value }))}
+                    aria-label="Faltas visitante" placeholder="0"
+                    className="w-full rounded-lg px-3 py-2 text-sm outline-none text-center" style={adminStyles.input} />
                 </div>
               </div>
 

@@ -38,7 +38,7 @@ test.describe("Copa Ataci — smoke E2E", () => {
     await expect(page.getByText("Quartas")).toBeVisible();
   });
 
-  test("admin finaliza um jogo e a classificação reflete", async ({ page }) => {
+  test("admin: gols/cartões vêm dos eventos (formulário do jogo sem placar)", async ({ page }) => {
     // A área do organizador fica em /admin (fora do menu) e pede login.
     await page.goto("/admin");
     await page.getByLabel("Token de acesso").fill("dev-token-troque-isto");
@@ -54,20 +54,12 @@ test.describe("Copa Ataci — smoke E2E", () => {
       .getAttribute("value");
     await select.selectOption(optionValue!);
 
-    // Preenche o placar (os dois primeiros number inputs) e finaliza.
-    const scoreInputs = page.locator('input[type="number"]');
-    await scoreInputs.nth(0).fill("4");
-    await scoreInputs.nth(1).fill("1");
-    await page.getByRole("button", { name: "Finalizado" }).click();
-    await page.getByRole("button", { name: "Salvar jogo" }).click();
-
-    // Feedback de sucesso.
-    await expect(page.getByText(/salvo/i)).toBeVisible();
-
-    // Volta ao portal: a classificação segue renderizando.
-    await page.goto("/");
-    await page.getByRole("button", { name: "Classificação" }).first().click();
-    await expect(page.getByRole("table")).toBeVisible();
+    // Gols e cartões agora vêm dos EVENTOS por jogador (unificado): o formulário
+    // do jogo não tem mais campos de placar/cartões, e a seção de eventos aparece.
+    await expect(page.getByRole("heading", { name: "Eventos por jogador" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Salvar eventos" })).toBeVisible();
+    // Não há mais input de "Gols casa" no formulário do jogo.
+    await expect(page.getByText("Gols casa")).toHaveCount(0);
   });
 
   test("abre a aba Times: lista → detalhe do elenco (regressão: tela preta)", async ({ page }) => {
