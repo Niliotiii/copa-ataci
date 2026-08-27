@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useApi } from "../../data/useApi";
 import type { Match, Team, MatchStatus } from "../../data/types";
 import { LoadingState, ErrorState } from "../States";
-import { authedPut, adminStyles, labelClass, type SaveResult } from "./shared";
+import { authedPut, authedPost, adminStyles, labelClass, type SaveResult } from "./shared";
 import AdminEvents from "./AdminEvents";
 
 const statusOptions: { value: MatchStatus; label: string }[] = [
@@ -31,6 +31,9 @@ export default function AdminMatches({ token }: { token: string }) {
   });
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<SaveResult | null>(null);
+  // Gerador da tabela de grupos.
+  const [generating, setGenerating] = useState(false);
+  const [genResult, setGenResult] = useState<(SaveResult & { info?: string }) | null>(null);
 
   const selected = matches.find((m) => m.id === selectedId) ?? null;
 
@@ -80,10 +83,51 @@ export default function AdminMatches({ token }: { token: string }) {
 
   const teamOptions = teams ?? [];
 
+  async function handleGenerate() {
+    const ok = window.confirm(
+      "Gerar a tabela da fase de grupos (todos-contra-todos, turno único)?\n\n" +
+        "Isso substitui os jogos de grupos atuais. A ação é bloqueada se já houver placares lançados.",
+    );
+    if (!ok) return;
+    setGenerating(true);
+    setGenResult(null);
+    const res = await authedPost("/api/matches/generate-groups", token, { location: "Arena Ataci" });
+    if (res.ok) {
+      setGenResult({ ok: true, info: "Tabela da fase de grupos gerada. Confira a aba Jogos." });
+    } else {
+      setGenResult(res);
+    }
+    setGenerating(false);
+  }
+
   return (
     <div>
       {loading && <LoadingState label="Carregando jogos…" />}
       {error && <ErrorState message={error} />}
+
+      {!loading && !error && (
+        <div className="rounded-xl p-4 mb-4" style={adminStyles.card}>
+          <label className={labelClass} style={adminStyles.label}>Tabela da fase de grupos</label>
+          <p className="text-xs mt-1 mb-3" style={{ color: "var(--muted-foreground)" }}>
+            Gera automaticamente todos-contra-todos (turno único) a partir dos times cadastrados.
+          </p>
+          <button onClick={handleGenerate} disabled={generating || !token}
+            className="w-full rounded-xl py-2.5 font-semibold text-sm uppercase transition-opacity disabled:opacity-50"
+            style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
+            {generating ? "Gerando…" : "Gerar tabela da fase de grupos"}
+          </button>
+          {genResult && (
+            <div className="mt-3 rounded-lg p-3 text-sm" role="status" aria-live="polite"
+              style={{
+                background: genResult.ok ? "rgba(22,163,74,0.1)" : "rgba(239,68,68,0.1)",
+                border: `1px solid ${genResult.ok ? "var(--primary)" : "rgba(239,68,68,0.5)"}`,
+                color: genResult.ok ? "var(--primary)" : "#ef4444",
+              }}>
+              {genResult.ok ? genResult.info : genResult.error}
+            </div>
+          )}
+        </div>
+      )}
 
       {!loading && !error && (
         <div className="rounded-xl p-4" style={adminStyles.card}>

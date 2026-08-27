@@ -123,6 +123,7 @@ Todas as rotas de escrita exigem o header `Authorization: Bearer <ADMIN_TOKEN>`.
 | PUT | `/api/sponsors` | Substitui a lista de patrocinadores |
 | PUT | `/api/matches/:id/events` | Registra gols/cartões por jogador (gera suspensões) |
 | PUT | `/api/suspensions/:id` | Marca uma suspensão como cumprida (`{served}`) |
+| POST | `/api/matches/generate-groups` | Gera a tabela da fase de grupos (todos-contra-todos, turno único) |
 
 **`PUT /api/matches/:id`** — campos aceitos (todos opcionais):
 

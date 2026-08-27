@@ -80,9 +80,6 @@ export default function AdminEvents({ match, token }: { match: Match; token: str
       <h3 className="text-sm font-bold uppercase mb-1" style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)" }}>
         Eventos por jogador
       </h3>
-      <p className="text-xs mb-3" style={{ color: "var(--muted-foreground)" }}>
-        Registre gols e cartões. Cartões geram suspensões automaticamente (3 amarelos ou 1 vermelho = 1 jogo).
-      </p>
 
       {[["Casa", home.data, homeId], ["Visitante", away.data, awayId]].map(([label, detail, tid]) => {
         const team = detail as TeamDetail | null;

@@ -24,9 +24,27 @@ export async function authedPut(
   token: string,
   body: unknown,
 ): Promise<SaveResult> {
+  return authedMutation("PUT", path, token, body);
+}
+
+/** Faz um POST autenticado com JSON e invalida o cache de /api/ ao dar certo. */
+export async function authedPost(
+  path: string,
+  token: string,
+  body: unknown,
+): Promise<SaveResult> {
+  return authedMutation("POST", path, token, body);
+}
+
+async function authedMutation(
+  method: "PUT" | "POST",
+  path: string,
+  token: string,
+  body: unknown,
+): Promise<SaveResult> {
   try {
     const res = await fetch(path, {
-      method: "PUT",
+      method,
       headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
       body: JSON.stringify(body),
     });
