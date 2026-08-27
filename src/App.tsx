@@ -6,7 +6,7 @@ import SponsorTicker from "./components/SponsorTicker";
 import Footer from "./components/Footer";
 import AdminRoute from "./components/AdminRoute";
 import Scorers from "./components/Scorers";
-import { TrophyIcon, BallIcon, ShirtIcon, ScorerIcon, MenuIcon, CloseIcon } from "./components/icons";
+import { TrophyIcon, BallIcon, ShirtIcon, ScorerIcon, MenuIcon, CloseIcon, CollapseIcon, ExpandIcon } from "./components/icons";
 import type { ComponentType } from "react";
 
 const tabs: { id: string; label: string; Icon: ComponentType<{ size?: number }> }[] = [
@@ -28,6 +28,22 @@ export default function App() {
 function Portal() {
   const [activeTab, setActiveTab] = useState("classificacao");
   const [menuOpen, setMenuOpen] = useState(false);
+  // Sidebar recolhida (só ícones) — preferência persistida no navegador.
+  const [collapsed, setCollapsed] = useState(
+    () => typeof localStorage !== "undefined" && localStorage.getItem("copa-ataci-sidebar") === "collapsed",
+  );
+
+  const toggleCollapsed = () => {
+    setCollapsed((c) => {
+      const next = !c;
+      try {
+        localStorage.setItem("copa-ataci-sidebar", next ? "collapsed" : "expanded");
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  };
 
   const selectTab = (id: string) => {
     setActiveTab(id);
@@ -54,26 +70,39 @@ function Portal() {
 
       {/* === DESKTOP SIDEBAR === */}
       <aside
-        className="hidden lg:flex flex-col w-64 xl:w-72 sticky top-0 h-screen"
+        className={`hidden lg:flex flex-col sticky top-0 h-screen transition-[width] duration-200 ${collapsed ? "w-20" : "w-64 xl:w-72"}`}
         style={{ background: "var(--card)", borderRight: "1px solid var(--border)" }}
       >
-        {/* Logo */}
-        <div className="px-6 py-8 border-b" style={{ borderColor: "var(--border)" }}>
-          <div className="flex items-center gap-3 mb-1">
+        {/* Logo + toggle */}
+        <div className="px-4 py-6 border-b" style={{ borderColor: "var(--border)" }}>
+          <div className={`flex items-center gap-3 ${collapsed ? "flex-col" : ""}`}>
             <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
               <img src="/serra-azul.png" alt="Escudo Serra Azul Esporte Clube" width="48" height="48" style={{ display: "block" }} />
             </div>
-            <div>
-              <h1
-                className="text-xl leading-tight uppercase tracking-wider"
-                style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)", fontWeight: 700 }}
-              >
-                Copa Ataci
-              </h1>
-              <p className="text-xs" style={{ color: "var(--accent)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
-                5ª Edição · 2026
-              </p>
-            </div>
+            {!collapsed && (
+              <div className="flex-1 min-w-0">
+                <h1
+                  className="text-xl leading-tight uppercase tracking-wider truncate"
+                  style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)", fontWeight: 700 }}
+                >
+                  Copa Ataci
+                </h1>
+                <p className="text-xs" style={{ color: "var(--accent)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
+                  5ª Edição · 2026
+                </p>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={toggleCollapsed}
+              aria-label={collapsed ? "Expandir menu lateral" : "Recolher menu lateral"}
+              aria-pressed={collapsed}
+              title={collapsed ? "Expandir menu" : "Recolher menu"}
+              className="flex items-center justify-center rounded-lg flex-shrink-0"
+              style={{ width: 36, height: 36, color: "var(--muted-foreground)", background: "var(--secondary)", border: "1px solid var(--border)" }}
+            >
+              {collapsed ? <ExpandIcon size={18} /> : <CollapseIcon size={18} />}
+            </button>
           </div>
         </div>
 
@@ -86,7 +115,9 @@ function Portal() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 aria-current={isActive ? "page" : undefined}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-left w-full transition-all"
+                aria-label={collapsed ? tab.label : undefined}
+                title={collapsed ? tab.label : undefined}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full transition-all ${collapsed ? "justify-center" : "text-left"}`}
                 style={{
                   fontFamily: "Oswald, sans-serif",
                   fontWeight: isActive ? 600 : 400,
@@ -98,18 +129,11 @@ function Portal() {
                 }}
               >
                 <span className="flex items-center justify-center" style={{ width: "18px" }}><tab.Icon size={18} /></span>
-                {tab.label}
+                {!collapsed && tab.label}
               </button>
             );
           })}
         </nav>
-
-        {/* Sidebar footer */}
-        <div className="px-6 py-5 border-t" style={{ borderColor: "var(--border)" }}>
-          <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-            Temporada 2026 · Arena Ataci
-          </p>
-        </div>
       </aside>
 
       {/* === MAIN AREA === */}

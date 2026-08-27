@@ -180,7 +180,7 @@ export default function TeamLineup() {
           {/* Player list by position */}
           {!squadLoading && squad && !Array.isArray(squad) && Array.isArray(squad.players) && (
             <div
-              className="lg:w-60 xl:w-64 rounded-xl overflow-hidden self-start"
+              className="w-full lg:w-60 xl:w-64 lg:self-start rounded-xl overflow-hidden"
               style={{ background: "var(--card)", border: "1px solid var(--border)" }}
             >
               {squad.players.length === 0 && <EmptyState label="Elenco não cadastrado." />}

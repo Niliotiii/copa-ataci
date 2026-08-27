@@ -87,6 +87,24 @@ export function MenuIcon({ size = 22, className }: IconProps) {
   );
 }
 
+// Chevron duplo à esquerda — recolher a sidebar
+export function CollapseIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...base(size)} className={className}>
+      <path d="m11 17-5-5 5-5M18 17l-5-5 5-5" />
+    </svg>
+  );
+}
+
+// Chevron duplo à direita — expandir a sidebar
+export function ExpandIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...base(size)} className={className}>
+      <path d="m13 17 5-5-5-5M6 17l5-5-5-5" />
+    </svg>
+  );
+}
+
 // Alvo — Artilharia
 export function ScorerIcon({ size = 18, className }: IconProps) {
   return (
