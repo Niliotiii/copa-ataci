@@ -78,6 +78,15 @@ export function CloseIcon({ size = 16, className }: IconProps) {
   );
 }
 
+// Menu hambúrguer — navegação mobile
+export function MenuIcon({ size = 22, className }: IconProps) {
+  return (
+    <svg {...base(size)} className={className}>
+      <path d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  );
+}
+
 // Alvo — Artilharia
 export function ScorerIcon({ size = 18, className }: IconProps) {
   return (

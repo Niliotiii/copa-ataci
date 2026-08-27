@@ -47,4 +47,26 @@ test.describe("Copa Ataci — smoke E2E", () => {
     await page.getByRole("button", { name: "Classificação" }).first().click();
     await expect(page.getByRole("table")).toBeVisible();
   });
+
+  test("mobile: menu hambúrguer abre, navega e fecha", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 }); // iPhone-ish
+    await page.goto("/");
+
+    // A navbar horizontal não existe mais; o botão do menu deve estar visível.
+    const openBtn = page.getByRole("button", { name: "Abrir menu de navegação" });
+    await expect(openBtn).toBeVisible();
+
+    // As abas ficam escondidas até abrir o menu.
+    const menu = page.getByRole("dialog", { name: "Menu de navegação" });
+    await expect(menu).toBeHidden();
+
+    // Abre o menu e navega para Jogos.
+    await openBtn.click();
+    await expect(menu).toBeVisible();
+    await menu.getByRole("button", { name: "Jogos" }).click();
+
+    // Ao selecionar, o menu fecha e o conteúdo muda.
+    await expect(menu).toBeHidden();
+    await expect(page.getByText("Calendário")).toBeVisible();
+  });
 });
