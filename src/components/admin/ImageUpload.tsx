@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { adminStyles, labelClass } from "./shared";
 
 const MAX_BYTES = 500 * 1024; // ~500 KB
-const ACCEPT = "image/png,image/jpeg,image/webp,image/gif,image/svg+xml";
+const ACCEPT = "image/png,image/jpeg,image/webp,image/gif";
 
 /**
  * Upload de imagem que converte o arquivo em data URI (base64) e devolve via

@@ -57,7 +57,7 @@ export default function Schedule() {
               value={activeRound ?? ""}
               onChange={(e) => setSelectedRound(Number(e.target.value))}
               className="text-sm rounded-lg px-3 py-1.5 outline-none cursor-pointer"
-              style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Inter, sans-serif" }}
+              style={{ minHeight: 44, background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Inter, sans-serif" }}
             >
               {rounds.map((r) => <option key={r} value={r}>Rodada {r}</option>)}
             </select>

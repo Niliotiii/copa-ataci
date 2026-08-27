@@ -65,17 +65,31 @@ export const onRequestPost = async (ctx: PagesContext): Promise<Response> => {
 
     const pairings = generateRoundRobin(teamIds);
 
+    // Preserva a agenda (data/hora/local) dos jogos de grupos atuais, casando
+    // pelo PAR de times (independe de mando). Chave = par ordenado "A|B".
+    const existing = await ctx.env.DB.prepare(
+      `SELECT home_team_id AS h, away_team_id AS a, match_date AS d, match_time AS t, location AS loc
+         FROM matches WHERE phase = 'grupos';`,
+    ).all();
+    const pairKey = (x: string, y: string) => [x, y].sort().join("|");
+    const agenda = new Map<string, { d: string; t: string; loc: string }>();
+    for (const r of existing.results as { h: string | null; a: string | null; d: string; t: string; loc: string }[]) {
+      if (r.h && r.a) agenda.set(pairKey(r.h, r.a), { d: r.d, t: r.t, loc: r.loc });
+    }
+
     // 3) Substitui os jogos de grupos (só agendados/sem placar chegam aqui) e
-    //    insere a nova tabela — tudo numa transação atômica.
+    //    insere a nova tabela — tudo numa transação atômica, reaproveitando a
+    //    agenda anterior quando o par já existia.
     const stmts = [
       ctx.env.DB.prepare("DELETE FROM matches WHERE phase = 'grupos';"),
-      ...pairings.map((p) =>
-        ctx.env.DB.prepare(
+      ...pairings.map((p) => {
+        const kept = agenda.get(pairKey(p.home, p.away));
+        return ctx.env.DB.prepare(
           `INSERT INTO matches
              (phase, round, match_date, match_time, location, home_team_id, away_team_id, status)
-           VALUES ('grupos', ?, ?, '', ?, ?, ?, 'agendado');`,
-        ).bind(p.round, dateLabel, location, p.home, p.away),
-      ),
+           VALUES ('grupos', ?, ?, ?, ?, ?, ?, 'agendado');`,
+        ).bind(p.round, kept?.d ?? dateLabel, kept?.t ?? "", kept?.loc ?? location, p.home, p.away);
+      }),
     ];
     await ctx.env.DB.batch(stmts);
 

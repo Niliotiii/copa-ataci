@@ -137,7 +137,7 @@ export type TeamSide = {
 // Aceita PNG/JPEG/WebP/GIF/SVG em base64, com teto de tamanho para não inflar
 // o D1. Retorna mensagem de erro (string) ou null se válido/ausente.
 // ---------------------------------------------------------------------------
-const IMG_DATA_URI = /^data:image\/(png|jpe?g|webp|gif|svg\+xml);base64,[A-Za-z0-9+/=]+$/;
+const IMG_DATA_URI = /^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+/=]+$/;
 const MAX_IMG_CHARS = 700_000; // ~500 KB binário em base64
 
 export function validateImageDataUri(value: unknown, field: string): string | null {

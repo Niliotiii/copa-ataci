@@ -27,6 +27,7 @@ export default function Classification({ sub = "tabela" }: { sub?: "tabela" | "m
               style={{
                 fontFamily: "Oswald, sans-serif",
                 letterSpacing: "0.05em",
+                minHeight: 44,
                 background: active ? "var(--primary)" : "transparent",
                 color: active ? "var(--primary-foreground)" : "var(--muted-foreground)",
               }}

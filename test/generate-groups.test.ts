@@ -101,4 +101,18 @@ describe("POST /api/matches/generate-groups (endpoint)", () => {
     const { results } = await db.prepare("SELECT id FROM matches WHERE phase = 'grupos';").all();
     expect(results.length).toBe(28); // não acumulou (28, não 56)
   });
+
+  it("preserva data/hora/local do par de times ao regenerar", async () => {
+    const db = getEnv().DB;
+    await db.prepare("UPDATE matches SET home_score = NULL, away_score = NULL, status = 'agendado' WHERE phase = 'grupos';").run();
+    await generateGroups(makeCtx(req("/api/matches/generate-groups", { method: "POST", headers: auth, body: "{}" })));
+    // Define uma agenda específica no par ATA/LEO.
+    await db.prepare("UPDATE matches SET match_date='Sáb 30', match_time='20:00', location='Ginásio X' WHERE phase='grupos' AND ((home_team_id='ATA' AND away_team_id='LEO') OR (home_team_id='LEO' AND away_team_id='ATA'));").run();
+    // Regenera: a agenda do par ATA/LEO deve ser preservada.
+    await generateGroups(makeCtx(req("/api/matches/generate-groups", { method: "POST", headers: auth, body: "{}" })));
+    const row = await db.prepare("SELECT match_date AS d, match_time AS t, location AS loc FROM matches WHERE phase='grupos' AND ((home_team_id='ATA' AND away_team_id='LEO') OR (home_team_id='LEO' AND away_team_id='ATA'));").first() as any;
+    expect(row.d).toBe("Sáb 30");
+    expect(row.t).toBe("20:00");
+    expect(row.loc).toBe("Ginásio X");
+  });
 });

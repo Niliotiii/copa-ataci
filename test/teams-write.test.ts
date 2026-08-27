@@ -42,6 +42,13 @@ describe("PUT /api/teams/:id (dados do time)", () => {
     expect(res.status).toBe(400);
   });
 
+  it("rejeita escudo em SVG (defesa em profundidade)", async () => {
+    const res = await putTeam(
+      makeCtx(req("/api/teams/ATA", { method: "PUT", headers: authHeaders, body: JSON.stringify({ crestUrl: "data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=" }) }), { id: "ATA" }),
+    );
+    expect(res.status).toBe(400);
+  });
+
   it("401 sem token", async () => {
     const res = await putTeam(
       makeCtx(
