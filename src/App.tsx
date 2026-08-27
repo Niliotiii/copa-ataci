@@ -3,6 +3,7 @@ import Classification from "./components/Classification";
 import Schedule from "./components/Schedule";
 import TeamLineup from "./components/TeamLineup";
 import SponsorTicker from "./components/SponsorTicker";
+import Footer from "./components/Footer";
 import AdminRoute from "./components/AdminRoute";
 import Scorers from "./components/Scorers";
 import { TrophyIcon, BallIcon, ShirtIcon, ScorerIcon, MenuIcon, CloseIcon } from "./components/icons";
@@ -226,6 +227,8 @@ function Portal() {
             {activeTab === "times" && <TeamLineup />}
           </div>
         </main>
+
+        <Footer />
       </div>
     </div>
   );
