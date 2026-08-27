@@ -1,18 +1,16 @@
 import { useState, useEffect } from "react";
-import Standings from "./components/Standings";
+import Classification from "./components/Classification";
 import Schedule from "./components/Schedule";
-import Bracket from "./components/Bracket";
 import TeamLineup from "./components/TeamLineup";
 import SponsorTicker from "./components/SponsorTicker";
 import AdminRoute from "./components/AdminRoute";
 import Scorers from "./components/Scorers";
-import { TrophyIcon, BallIcon, BracketIcon, ShirtIcon, ScorerIcon, MenuIcon, CloseIcon } from "./components/icons";
+import { TrophyIcon, BallIcon, ShirtIcon, ScorerIcon, MenuIcon, CloseIcon } from "./components/icons";
 import type { ComponentType } from "react";
 
 const tabs: { id: string; label: string; Icon: ComponentType<{ size?: number }> }[] = [
   { id: "classificacao", label: "Classificação", Icon: TrophyIcon },
   { id: "jogos", label: "Jogos", Icon: BallIcon },
-  { id: "mata-mata", label: "Mata-Mata", Icon: BracketIcon },
   { id: "artilharia", label: "Artilharia", Icon: ScorerIcon },
   { id: "times", label: "Times", Icon: ShirtIcon },
 ];
@@ -222,9 +220,8 @@ function Portal() {
         {/* CONTENT */}
         <main className="flex-1 px-4 py-4 lg:px-8 lg:py-6 2xl:px-12">
           <div className="w-full max-w-[1600px] mx-auto">
-            {activeTab === "classificacao" && <Standings />}
+            {activeTab === "classificacao" && <Classification />}
             {activeTab === "jogos" && <Schedule />}
-            {activeTab === "mata-mata" && <Bracket />}
             {activeTab === "artilharia" && <Scorers />}
             {activeTab === "times" && <TeamLineup />}
           </div>

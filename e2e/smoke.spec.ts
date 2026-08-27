@@ -12,8 +12,9 @@ test.describe("Copa Ataci — smoke E2E", () => {
     await page.getByRole("button", { name: "Jogos" }).first().click();
     await expect(page.getByText("Calendário")).toBeVisible();
 
-    // Navega para Mata-Mata.
-    await page.getByRole("button", { name: "Mata-Mata" }).first().click();
+    // O mata-mata agora é uma sub-aba dentro de Classificação.
+    await page.getByRole("button", { name: "Classificação" }).first().click();
+    await page.getByRole("button", { name: "Mata-Mata" }).click();
     await expect(page.getByText("Quartas")).toBeVisible();
   });
 
