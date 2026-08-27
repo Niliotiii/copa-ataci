@@ -93,6 +93,9 @@ Scripts de banco disponíveis:
 | GET | `/api/teams` | Lista de times |
 | GET | `/api/teams/:id` | Time + elenco (com `posX`/`posY`) |
 | GET | `/api/sponsors` | Patrocinadores |
+| GET | `/api/scorers` | Artilharia (gols por jogador) |
+| GET | `/api/suspensions` | Jogadores suspensos (pendentes) |
+| GET | `/api/matches/:id/events` | Eventos (gols/cartões) de um jogo |
 
 ### Escrita (protegida por token)
 
@@ -104,6 +107,8 @@ Todas as rotas de escrita exigem o header `Authorization: Bearer <ADMIN_TOKEN>`.
 | PUT | `/api/teams/:id` | Dados do time (nome, sigla, cor, formação) |
 | PUT | `/api/teams/:id/players` | Substitui o elenco inteiro (com `posX`/`posY`) |
 | PUT | `/api/sponsors` | Substitui a lista de patrocinadores |
+| PUT | `/api/matches/:id/events` | Registra gols/cartões por jogador (gera suspensões) |
+| PUT | `/api/suspensions/:id` | Marca uma suspensão como cumprida (`{served}`) |
 
 **`PUT /api/matches/:id`** — campos aceitos (todos opcionais):
 

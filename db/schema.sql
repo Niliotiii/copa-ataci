@@ -5,6 +5,9 @@
 PRAGMA foreign_keys = ON;
 
 -- Recria as tabelas do zero (idempotente para dev/seed local).
+-- Ordem: dependentes primeiro (FKs) para não violar integridade referencial.
+DROP TABLE IF EXISTS suspensions;
+DROP TABLE IF EXISTS match_events;
 DROP TABLE IF EXISTS players;
 DROP TABLE IF EXISTS matches;
 DROP TABLE IF EXISTS sponsors;
@@ -77,6 +80,44 @@ CREATE TABLE players (
 );
 
 CREATE INDEX idx_players_team ON players(team_id);
+
+-- ---------------------------------------------------------------------------
+-- match_events — eventos por jogador (gols e cartões) num jogo.
+-- Denormaliza team_id/player_name para preservar histórico mesmo se o jogador
+-- for removido do elenco.
+-- ---------------------------------------------------------------------------
+CREATE TABLE match_events (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  match_id    INTEGER NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
+  player_id   INTEGER REFERENCES players(id) ON DELETE SET NULL,
+  team_id     TEXT NOT NULL REFERENCES teams(id),
+  player_name TEXT NOT NULL,
+  type        TEXT NOT NULL CHECK (type IN ('gol','amarelo','vermelho')),
+  created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX idx_events_match  ON match_events(match_id);
+CREATE INDEX idx_events_player ON match_events(player_id);
+CREATE INDEX idx_events_type   ON match_events(type);
+
+-- ---------------------------------------------------------------------------
+-- suspensions — instâncias de suspensão geradas pela regra (3 amarelos ou 1
+-- vermelho = 1 jogo). served=0 enquanto pendente; served=1 quando cumprida.
+-- ---------------------------------------------------------------------------
+CREATE TABLE suspensions (
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  player_id      INTEGER NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+  reason         TEXT NOT NULL CHECK (reason IN ('vermelho','3_amarelos')),
+  games          INTEGER NOT NULL DEFAULT 1,
+  source_match_id INTEGER REFERENCES matches(id) ON DELETE SET NULL,
+  served         INTEGER NOT NULL DEFAULT 0 CHECK (served IN (0,1)),
+  served_at      TEXT,
+  created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX idx_susp_player ON suspensions(player_id);
+CREATE INDEX idx_susp_served ON suspensions(served);
+
 
 -- ---------------------------------------------------------------------------
 -- sponsors

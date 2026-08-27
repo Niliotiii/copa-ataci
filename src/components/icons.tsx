@@ -77,3 +77,23 @@ export function CloseIcon({ size = 16, className }: IconProps) {
     </svg>
   );
 }
+
+// Alvo — Artilharia
+export function ScorerIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...base(size)} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+    </svg>
+  );
+}
+
+// Cartão — Suspensões
+export function CardIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...base(size)} className={className}>
+      <rect x="7" y="4" width="10" height="16" rx="2" transform="rotate(-12 12 12)" />
+    </svg>
+  );
+}

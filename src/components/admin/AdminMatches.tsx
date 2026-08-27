@@ -3,6 +3,7 @@ import { useApi } from "../../data/useApi";
 import type { Match, Team, MatchStatus } from "../../data/types";
 import { LoadingState, ErrorState } from "../States";
 import { authedPut, adminStyles, labelClass, type SaveResult } from "./shared";
+import AdminEvents from "./AdminEvents";
 
 const statusOptions: { value: MatchStatus; label: string }[] = [
   { value: "agendado", label: "Agendado" },
@@ -224,6 +225,10 @@ export default function AdminMatches({ token }: { token: string }) {
             </>
           )}
         </div>
+      )}
+
+      {!loading && !error && selected && (selected.teamA.abbr || selected.teamB.abbr) && (
+        <AdminEvents match={selected} token={token} />
       )}
     </div>
   );

@@ -13,12 +13,11 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  globalSetup: "./e2e/global-setup.ts",
   webServer: {
-    command:
-      "npm run db:reset && npm run build && npx wrangler pages dev dist --port 8788 --ip 127.0.0.1",
+    command: "npm run build && npx wrangler pages dev dist --port 8788 --ip 127.0.0.1",
     url: "http://127.0.0.1:8788/api/standings",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
-    env: { CI: "1", ADMIN_TOKEN: "dev-token-troque-isto" },
   },
 });

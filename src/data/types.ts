@@ -110,3 +110,35 @@ export interface Sponsor {
   color: string;
   tagline: string | null;
 }
+
+export type EventType = "gol" | "amarelo" | "vermelho";
+
+export interface MatchEvent {
+  id: number;
+  playerId: number | null;
+  teamId: string;
+  playerName: string;
+  type: EventType;
+}
+
+export interface Scorer {
+  playerId: number | null;
+  playerName: string;
+  teamId: string;
+  teamName: string | null;
+  teamColor: string | null;
+  goals: number;
+}
+
+export interface Suspension {
+  id: number;
+  playerId: number;
+  reason: "vermelho" | "3_amarelos";
+  games: number;
+  served: number;
+  playerName: string;
+  playerNumber: number | null;
+  teamId: string;
+  teamName: string | null;
+  teamColor: string | null;
+}

@@ -5,13 +5,17 @@ import Bracket from "./components/Bracket";
 import TeamLineup from "./components/TeamLineup";
 import SponsorTicker from "./components/SponsorTicker";
 import AdminPanel from "./components/AdminPanel";
-import { TrophyIcon, BallIcon, BracketIcon, ShirtIcon, LockIcon } from "./components/icons";
+import Scorers from "./components/Scorers";
+import Suspensions from "./components/Suspensions";
+import { TrophyIcon, BallIcon, BracketIcon, ShirtIcon, LockIcon, ScorerIcon, CardIcon } from "./components/icons";
 import type { ComponentType } from "react";
 
 const tabs: { id: string; label: string; Icon: ComponentType<{ size?: number }> }[] = [
   { id: "classificacao", label: "Classificação", Icon: TrophyIcon },
   { id: "jogos", label: "Jogos", Icon: BallIcon },
   { id: "mata-mata", label: "Mata-Mata", Icon: BracketIcon },
+  { id: "artilharia", label: "Artilharia", Icon: ScorerIcon },
+  { id: "suspensoes", label: "Suspensões", Icon: CardIcon },
   { id: "times", label: "Times", Icon: ShirtIcon },
   { id: "admin", label: "Admin", Icon: LockIcon },
 ];
@@ -164,6 +168,8 @@ export default function App() {
             {activeTab === "classificacao" && <Standings />}
             {activeTab === "jogos" && <Schedule />}
             {activeTab === "mata-mata" && <Bracket />}
+            {activeTab === "artilharia" && <Scorers />}
+            {activeTab === "suspensoes" && <Suspensions />}
             {activeTab === "times" && <TeamLineup />}
             {activeTab === "admin" && <AdminPanel />}
           </div>
