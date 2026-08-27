@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { useApi } from "../data/useApi";
 import type { Match, Sponsor } from "../data/types";
+import { CloseIcon } from "./icons";
 
 interface Props {
   match: Match;
@@ -133,7 +134,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
             className="w-11 h-11 rounded-full flex items-center justify-center transition-colors"
             style={{ background: "rgba(255,255,255,0.1)", color: "white" }}
           >
-            ✕
+            <CloseIcon size={16} />
           </button>
         </div>
 

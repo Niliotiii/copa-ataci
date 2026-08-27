@@ -5,13 +5,15 @@ import Bracket from "./components/Bracket";
 import TeamLineup from "./components/TeamLineup";
 import SponsorTicker from "./components/SponsorTicker";
 import AdminPanel from "./components/AdminPanel";
+import { TrophyIcon, BallIcon, BracketIcon, ShirtIcon, LockIcon } from "./components/icons";
+import type { ComponentType } from "react";
 
-const tabs = [
-  { id: "classificacao", label: "Classificação", icon: "🏆" },
-  { id: "jogos", label: "Jogos", icon: "⚽" },
-  { id: "mata-mata", label: "Mata-Mata", icon: "🔥" },
-  { id: "times", label: "Times", icon: "👕" },
-  { id: "admin", label: "Admin", icon: "🔒" },
+const tabs: { id: string; label: string; Icon: ComponentType<{ size?: number }> }[] = [
+  { id: "classificacao", label: "Classificação", Icon: TrophyIcon },
+  { id: "jogos", label: "Jogos", Icon: BallIcon },
+  { id: "mata-mata", label: "Mata-Mata", Icon: BracketIcon },
+  { id: "times", label: "Times", Icon: ShirtIcon },
+  { id: "admin", label: "Admin", Icon: LockIcon },
 ];
 
 export default function App() {
@@ -81,7 +83,7 @@ export default function App() {
                   boxShadow: isActive ? "0 4px 14px rgba(22,163,74,0.3)" : "none",
                 }}
               >
-                <span style={{ fontSize: "18px" }}>{tab.icon}</span>
+                <span className="flex items-center justify-center" style={{ width: "18px" }}><tab.Icon size={18} /></span>
                 {tab.label}
               </button>
             );

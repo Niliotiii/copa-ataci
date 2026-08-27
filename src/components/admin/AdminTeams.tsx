@@ -4,6 +4,7 @@ import type { Team, TeamDetail, Player, Position } from "../../data/types";
 import { LoadingState, ErrorState } from "../States";
 import { authedPut, adminStyles, labelClass, type SaveResult } from "./shared";
 import PitchEditor from "./PitchEditor";
+import { CloseIcon } from "../icons";
 
 const POSITIONS: Position[] = ["GOL", "DEF", "ALA", "MED", "ATA"];
 
@@ -209,7 +210,7 @@ export default function AdminTeams({ token }: { token: string }) {
                   <button onClick={() => removePlayer(i)} aria-label={`Remover jogador ${i + 1}`}
                     className="w-11 h-11 rounded-lg flex items-center justify-center"
                     style={{ background: "rgba(239,68,68,0.12)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.4)" }}>
-                    ✕
+                    <CloseIcon size={14} />
                   </button>
                 </div>
               ))}
