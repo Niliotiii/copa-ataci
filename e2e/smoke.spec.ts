@@ -1,6 +1,26 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Copa Ataci — smoke E2E", () => {
+
+  test("roteamento por path: deep-links, navegação e histórico", async ({ page }) => {
+    // Deep-links diretos (SPA fallback serve o index.html em qualquer path).
+    await page.goto("/jogos");
+    await expect(page.getByText("Calendário")).toBeVisible();
+    await page.goto("/artilharia");
+    await expect(page.getByRole("heading", { name: "Artilharia" })).toBeVisible();
+    await page.goto("/mata-mata");
+    await expect(page.getByText("Quartas")).toBeVisible();
+    await page.goto("/times/ATA");
+    await expect(page.getByText("ATACI FC")).toBeVisible();
+
+    // Clicar navega e muda a URL; voltar do navegador funciona.
+    await page.getByRole("button", { name: /Todos os times/ }).click();
+    await expect(page).toHaveURL(/\/times$/);
+    await page.getByRole("button", { name: "Jogos" }).first().click();
+    await expect(page).toHaveURL(/\/jogos$/);
+    await page.goBack();
+    await expect(page).toHaveURL(/\/times$/);
+  });
   test("navega pelas abas e mostra a classificação calculada", async ({ page }) => {
     await page.goto("/");
 

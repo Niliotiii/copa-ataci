@@ -94,6 +94,24 @@ Scripts de banco disponíveis:
 | `npm run db:schema:remote` | Aplica o schema no D1 **de produção** |
 | `npm run db:seed:remote` | Aplica o seed no D1 **de produção** |
 
+## Rotas do portal (frontend)
+
+O portal usa roteamento por path (History API, sem dependência externa). Cada
+tela tem sua própria URL, com deep-link e suporte a voltar/avançar do navegador:
+
+| Rota | Tela |
+|------|------|
+| `/` | Classificação (tabela) |
+| `/mata-mata` | Classificação — chaveamento do mata-mata |
+| `/jogos` | Calendário de jogos |
+| `/artilharia` | Artilharia |
+| `/times` | Lista de times |
+| `/times/:id` | Elenco de um time (ex.: `/times/ATA`) |
+| `/admin` | Área do organizador (login + painel), fora do menu |
+
+Como é um SPA, o Cloudflare Pages serve `index.html` para qualquer path e o
+React decide o que renderizar — deep-links funcionam sem configuração extra.
+
 ## Endpoints da API
 
 ### Leitura (públicos)

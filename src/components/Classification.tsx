@@ -1,19 +1,17 @@
-import { useState } from "react";
 import Standings from "./Standings";
 import Bracket from "./Bracket";
+import { navigate } from "../router";
 
 const subtabs = [
-  { id: "tabela", label: "Tabela" },
-  { id: "mata-mata", label: "Mata-Mata" },
+  { id: "tabela", label: "Tabela", path: "/" },
+  { id: "mata-mata", label: "Mata-Mata", path: "/mata-mata" },
 ];
 
 /**
- * Tela de Classificação com duas sub-abas internas: a tabela da fase de grupos
- * e o mata-mata. Substitui a antiga opção "Mata-Mata" do menu principal.
+ * Tela de Classificação com duas sub-abas (Tabela / Mata-Mata) refletidas na
+ * URL: `/` (ou `/classificacao`) para a tabela e `/mata-mata` para o chaveamento.
  */
-export default function Classification() {
-  const [sub, setSub] = useState("tabela");
-
+export default function Classification({ sub = "tabela" }: { sub?: "tabela" | "mata-mata" }) {
   return (
     <div>
       {/* Sub-abas */}
@@ -23,7 +21,7 @@ export default function Classification() {
           return (
             <button
               key={t.id}
-              onClick={() => setSub(t.id)}
+              onClick={() => navigate(t.path)}
               aria-current={active ? "page" : undefined}
               className="flex-1 rounded-lg px-3 py-2 text-xs font-semibold uppercase transition-all"
               style={{

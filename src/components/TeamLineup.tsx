@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useApi } from "../data/useApi";
 import type { Team, TeamDetail, Player, Position } from "../data/types";
 import { textColorOn } from "../data/color";
+import { usePath, navigate } from "../router";
 import { LoadingState, ErrorState, EmptyState } from "./States";
 
 const positionColors: Record<Position, string> = {
@@ -27,7 +28,11 @@ function initials(name: string | undefined | null) {
 
 export default function TeamLineup() {
   const { data: teams, loading: teamsLoading, error: teamsError } = useApi<Team[]>("/api/teams");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const path = usePath();
+  // Time selecionado vem da URL: /times/:id. Sem id → lista de times.
+  const m = path.match(/^\/times\/([^/]+)$/);
+  const selectedId = m ? decodeURIComponent(m[1]) : null;
+  const setSelectedId = (id: string | null) => navigate(id ? `/times/${encodeURIComponent(id)}` : "/times");
 
   // Só busca o elenco quando um time foi escolhido. Sem seleção, o path aponta
   // para a lista (inofensivo) e a visão de detalhe fica oculta.

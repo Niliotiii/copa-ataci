@@ -6,27 +6,35 @@ import SponsorTicker from "./components/SponsorTicker";
 import Footer from "./components/Footer";
 import AdminRoute from "./components/AdminRoute";
 import Scorers from "./components/Scorers";
+import { usePath, navigate } from "./router";
 import { TrophyIcon, BallIcon, ShirtIcon, ScorerIcon, MenuIcon, CloseIcon, CollapseIcon, ExpandIcon } from "./components/icons";
 import type { ComponentType } from "react";
 
-const tabs: { id: string; label: string; Icon: ComponentType<{ size?: number }> }[] = [
-  { id: "classificacao", label: "Classificação", Icon: TrophyIcon },
-  { id: "jogos", label: "Jogos", Icon: BallIcon },
-  { id: "artilharia", label: "Artilharia", Icon: ScorerIcon },
-  { id: "times", label: "Times", Icon: ShirtIcon },
+// Aba → path base. (Mata-mata é sub-rota de /classificacao.)
+const tabs: { id: string; label: string; path: string; Icon: ComponentType<{ size?: number }> }[] = [
+  { id: "classificacao", label: "Classificação", path: "/", Icon: TrophyIcon },
+  { id: "jogos", label: "Jogos", path: "/jogos", Icon: BallIcon },
+  { id: "artilharia", label: "Artilharia", path: "/artilharia", Icon: ScorerIcon },
+  { id: "times", label: "Times", path: "/times", Icon: ShirtIcon },
 ];
 
-export default function App() {
-  // Roteamento mínimo por path: /admin abre a área do organizador (login),
-  // fora do menu do portal. Qualquer outro path abre o portal.
-  const isAdmin = typeof window !== "undefined" && window.location.pathname.replace(/\/+$/, "") === "/admin";
-  if (isAdmin) return <AdminRoute />;
-
-  return <Portal />;
+/** Deriva qual aba do menu está ativa a partir do path atual. */
+function tabForPath(path: string): string {
+  if (path === "/" || path === "/classificacao" || path === "/mata-mata") return "classificacao";
+  if (path.startsWith("/jogos")) return "jogos";
+  if (path.startsWith("/artilharia")) return "artilharia";
+  if (path.startsWith("/times")) return "times";
+  return "classificacao";
 }
 
-function Portal() {
-  const [activeTab, setActiveTab] = useState("classificacao");
+export default function App() {
+  const path = usePath();
+  if (path === "/admin") return <AdminRoute />;
+  return <Portal path={path} />;
+}
+
+function Portal({ path }: { path: string }) {
+  const activeTab = tabForPath(path);
   const [menuOpen, setMenuOpen] = useState(false);
   // Sidebar recolhida (só ícones) — preferência persistida no navegador.
   const [collapsed, setCollapsed] = useState(
@@ -45,8 +53,8 @@ function Portal() {
     });
   };
 
-  const selectTab = (id: string) => {
-    setActiveTab(id);
+  const selectTab = (tabPath: string) => {
+    navigate(tabPath);
     setMenuOpen(false);
   };
 
@@ -113,7 +121,7 @@ function Portal() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => navigate(tab.path)}
                 aria-current={isActive ? "page" : undefined}
                 aria-label={collapsed ? tab.label : undefined}
                 title={collapsed ? tab.label : undefined}
@@ -215,7 +223,7 @@ function Portal() {
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => selectTab(tab.id)}
+                      onClick={() => selectTab(tab.path)}
                       aria-current={isActive ? "page" : undefined}
                       className="flex items-center gap-3 px-4 py-3 rounded-xl text-left w-full transition-all"
                       style={{
@@ -245,7 +253,9 @@ function Portal() {
         {/* CONTENT */}
         <main className="flex-1 px-4 py-4 lg:px-8 lg:py-6 2xl:px-12">
           <div className="w-full max-w-[1600px] mx-auto">
-            {activeTab === "classificacao" && <Classification />}
+            {activeTab === "classificacao" && (
+              <Classification sub={path === "/mata-mata" ? "mata-mata" : "tabela"} />
+            )}
             {activeTab === "jogos" && <Schedule />}
             {activeTab === "artilharia" && <Scorers />}
             {activeTab === "times" && <TeamLineup />}
