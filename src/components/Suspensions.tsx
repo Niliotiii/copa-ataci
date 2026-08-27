@@ -37,9 +37,6 @@ export default function Suspensions() {
         <h2 className="text-xl uppercase tracking-wide" style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, color: "var(--foreground)" }}>
           Suspensões
         </h2>
-        <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>
-          Jogadores suspensos para o próximo jogo · 3 amarelos ou 1 vermelho = 1 jogo
-        </p>
       </div>
 
       {loading && <LoadingState label="Carregando suspensões…" />}

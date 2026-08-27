@@ -13,7 +13,6 @@ export default function Scorers() {
         <h2 className="text-xl uppercase tracking-wide" style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, color: "var(--foreground)" }}>
           Artilharia
         </h2>
-        <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>Gols por jogador · Copa Ataci 5ª Edição</p>
       </div>
 
       {loading && <LoadingState label="Carregando artilharia…" />}
