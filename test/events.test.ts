@@ -151,4 +151,51 @@ describe("Suspensões — geração e ciclo", () => {
     susp = (await (await getSuspensions(makeCtx(req("/api/suspensions")))).json()) as any[];
     expect(susp).toHaveLength(1); // a nova suspensão (2 devidas, 1 cumprida)
   });
+
+  it("corrigir cartões para menos REVOGA a suspensão pendente", async () => {
+    const ata = await playerIds("ATA");
+    // 3 amarelos → 1 suspensão pendente
+    await setupEvents([
+      { playerId: ata[0], type: "amarelo" },
+      { playerId: ata[0], type: "amarelo" },
+      { playerId: ata[0], type: "amarelo" },
+    ]);
+    let susp = (await (await getSuspensions(makeCtx(req("/api/suspensions")))).json()) as any[];
+    expect(susp).toHaveLength(1);
+
+    // Correção de súmula: passa a ter só 1 amarelo → suspensão deve sumir.
+    await setupEvents([{ playerId: ata[0], type: "amarelo" }]);
+    susp = (await (await getSuspensions(makeCtx(req("/api/suspensions")))).json()) as any[];
+    expect(susp).toHaveLength(0);
+  });
+
+  it("remover todos os eventos do jogo revoga a suspensão pendente", async () => {
+    const ata = await playerIds("ATA");
+    await setupEvents([{ playerId: ata[0], type: "vermelho" }]);
+    expect(((await (await getSuspensions(makeCtx(req("/api/suspensions")))).json()) as any[]).length).toBe(1);
+    // Zera os eventos do jogo → jogador removido deve ter a suspensão revogada.
+    await setupEvents([]);
+    expect(((await (await getSuspensions(makeCtx(req("/api/suspensions")))).json()) as any[]).length).toBe(0);
+  });
+});
+
+describe("Gol contra", () => {
+  it("gol contra conta para o adversário no placar e fora da artilharia", async () => {
+    const ata = await playerIds("ATA"); // casa no match 5
+    const leo = await playerIds("LEO"); // visitante
+    // ATA faz 1 gol; um jogador do LEO faz gol contra (conta para ATA).
+    await setupEvents([
+      { playerId: ata[0], type: "gol" },
+      { playerId: leo[0], type: "gol_contra" },
+    ]);
+    const m = (await (await getMatch(makeCtx(req("/api/matches/5"), { id: "5" }))).json()) as any;
+    expect(m.homeScore).toBe(2); // 1 gol ATA + 1 gol contra do LEO
+    expect(m.awayScore).toBe(0);
+
+    // Artilharia: o gol contra NÃO conta como gol de ninguém.
+    const scorers = (await (await getScorers(makeCtx(req("/api/scorers")))).json()) as any[];
+    expect(scorers).toHaveLength(1);
+    expect(scorers[0].playerId).toBe(ata[0]);
+    expect(scorers[0].goals).toBe(1);
+  });
 });

@@ -60,6 +60,7 @@ function MatchCard({ match, size = "sm" }: { match: BracketBox; size?: "sm" | "l
               }}
             >
               {team.score !== null ? team.score : "–"}
+              {team.pens != null && <span style={{ fontSize: "10px" }}> ({team.pens})</span>}
             </span>
           </div>
         );

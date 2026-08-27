@@ -9,6 +9,8 @@ type UpdateBody = {
   awayTeamId?: string | null;
   homeFouls?: number;
   awayFouls?: number;
+  homePens?: number | null;
+  awayPens?: number | null;
 };
 
 const VALID_STATUS = new Set(["agendado", "andamento", "finalizado"]);
@@ -46,7 +48,8 @@ export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
               home_score AS homeScore, away_score AS awayScore,
               home_red AS homeRed, away_red AS awayRed,
               home_yellow AS homeYellow, away_yellow AS awayYellow,
-              home_fouls AS homeFouls, away_fouls AS awayFouls
+              home_fouls AS homeFouls, away_fouls AS awayFouls,
+              home_pens AS homePens, away_pens AS awayPens
          FROM matches WHERE id = ?;`,
     )
       .bind(id)
@@ -72,20 +75,25 @@ async function advanceStatements(
   const m = (await db
     .prepare(
       `SELECT bracket_slot AS slot, status, home_team_id AS home, away_team_id AS away,
-              home_score AS hs, away_score AS as_
+              home_score AS hs, away_score AS as_, home_pens AS hp, away_pens AS ap
          FROM matches WHERE id = ?;`,
     )
     .bind(matchId)
     .first()) as
-    | { slot: string | null; status: string; home: string | null; away: string | null; hs: number | null; as_: number | null }
+    | { slot: string | null; status: string; home: string | null; away: string | null; hs: number | null; as_: number | null; hp: number | null; ap: number | null }
     | null;
 
   if (!m || !m.slot || !ADVANCE[m.slot]) return [];
   const rule = ADVANCE[m.slot];
 
   let winner: string | null = null;
-  if (m.status === "finalizado" && m.hs != null && m.as_ != null && m.hs !== m.as_) {
-    winner = m.hs > m.as_ ? m.home : m.away;
+  if (m.status === "finalizado" && m.hs != null && m.as_ != null) {
+    if (m.hs !== m.as_) {
+      winner = m.hs > m.as_ ? m.home : m.away;
+    } else if (m.hp != null && m.ap != null && m.hp !== m.ap) {
+      // Empate no tempo normal → decide pelos pênaltis.
+      winner = m.hp > m.ap ? m.home : m.away;
+    }
   }
 
   const col = rule.side === "home" ? "home_team_id" : "away_team_id";
@@ -179,6 +187,18 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
       }
     }
 
+    // Pênaltis (mata-mata): inteiro >= 0 ou null (limpa).
+    for (const [key, col] of [["homePens", "home_pens"], ["awayPens", "away_pens"]] as const) {
+      if (key in body) {
+        const v = body[key];
+        if (v !== null && (typeof v !== "number" || !Number.isInteger(v) || v < 0 || v > 99)) {
+          return error(`${key} inválido (inteiro 0-99 ou null).`, 400);
+        }
+        sets.push(`${col} = ?`);
+        binds.push(v);
+      }
+    }
+
     if (sets.length === 0) {
       return error("Nada para atualizar.", 400);
     }
@@ -206,7 +226,8 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
               home_score AS homeScore, away_score AS awayScore,
               home_red AS homeRed, away_red AS awayRed,
               home_yellow AS homeYellow, away_yellow AS awayYellow,
-              home_fouls AS homeFouls, away_fouls AS awayFouls
+              home_fouls AS homeFouls, away_fouls AS awayFouls,
+              home_pens AS homePens, away_pens AS awayPens
          FROM matches WHERE id = ?;`,
     )
       .bind(id)

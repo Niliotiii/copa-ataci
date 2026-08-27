@@ -59,6 +59,18 @@ describe("Avanço automático do mata-mata", () => {
     const b = (await res.json()) as any;
     expect(b.final.teamB.abbr).toBe("???");
   });
+
+  it("empate decidido nos pênaltis promove o vencedor dos pênaltis", async () => {
+    const id = await slotId("SF2");
+    // Empate 0x0 e FAL vence nos pênaltis (3x1) → FAL vai para a final.
+    await finishMatchByEvents(id, "FAL", 0, "REL", 0);
+    await putMatch(makeCtx(req(`/api/matches/${id}`, { method: "PUT", headers: auth, body: JSON.stringify({ homePens: 3, awayPens: 1 }) }), { id: String(id) }));
+    const res = await getBracket(makeCtx(req("/api/bracket")));
+    const b = (await res.json()) as any;
+    expect(b.final.teamB.abbr).toBe("FAL");
+    const sf2 = b.semis.find((s: any) => s.slot === "SF2");
+    expect(sf2.winner).toBe("A"); // FAL era o mandante (home) da SF2
+  });
 });
 
 describe("Standings — desempates isolados", () => {

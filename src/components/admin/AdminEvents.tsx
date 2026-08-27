@@ -5,12 +5,14 @@ import { adminStyles, labelClass, type SaveResult } from "./shared";
 
 const TYPE_LABEL: Record<EventType, string> = {
   gol: "Gol",
+  gol_contra: "Gol contra",
   amarelo: "Amarelo",
   vermelho: "Vermelho",
 };
 const TYPE_COLOR: Record<EventType, string> = {
   gol: "var(--primary)",
-  amarelo: "#d4a017",
+  gol_contra: "#6b7280",
+  amarelo: "#b8860b",
   vermelho: "#ef4444",
 };
 
@@ -154,6 +156,7 @@ function PlayerPicker({ team, onAdd }: { team: TeamDetail; onAdd: (playerId: num
       <select value={type} onChange={(e) => setType(e.target.value as EventType)} aria-label="Tipo de evento"
         className="rounded-lg px-2 py-2 text-sm outline-none cursor-pointer" style={adminStyles.input}>
         <option value="gol">Gol</option>
+        <option value="gol_contra">Gol contra</option>
         <option value="amarelo">Amarelo</option>
         <option value="vermelho">Vermelho</option>
       </select>

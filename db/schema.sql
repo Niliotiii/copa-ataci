@@ -50,6 +50,9 @@ CREATE TABLE matches (
   away_yellow  INTEGER NOT NULL DEFAULT 0 CHECK (away_yellow >= 0),
   home_fouls   INTEGER NOT NULL DEFAULT 0 CHECK (home_fouls >= 0),
   away_fouls   INTEGER NOT NULL DEFAULT 0 CHECK (away_fouls >= 0),
+  -- Pênaltis (só mata-mata): desempate quando o placar normal empata. NULL = não houve.
+  home_pens    INTEGER CHECK (home_pens IS NULL OR home_pens >= 0),
+  away_pens    INTEGER CHECK (away_pens IS NULL OR away_pens >= 0),
   -- rótulos placeholder para o chaveamento (quando ainda não há time definido),
   -- ex.: "Vencedor SF2"
   home_placeholder TEXT,
@@ -92,7 +95,7 @@ CREATE TABLE match_events (
   player_id   INTEGER REFERENCES players(id) ON DELETE SET NULL,
   team_id     TEXT NOT NULL REFERENCES teams(id),
   player_name TEXT NOT NULL,
-  type        TEXT NOT NULL CHECK (type IN ('gol','amarelo','vermelho')),
+  type        TEXT NOT NULL CHECK (type IN ('gol','gol_contra','amarelo','vermelho')),
   created_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

@@ -23,6 +23,8 @@ export default function AdminMatches({ token }: { token: string }) {
   const [location, setLocation] = useState("");
   const [homeTeamId, setHomeTeamId] = useState("");
   const [awayTeamId, setAwayTeamId] = useState("");
+  // Pênaltis (só mata-mata, exibido quando o placar normal empata).
+  const [pens, setPens] = useState({ home: "", away: "" });
   // Faltas por lado (gols e cartões vêm dos eventos por jogador).
   const [disc, setDisc] = useState({ homeFouls: "", awayFouls: "" });
   const [saving, setSaving] = useState(false);
@@ -48,6 +50,10 @@ export default function AdminMatches({ token }: { token: string }) {
       homeFouls: String(selected.teamA.fouls ?? 0),
       awayFouls: String(selected.teamB.fouls ?? 0),
     });
+    setPens({
+      home: selected.teamA.pens != null ? String(selected.teamA.pens) : "",
+      away: selected.teamB.pens != null ? String(selected.teamB.pens) : "",
+    });
     setResult(null);
   }, [selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -65,6 +71,11 @@ export default function AdminMatches({ token }: { token: string }) {
       awayTeamId: awayTeamId || null,
       homeFouls: num(disc.homeFouls), awayFouls: num(disc.awayFouls),
     };
+    // Pênaltis só fazem sentido no mata-mata; envia null quando vazio (limpa).
+    if (selected.bracketSlot) {
+      body.homePens = pens.home === "" ? null : Number(pens.home);
+      body.awayPens = pens.away === "" ? null : Number(pens.away);
+    }
     const res = await authedPut(`/api/matches/${selected.id}`, token, body);
     setResult(res);
     setSaving(false);
@@ -227,6 +238,23 @@ export default function AdminMatches({ token }: { token: string }) {
                     className="w-full rounded-lg px-3 py-2 text-sm outline-none text-center" style={adminStyles.input} />
                 </div>
               </div>
+
+              {/* Pênaltis (só mata-mata) — desempate quando o placar normal empata */}
+              {selected.bracketSlot && (
+                <div className="mb-3">
+                  <label className={labelClass} style={adminStyles.label}>Pênaltis (casa / visitante) — só em caso de empate</label>
+                  <div className="grid grid-cols-2 gap-2 mt-1.5">
+                    <input type="number" min={0} max={99} value={pens.home}
+                      onChange={(e) => setPens((p) => ({ ...p, home: e.target.value }))}
+                      aria-label="Pênaltis casa" placeholder="—"
+                      className="w-full rounded-lg px-3 py-2 text-sm outline-none text-center" style={adminStyles.input} />
+                    <input type="number" min={0} max={99} value={pens.away}
+                      onChange={(e) => setPens((p) => ({ ...p, away: e.target.value }))}
+                      aria-label="Pênaltis visitante" placeholder="—"
+                      className="w-full rounded-lg px-3 py-2 text-sm outline-none text-center" style={adminStyles.input} />
+                  </div>
+                </div>
+              )}
 
               {/* Status */}
               <label className={labelClass} style={adminStyles.label}>Status</label>

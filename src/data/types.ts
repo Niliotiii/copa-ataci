@@ -28,6 +28,7 @@ export interface MatchTeam {
   name: string;
   color: string;
   score: number | null;
+  pens?: number | null;
   red?: number;
   yellow?: number;
   fouls?: number;
@@ -66,6 +67,8 @@ export interface MatchDetail {
   awayYellow?: number;
   homeFouls?: number;
   awayFouls?: number;
+  homePens?: number | null;
+  awayPens?: number | null;
 }
 
 export interface BracketBox {
@@ -111,7 +114,7 @@ export interface Sponsor {
   logoUrl?: string | null;
 }
 
-export type EventType = "gol" | "amarelo" | "vermelho";
+export type EventType = "gol" | "gol_contra" | "amarelo" | "vermelho";
 
 export interface MatchEvent {
   id: number;

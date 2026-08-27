@@ -18,7 +18,9 @@ export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
 };
 
 type EventInput = { playerId?: unknown; type?: unknown };
-const TYPES = new Set(["gol", "amarelo", "vermelho"]);
+// gol_contra: gol marcado pelo jogador contra o próprio time — conta para o
+// ADVERSÁRIO no placar e NÃO entra na artilharia.
+const TYPES = new Set(["gol", "gol_contra", "amarelo", "vermelho"]);
 
 // PUT /api/matches/:id/events — substitui os eventos do jogo (PROTEGIDO).
 // Corpo: { events: [{ playerId, type }, ...] }
@@ -47,6 +49,13 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
       .bind(id)
       .first()) as { id: number; home: string | null; away: string | null } | null;
     if (!match) return error("Jogo não encontrado.", 404);
+
+    // Jogadores que já tinham eventos neste jogo (para recomputar suspensões
+    // mesmo quando seus eventos forem removidos nesta edição).
+    const prevRows = await ctx.env.DB.prepare(
+      "SELECT DISTINCT player_id AS pid FROM match_events WHERE match_id = ?;",
+    ).bind(id).all();
+    const previouslyAffected = (prevRows.results as { pid: number }[]).map((r) => r.pid);
 
     // Valida cada evento e resolve o jogador (precisa existir e pertencer a um
     // dos times do jogo).
@@ -83,13 +92,16 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
     // Recalcula os agregados (cartões E gols) DO JOGO a partir dos eventos.
     const tally = (team: string | null, type: string) =>
       team == null ? 0 : resolved.filter((r) => r.teamId === team && r.type === type).length;
+    // Placar de um lado = gols do próprio time + gols contra do adversário.
+    const scoreFor = (own: string | null, opp: string | null) =>
+      tally(own, "gol") + tally(opp, "gol_contra");
     stmts.push(
       ctx.env.DB
         .prepare(
           `UPDATE matches SET home_score=?, away_score=?, home_red=?, away_red=?, home_yellow=?, away_yellow=? WHERE id=?;`,
         )
         .bind(
-          tally(match.home, "gol"), tally(match.away, "gol"),
+          scoreFor(match.home, match.away), scoreFor(match.away, match.home),
           tally(match.home, "vermelho"), tally(match.away, "vermelho"),
           tally(match.home, "amarelo"), tally(match.away, "amarelo"),
           id,
@@ -98,8 +110,9 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
 
     await ctx.env.DB.batch(stmts);
 
-    // Regenera as suspensões dos jogadores afetados por este jogo.
-    const affected = [...new Set(resolved.map((r) => r.playerId))];
+    // Regenera as suspensões dos jogadores afetados (atuais + os que tinham
+    // eventos antes e podem ter sido removidos nesta edição).
+    const affected = [...new Set([...resolved.map((r) => r.playerId), ...previouslyAffected])];
     for (const pid of affected) {
       await regenerateSuspensions(ctx.env.DB, pid);
     }
@@ -111,10 +124,13 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
 };
 
 /**
- * Recalcula as suspensões PENDENTES devidas de um jogador a partir de todos os
- * seus eventos, sem apagar as já cumpridas.
+ * Recomputa as suspensões PENDENTES de um jogador a partir de todos os seus
+ * eventos, de forma IDEMPOTENTE e preservando as já cumpridas.
+ *
  * Regra: cada vermelho = 1 suspensão; a cada 3 amarelos = 1 suspensão.
- * Cria só a diferença entre o total devido e o total já existente por motivo.
+ * Para cada motivo: pendentes_alvo = max(0, devido − cumpridas). Ajusta o número
+ * de suspensões pendentes (served=0) para bater com o alvo — INSERE se faltam,
+ * REMOVE se sobram (ex.: cartão corrigido para menos). Nunca toca nas cumpridas.
  */
 async function regenerateSuspensions(db: Env["DB"], playerId: number): Promise<void> {
   const counts = (await db
@@ -129,30 +145,48 @@ async function regenerateSuspensions(db: Env["DB"], playerId: number): Promise<v
 
   const reds = counts?.reds ?? 0;
   const yellows = counts?.yellows ?? 0;
-  const dueRed = reds; // 1 jogo por vermelho
-  const dueYellow = Math.floor(yellows / 3); // 1 jogo a cada 3 amarelos
+  const due: Record<string, number> = {
+    vermelho: reds, // 1 jogo por vermelho
+    "3_amarelos": Math.floor(yellows / 3), // 1 jogo a cada 3 amarelos
+  };
 
-  const have = (await db
-    .prepare(
-      `SELECT
-         SUM(CASE WHEN reason='vermelho' THEN 1 ELSE 0 END) AS red,
-         SUM(CASE WHEN reason='3_amarelos' THEN 1 ELSE 0 END) AS yel
-       FROM suspensions WHERE player_id = ?;`,
-    )
-    .bind(playerId)
-    .first()) as { red: number | null; yel: number | null } | null;
-
-  const haveRed = have?.red ?? 0;
-  const haveYel = have?.yel ?? 0;
-
-  const toAdd: string[] = [];
-  for (let i = 0; i < dueRed - haveRed; i++) toAdd.push("vermelho");
-  for (let i = 0; i < dueYellow - haveYel; i++) toAdd.push("3_amarelos");
-
-  for (const reason of toAdd) {
-    await db
-      .prepare("INSERT INTO suspensions (player_id, reason, games, served) VALUES (?, ?, 1, 0);")
+  for (const reason of ["vermelho", "3_amarelos"]) {
+    const row = (await db
+      .prepare(
+        `SELECT
+           SUM(CASE WHEN served=1 THEN 1 ELSE 0 END) AS served,
+           SUM(CASE WHEN served=0 THEN 1 ELSE 0 END) AS pending
+         FROM suspensions WHERE player_id = ? AND reason = ?;`,
+      )
       .bind(playerId, reason)
-      .run();
+      .first()) as { served: number | null; pending: number | null } | null;
+
+    const servedCount = row?.served ?? 0;
+    const pendingCount = row?.pending ?? 0;
+    const targetPending = Math.max(0, due[reason] - servedCount);
+
+    if (targetPending > pendingCount) {
+      // Faltam pendentes → cria a diferença.
+      for (let i = 0; i < targetPending - pendingCount; i++) {
+        await db
+          .prepare("INSERT INTO suspensions (player_id, reason, games, served) VALUES (?, ?, 1, 0);")
+          .bind(playerId, reason)
+          .run();
+      }
+    } else if (targetPending < pendingCount) {
+      // Sobram pendentes (cartão corrigido p/ menos) → remove só o excedente
+      // das NÃO cumpridas, preservando as cumpridas.
+      await db
+        .prepare(
+          `DELETE FROM suspensions
+            WHERE id IN (
+              SELECT id FROM suspensions
+               WHERE player_id = ? AND reason = ? AND served = 0
+               ORDER BY id DESC LIMIT ?
+            );`,
+        )
+        .bind(playerId, reason, pendingCount - targetPending)
+        .run();
+    }
   }
 }

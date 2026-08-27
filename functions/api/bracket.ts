@@ -9,6 +9,7 @@ export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
       SELECT
         m.id, m.phase, m.bracket_slot AS slot, m.status,
         m.home_score AS homeScore, m.away_score AS awayScore,
+        m.home_pens AS homePens, m.away_pens AS awayPens,
         m.home_placeholder AS homePlaceholder, m.away_placeholder AS awayPlaceholder,
         ht.id AS homeAbbr, ht.name AS homeName, ht.color AS homeColor,
         at.id AS awayAbbr, at.name AS awayName, at.color AS awayColor
@@ -23,9 +24,15 @@ export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
     const mapBox = (r: Record<string, unknown>) => {
       const homeScore = (r.homeScore as number | null) ?? null;
       const awayScore = (r.awayScore as number | null) ?? null;
+      const homePens = (r.homePens as number | null) ?? null;
+      const awayPens = (r.awayPens as number | null) ?? null;
       let winner: "A" | "B" | null = null;
       if (r.status === "finalizado" && homeScore !== null && awayScore !== null) {
-        winner = homeScore > awayScore ? "A" : awayScore > homeScore ? "B" : null;
+        if (homeScore !== awayScore) {
+          winner = homeScore > awayScore ? "A" : "B";
+        } else if (homePens !== null && awayPens !== null && homePens !== awayPens) {
+          winner = homePens > awayPens ? "A" : "B"; // decidido nos pênaltis
+        }
       }
       return {
         id: r.id,
@@ -35,12 +42,14 @@ export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
           name: (r.homeName as string) ?? (r.homePlaceholder as string) ?? "A definir",
           color: (r.homeColor as string) ?? "#6b7280",
           score: homeScore,
+          pens: homePens,
         },
         teamB: {
           abbr: (r.awayAbbr as string) ?? "???",
           name: (r.awayName as string) ?? (r.awayPlaceholder as string) ?? "A definir",
           color: (r.awayColor as string) ?? "#6b7280",
           score: awayScore,
+          pens: awayPens,
         },
         winner,
       };
