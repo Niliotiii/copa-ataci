@@ -116,8 +116,8 @@ export default function Bracket() {
 
       {!loading && !error && quarters.length > 0 && (
         <>
-          <div className="overflow-x-auto pb-4" style={{ scrollbarWidth: "none" }}>
-            <div className="flex gap-0 items-start" style={{ minWidth: "560px" }}>
+          <div className="overflow-x-auto lg:overflow-x-visible pb-4" style={{ scrollbarWidth: "none" }}>
+            <div className="flex gap-0 items-start lg:w-full" style={{ minWidth: "560px" }}>
 
               {/* Quarterfinals */}
               <div className="flex flex-col" style={{ width: "152px" }}>
@@ -128,12 +128,21 @@ export default function Bracket() {
               </div>
 
               {/* Connector Q→S */}
-              <svg width="40" height={COL_H + 24} style={{ flexShrink: 0, marginTop: "24px" }}>
-                <path d={`M0,${CARD_H / 2} H20 V${CARD_H + GAP + CARD_H / 2} H20`} stroke="var(--border)" strokeWidth="1.5" fill="none" />
-                <path d={`M20,${(CARD_H + CARD_H + GAP) / 2} H40`} stroke="var(--border)" strokeWidth="1.5" fill="none" />
-                <path d={`M0,${2 * (CARD_H + GAP) + CARD_H / 2} H20 V${3 * (CARD_H + GAP) + CARD_H / 2} H20`} stroke="var(--border)" strokeWidth="1.5" fill="none" />
-                <path d={`M20,${(2 * (CARD_H + GAP) + 3 * (CARD_H + GAP) + CARD_H) / 2} H40`} stroke="var(--border)" strokeWidth="1.5" fill="none" />
-              </svg>
+              <div className="flex-none lg:flex-1" style={{ marginTop: "24px" }}>
+                <svg
+                  width="40"
+                  height={COL_H + 24}
+                  viewBox={`0 0 40 ${COL_H + 24}`}
+                  preserveAspectRatio="none"
+                  className="w-10 lg:w-full"
+                  style={{ display: "block", height: COL_H + 24 }}
+                >
+                  <path d={`M0,${CARD_H / 2} H20 V${CARD_H + GAP + CARD_H / 2} H20`} stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d={`M20,${(CARD_H + CARD_H + GAP) / 2} H40`} stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d={`M0,${2 * (CARD_H + GAP) + CARD_H / 2} H20 V${3 * (CARD_H + GAP) + CARD_H / 2} H20`} stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d={`M20,${(2 * (CARD_H + GAP) + 3 * (CARD_H + GAP) + CARD_H) / 2} H40`} stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke" />
+                </svg>
+              </div>
 
               {/* Semis */}
               <div style={{ width: "152px" }}>
@@ -149,16 +158,25 @@ export default function Bracket() {
               </div>
 
               {/* Connector S→F */}
-              <svg width="40" height={COL_H + 24} style={{ flexShrink: 0, marginTop: "24px" }}>
-                <path
-                  d={`M0,${(CARD_H + GAP) / 2 + CARD_H / 2} H20 V${(CARD_H + GAP) * 2 + (CARD_H + GAP) / 2 + CARD_H / 2} H20`}
-                  stroke="var(--border)" strokeWidth="1.5" fill="none"
-                />
-                <path
-                  d={`M20,${((CARD_H + GAP) / 2 + CARD_H / 2 + (CARD_H + GAP) * 2 + (CARD_H + GAP) / 2 + CARD_H / 2) / 2} H40`}
-                  stroke="var(--border)" strokeWidth="1.5" fill="none"
-                />
-              </svg>
+              <div className="flex-none lg:flex-1" style={{ marginTop: "24px" }}>
+                <svg
+                  width="40"
+                  height={COL_H + 24}
+                  viewBox={`0 0 40 ${COL_H + 24}`}
+                  preserveAspectRatio="none"
+                  className="w-10 lg:w-full"
+                  style={{ display: "block", height: COL_H + 24 }}
+                >
+                  <path
+                    d={`M0,${(CARD_H + GAP) / 2 + CARD_H / 2} H20 V${(CARD_H + GAP) * 2 + (CARD_H + GAP) / 2 + CARD_H / 2} H20`}
+                    stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke"
+                  />
+                  <path
+                    d={`M20,${((CARD_H + GAP) / 2 + CARD_H / 2 + (CARD_H + GAP) * 2 + (CARD_H + GAP) / 2 + CARD_H / 2) / 2} H40`}
+                    stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke"
+                  />
+                </svg>
+              </div>
 
               {/* Final */}
               <div style={{ width: "176px" }}>
