@@ -4,9 +4,9 @@ import Schedule from "./components/Schedule";
 import Bracket from "./components/Bracket";
 import TeamLineup from "./components/TeamLineup";
 import SponsorTicker from "./components/SponsorTicker";
-import AdminPanel from "./components/AdminPanel";
+import AdminRoute from "./components/AdminRoute";
 import Scorers from "./components/Scorers";
-import { TrophyIcon, BallIcon, BracketIcon, ShirtIcon, LockIcon, ScorerIcon, MenuIcon, CloseIcon } from "./components/icons";
+import { TrophyIcon, BallIcon, BracketIcon, ShirtIcon, ScorerIcon, MenuIcon, CloseIcon } from "./components/icons";
 import type { ComponentType } from "react";
 
 const tabs: { id: string; label: string; Icon: ComponentType<{ size?: number }> }[] = [
@@ -15,10 +15,18 @@ const tabs: { id: string; label: string; Icon: ComponentType<{ size?: number }> 
   { id: "mata-mata", label: "Mata-Mata", Icon: BracketIcon },
   { id: "artilharia", label: "Artilharia", Icon: ScorerIcon },
   { id: "times", label: "Times", Icon: ShirtIcon },
-  { id: "admin", label: "Admin", Icon: LockIcon },
 ];
 
 export default function App() {
+  // Roteamento mínimo por path: /admin abre a área do organizador (login),
+  // fora do menu do portal. Qualquer outro path abre o portal.
+  const isAdmin = typeof window !== "undefined" && window.location.pathname.replace(/\/+$/, "") === "/admin";
+  if (isAdmin) return <AdminRoute />;
+
+  return <Portal />;
+}
+
+function Portal() {
   const [activeTab, setActiveTab] = useState("classificacao");
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -219,7 +227,6 @@ export default function App() {
             {activeTab === "mata-mata" && <Bracket />}
             {activeTab === "artilharia" && <Scorers />}
             {activeTab === "times" && <TeamLineup />}
-            {activeTab === "admin" && <AdminPanel />}
           </div>
         </main>
       </div>

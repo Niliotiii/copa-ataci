@@ -18,6 +18,21 @@ export function useAdminToken() {
 
 export type SaveResult = { ok: true } | { ok: false; error: string };
 
+/** Valida o token de admin no backend (login). Retorna true se aceito. */
+export async function verifyToken(token: string): Promise<boolean> {
+  if (!token) return false;
+  try {
+    const res = await fetch("/api/admin/verify", {
+      method: "POST",
+      headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+      body: "{}",
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 /** Faz um PUT autenticado com JSON e invalida o cache de /api/ ao dar certo. */
 export async function authedPut(
   path: string,

@@ -125,6 +125,7 @@ Todas as rotas de escrita exigem o header `Authorization: Bearer <ADMIN_TOKEN>`.
 | PUT | `/api/suspensions/:id` | Marca uma suspensão como cumprida (`{served}`) |
 | POST | `/api/matches/generate-groups` | Gera a tabela da fase de grupos (todos-contra-todos, turno único) |
 | POST | `/api/matches/generate-bracket` | Gera o mata-mata a partir da classificação (4 classificados: 1º×4º, 2º×3º) |
+| POST | `/api/admin/verify` | Valida o token de admin (login do painel `/admin`) |
 
 **`PUT /api/matches/:id`** — campos aceitos (todos opcionais):
 
@@ -223,17 +224,21 @@ Cada push na branch principal dispara build + deploy automáticos.
 
 ## Painel do Organizador (Admin)
 
-O app tem uma aba **Admin** (🔒) que permite editar o torneio pela UI, sem usar
-`curl`. O token é colado uma vez (guardado só na sessão, via `sessionStorage`) e
-vale para todas as seções. O painel tem três abas internas:
+O painel do organizador fica em **`/admin`** (fora do menu do portal). Ao acessar,
+uma tela de **login** pede o token de admin, que é **validado no backend**
+(`POST /api/admin/verify`) — só libera o painel com o token correto. O token é
+guardado só na sessão (`sessionStorage`) e vale para todas as seções; há botão
+**Sair**. O painel tem quatro abas internas:
 
 - **Jogos** — selecionar um jogo e editar placar, status, data, horário, local e
-  os times de casa/visitante.
+  os times de casa/visitante. Inclui **gerar a tabela da fase de grupos**
+  (round-robin) e **gerar o mata-mata** a partir da classificação.
 - **Times** — editar nome, sigla, cor (color picker) e formação; e editar o
   elenco (nome, número, posição e coordenadas `posX`/`posY`), com adicionar/remover.
   As posições podem ser definidas **arrastando os jogadores direto no campo**
   (Modo Cartola) ou digitando as coordenadas X/Y.
 - **Patrocinadores** — adicionar, remover e editar a lista (nome, sigla, cor, slogan).
+- **Suspensões** — dar baixa (marcar como cumprida) nos jogadores suspensos.
 
 Ao salvar, o painel chama o `PUT` correspondente e invalida o cache local —
 classificação, jogos, chaveamento, escalações e patrocinadores se atualizam na

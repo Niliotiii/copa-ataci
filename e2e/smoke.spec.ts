@@ -18,11 +18,11 @@ test.describe("Copa Ataci — smoke E2E", () => {
   });
 
   test("admin finaliza um jogo e a classificação reflete", async ({ page }) => {
-    await page.goto("/");
-    await page.getByRole("button", { name: "Admin" }).first().click();
-
-    // Cola o token de admin.
-    await page.getByPlaceholder("Bearer token…").fill("dev-token-troque-isto");
+    // A área do organizador fica em /admin (fora do menu) e pede login.
+    await page.goto("/admin");
+    await page.getByLabel("Token de acesso").fill("dev-token-troque-isto");
+    await page.getByRole("button", { name: "Entrar" }).click();
+    await expect(page.getByRole("heading", { name: "Painel do Organizador" })).toBeVisible();
 
     // Seleciona o jogo ATA x LEO (Rodada 2) pelo texto da opção.
     const select = page.locator("select").first();
@@ -43,7 +43,8 @@ test.describe("Copa Ataci — smoke E2E", () => {
     // Feedback de sucesso.
     await expect(page.getByText(/salvo/i)).toBeVisible();
 
-    // Volta à classificação: ATA agora tem 2 jogos.
+    // Volta ao portal: a classificação segue renderizando.
+    await page.goto("/");
     await page.getByRole("button", { name: "Classificação" }).first().click();
     await expect(page.getByRole("table")).toBeVisible();
   });
@@ -55,6 +56,19 @@ test.describe("Copa Ataci — smoke E2E", () => {
     // acessar squad.players quando o fallback era a lista). Garante que renderiza.
     await expect(page.getByRole("heading", { name: "Elenco" })).toBeVisible();
     await expect(page.getByText("Goleiro").first()).toBeVisible();
+  });
+
+  test("admin fica em /admin e exige login válido (fora do menu)", async ({ page }) => {
+    await page.goto("/");
+    // Não há mais aba Admin no menu do portal.
+    await expect(page.getByRole("button", { name: "Admin" })).toHaveCount(0);
+    // /admin mostra o login; token errado não libera.
+    await page.goto("/admin");
+    await expect(page.getByText("Área do Organizador")).toBeVisible();
+    await page.getByLabel("Token de acesso").fill("errado");
+    await page.getByRole("button", { name: "Entrar" }).click();
+    await expect(page.getByRole("alert")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Painel do Organizador" })).toHaveCount(0);
   });
 
   test("mobile: menu hambúrguer abre, navega e fecha", async ({ page }) => {
