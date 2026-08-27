@@ -1,0 +1,14 @@
+# Cloudflare Pages + D1 · Copa Ataci
+# O frontend (Vite) gera ./dist e as Pages Functions ficam em ./functions.
+name = "copa-ataci"
+compatibility_date = "2026-08-01"
+pages_build_output_dir = "dist"
+
+# Binding do banco D1. O `database_id` real é preenchido após criar o banco:
+#   npx wrangler d1 create copa-ataci
+# e colar o id retornado aqui. Para dev local (--local) o id não é usado.
+[[d1_databases]]
+binding = "DB"
+database_name = "copa-ataci"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+migrations_dir = "migrations"

@@ -1,0 +1,238 @@
+import { useState, useEffect } from "react";
+import { useApi } from "../../data/useApi";
+import type { Team, TeamDetail, Player, Position } from "../../data/types";
+import { LoadingState, ErrorState } from "../States";
+import { authedPut, adminStyles, labelClass, type SaveResult } from "./shared";
+import PitchEditor from "./PitchEditor";
+
+const POSITIONS: Position[] = ["GOL", "DEF", "ALA", "MED", "ATA"];
+
+type EditablePlayer = {
+  name: string;
+  number: string;
+  position: Position;
+  posX: string;
+  posY: string;
+};
+
+function toEditable(p: Player): EditablePlayer {
+  return {
+    name: p.name,
+    number: p.number != null ? String(p.number) : "",
+    position: p.position,
+    posX: String(p.posX),
+    posY: String(p.posY),
+  };
+}
+
+export default function AdminTeams({ token }: { token: string }) {
+  const { data: teams, loading, error } = useApi<Team[]>("/api/teams");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const activeId = selectedId ?? teams?.[0]?.id ?? null;
+  const { data: squad } = useApi<TeamDetail>(activeId ? `/api/teams/${activeId}` : "/api/teams");
+
+  // Campos do time
+  const [name, setName] = useState("");
+  const [abbr, setAbbr] = useState("");
+  const [color, setColor] = useState("#16a34a");
+  const [formation, setFormation] = useState("");
+  const [players, setPlayers] = useState<EditablePlayer[]>([]);
+
+  const [savingTeam, setSavingTeam] = useState(false);
+  const [savingSquad, setSavingSquad] = useState(false);
+  const [teamResult, setTeamResult] = useState<SaveResult | null>(null);
+  const [squadResult, setSquadResult] = useState<SaveResult | null>(null);
+
+  useEffect(() => {
+    if (!squad) return;
+    setName(squad.name);
+    setAbbr(squad.abbr);
+    setColor(squad.color);
+    setFormation(squad.formation ?? "");
+    setPlayers(squad.players.map(toEditable));
+    setTeamResult(null);
+    setSquadResult(null);
+  }, [squad?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function saveTeam() {
+    if (!activeId) return;
+    setSavingTeam(true);
+    setTeamResult(null);
+    const res = await authedPut(`/api/teams/${activeId}`, token, {
+      name, abbr, color, formation: formation || null,
+    });
+    setTeamResult(res);
+    setSavingTeam(false);
+  }
+
+  async function saveSquad() {
+    if (!activeId) return;
+    setSavingSquad(true);
+    setSquadResult(null);
+    const payload = {
+      players: players.map((p) => ({
+        name: p.name,
+        number: p.number === "" ? null : Number(p.number),
+        position: p.position,
+        posX: Number(p.posX),
+        posY: Number(p.posY),
+      })),
+    };
+    const res = await authedPut(`/api/teams/${activeId}/players`, token, payload);
+    setSquadResult(res);
+    setSavingSquad(false);
+  }
+
+  function updatePlayer(i: number, patch: Partial<EditablePlayer>) {
+    setPlayers((prev) => prev.map((p, idx) => (idx === i ? { ...p, ...patch } : p)));
+  }
+  function movePlayer(i: number, posX: number, posY: number) {
+    setPlayers((prev) => prev.map((p, idx) => (idx === i ? { ...p, posX: String(posX), posY: String(posY) } : p)));
+  }
+  function addPlayer() {
+    setPlayers((prev) => [...prev, { name: "", number: "", position: "MED", posX: "50", posY: "50" }]);
+  }
+  function removePlayer(i: number) {
+    setPlayers((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
+  const feedback = (r: SaveResult | null, okMsg: string) =>
+    r && (
+      <div className="mt-3 rounded-lg p-3 text-sm" role="status" aria-live="polite"
+        style={{
+          background: r.ok ? "rgba(22,163,74,0.1)" : "rgba(239,68,68,0.1)",
+          border: `1px solid ${r.ok ? "var(--primary)" : "rgba(239,68,68,0.5)"}`,
+          color: r.ok ? "var(--primary)" : "#ef4444",
+        }}>
+        {r.ok ? okMsg : r.error}
+      </div>
+    );
+
+  return (
+    <div>
+      {loading && <LoadingState label="Carregando times…" />}
+      {error && <ErrorState message={error} />}
+
+      {!loading && !error && teams && (
+        <>
+          <label className={labelClass} style={adminStyles.label}>Time</label>
+          <select value={activeId ?? ""} onChange={(e) => setSelectedId(e.target.value)}
+            className="w-full mt-1.5 mb-4 rounded-lg px-3 py-2 text-sm outline-none cursor-pointer" style={adminStyles.input}>
+            {teams.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+          </select>
+
+          {/* Dados do time */}
+          <div className="rounded-xl p-4 mb-4" style={adminStyles.card}>
+            <h3 className="text-sm font-bold uppercase mb-3" style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)" }}>
+              Dados do time
+            </h3>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className={labelClass} style={adminStyles.label}>Nome</label>
+                <input value={name} onChange={(e) => setName(e.target.value)}
+                  className="w-full mt-1.5 rounded-lg px-3 py-2 text-sm outline-none" style={adminStyles.input} />
+              </div>
+              <div>
+                <label className={labelClass} style={adminStyles.label}>Sigla (2-4)</label>
+                <input value={abbr} onChange={(e) => setAbbr(e.target.value)} maxLength={4}
+                  className="w-full mt-1.5 rounded-lg px-3 py-2 text-sm outline-none uppercase" style={adminStyles.input} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className={labelClass} style={adminStyles.label}>Cor</label>
+                <div className="flex gap-2 mt-1.5 items-center">
+                  <input type="color" value={color} onChange={(e) => setColor(e.target.value)}
+                    className="w-10 h-9 rounded cursor-pointer" style={{ background: "var(--secondary)", border: "1px solid var(--border)" }} />
+                  <input value={color} onChange={(e) => setColor(e.target.value)}
+                    className="flex-1 rounded-lg px-3 py-2 text-sm outline-none" style={adminStyles.input} />
+                </div>
+              </div>
+              <div>
+                <label className={labelClass} style={adminStyles.label}>Formação</label>
+                <input value={formation} onChange={(e) => setFormation(e.target.value)}
+                  placeholder="3-2-3" className="w-full mt-1.5 rounded-lg px-3 py-2 text-sm outline-none" style={adminStyles.input} />
+              </div>
+            </div>
+            <button onClick={saveTeam} disabled={savingTeam || !token}
+              className="w-full rounded-xl py-2.5 font-semibold text-sm uppercase transition-opacity disabled:opacity-50"
+              style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
+              {savingTeam ? "Salvando…" : "Salvar dados do time"}
+            </button>
+            {feedback(teamResult, "Dados do time salvos!")}
+          </div>
+
+          {/* Elenco */}
+          <div className="rounded-xl p-4" style={adminStyles.card}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold uppercase" style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)" }}>
+                Elenco ({players.length})
+              </h3>
+              <button onClick={addPlayer}
+                className="text-xs px-3 py-1.5 rounded-lg font-semibold uppercase"
+                style={{ background: "var(--secondary)", color: "var(--primary)", border: "1px solid var(--primary)", fontFamily: "Oswald, sans-serif" }}>
+                + Adicionar
+              </button>
+            </div>
+
+            {/* Campo arrastável — posicione os jogadores */}
+            <div className="mb-3 max-w-xs mx-auto">
+              <PitchEditor players={players} teamColor={color} onMove={movePlayer} />
+              <p className="text-xs mt-1.5 text-center" style={{ color: "var(--muted-foreground)" }}>
+                Arraste os jogadores no campo para definir a posição. Os valores X/Y abaixo
+                se atualizam automaticamente.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 mb-3">
+              {players.map((p, i) => (
+                <div key={i} className="grid gap-2 items-center"
+                  style={{ gridTemplateColumns: "1fr 44px 64px 44px 44px 44px" }}>
+                  <input value={p.name} onChange={(e) => updatePlayer(i, { name: e.target.value })}
+                    placeholder="Nome" aria-label={`Nome do jogador ${i + 1}`}
+                    className="rounded-lg px-2 py-2 text-sm outline-none" style={adminStyles.input} />
+                  <input value={p.number} onChange={(e) => updatePlayer(i, { number: e.target.value })}
+                    placeholder="#" type="number" aria-label={`Número do jogador ${i + 1}`}
+                    className="rounded-lg px-1 py-2 text-sm outline-none text-center" style={adminStyles.input} />
+                  <select value={p.position} onChange={(e) => updatePlayer(i, { position: e.target.value as Position })}
+                    aria-label={`Posição do jogador ${i + 1}`}
+                    className="rounded-lg px-1 py-2 text-xs outline-none cursor-pointer" style={adminStyles.input}>
+                    {POSITIONS.map((pos) => <option key={pos} value={pos}>{pos}</option>)}
+                  </select>
+                  <input value={p.posX} onChange={(e) => updatePlayer(i, { posX: e.target.value })}
+                    placeholder="X" type="number" min={0} max={100} aria-label={`Coordenada X do jogador ${i + 1}`}
+                    className="rounded-lg px-1 py-2 text-sm outline-none text-center" style={adminStyles.input} />
+                  <input value={p.posY} onChange={(e) => updatePlayer(i, { posY: e.target.value })}
+                    placeholder="Y" type="number" min={0} max={100} aria-label={`Coordenada Y do jogador ${i + 1}`}
+                    className="rounded-lg px-1 py-2 text-sm outline-none text-center" style={adminStyles.input} />
+                  <button onClick={() => removePlayer(i)} aria-label={`Remover jogador ${i + 1}`}
+                    className="w-11 h-11 rounded-lg flex items-center justify-center"
+                    style={{ background: "rgba(239,68,68,0.12)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.4)" }}>
+                    ✕
+                  </button>
+                </div>
+              ))}
+              {players.length === 0 && (
+                <p className="text-xs text-center py-3" style={{ color: "var(--muted-foreground)" }}>
+                  Nenhum jogador. Clique em “Adicionar”.
+                </p>
+              )}
+            </div>
+
+            <p className="text-xs mb-3" style={{ color: "var(--muted-foreground)" }}>
+              Colunas: Nome · Nº · Posição · X · Y (coordenadas 0–100 no campo).
+            </p>
+
+            <button onClick={saveSquad} disabled={savingSquad || !token}
+              className="w-full rounded-xl py-2.5 font-semibold text-sm uppercase transition-opacity disabled:opacity-50"
+              style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
+              {savingSquad ? "Salvando…" : "Salvar elenco"}
+            </button>
+            {feedback(squadResult, "Elenco salvo!")}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

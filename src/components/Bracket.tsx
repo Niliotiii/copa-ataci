@@ -1,0 +1,194 @@
+import { useApi } from "../data/useApi";
+import type { Bracket as BracketData, BracketBox } from "../data/types";
+import { LoadingState, ErrorState, EmptyState } from "./States";
+
+function MatchCard({ match, size = "sm" }: { match: BracketBox; size?: "sm" | "lg" }) {
+  const isLg = size === "lg";
+  return (
+    <div
+      className="rounded-xl overflow-hidden"
+      style={{
+        background: "var(--card)",
+        border: "1px solid var(--border)",
+        width: isLg ? "176px" : "152px",
+        boxShadow: isLg ? "0 4px 20px rgba(0,0,0,0.3)" : "none",
+      }}
+    >
+      {[match.teamA, match.teamB].map((team, idx) => {
+        const isWinner = (idx === 0 && match.winner === "A") || (idx === 1 && match.winner === "B");
+        return (
+          <div
+            key={idx}
+            className="flex items-center gap-2 px-3 py-2"
+            style={{
+              borderBottom: idx === 0 ? "1px solid var(--border)" : "none",
+              background: isWinner ? "rgba(22,163,74,0.08)" : "transparent",
+            }}
+          >
+            <div
+              className="rounded-full flex items-center justify-center text-white font-bold flex-shrink-0"
+              style={{
+                width: isLg ? "22px" : "18px",
+                height: isLg ? "22px" : "18px",
+                background: team.color,
+                fontSize: "7px",
+                fontFamily: "Oswald, sans-serif",
+                fontWeight: 700,
+              }}
+            >
+              {(team.abbr ?? "?").slice(0, 3)}
+            </div>
+            <span
+              className="flex-1 truncate"
+              style={{
+                fontSize: isLg ? "13px" : "11px",
+                fontFamily: "Inter, sans-serif",
+                color: isWinner ? "var(--foreground)" : "var(--secondary-foreground)",
+                fontWeight: isWinner ? 600 : 400,
+              }}
+            >
+              {team.name}
+            </span>
+            <span
+              style={{
+                fontSize: isLg ? "16px" : "14px",
+                fontFamily: "Oswald, sans-serif",
+                fontWeight: 700,
+                color: isWinner ? "var(--accent)" : team.score !== null ? "var(--muted-foreground)" : "var(--border)",
+                minWidth: "14px",
+                textAlign: "right",
+              }}
+            >
+              {team.score !== null ? team.score : "–"}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ColLabel({ label }: { label: string }) {
+  return (
+    <div
+      className="text-xs font-semibold uppercase tracking-widest mb-3 text-center"
+      style={{ fontFamily: "Oswald, sans-serif", color: "var(--muted-foreground)", letterSpacing: "0.12em" }}
+    >
+      {label}
+    </div>
+  );
+}
+
+const CARD_H = 62;
+const GAP = 12;
+const COL_H = 4 * (CARD_H + GAP) - GAP;
+
+export default function Bracket() {
+  const { data, loading, error } = useApi<BracketData>("/api/bracket");
+
+  const quarters = data?.quarters ?? [];
+  const semis = data?.semis ?? [];
+  const finalMatch = data?.final ?? null;
+
+  // Semifinal ainda não disputada (para a nota de status).
+  const pendingSemi = semis.find((s) => s.winner === null && (s.teamA.score === null || s.teamB.score === null));
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-xl uppercase tracking-wide" style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, color: "var(--foreground)" }}>
+            Mata-Mata
+          </h2>
+          <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>Society 7x7 · Eliminatórias · Copa Ataci 2026</p>
+        </div>
+        <span
+          className="text-xs px-2 py-1 rounded"
+          style={{ background: "rgba(212,160,23,0.15)", color: "var(--accent)", fontFamily: "Oswald, sans-serif" }}
+        >
+          2026
+        </span>
+      </div>
+
+      {loading && <LoadingState label="Carregando chaveamento…" />}
+      {error && <ErrorState message={error} />}
+      {!loading && !error && quarters.length === 0 && <EmptyState label="Mata-mata ainda não definido." />}
+
+      {!loading && !error && quarters.length > 0 && (
+        <>
+          <div className="overflow-x-auto pb-4" style={{ scrollbarWidth: "none" }}>
+            <div className="flex gap-0 items-start" style={{ minWidth: "560px" }}>
+
+              {/* Quarterfinals */}
+              <div className="flex flex-col" style={{ width: "152px" }}>
+                <ColLabel label="Quartas" />
+                <div className="flex flex-col" style={{ gap: `${GAP}px` }}>
+                  {quarters.map((m) => <MatchCard key={m.id} match={m} />)}
+                </div>
+              </div>
+
+              {/* Connector Q→S */}
+              <svg width="40" height={COL_H + 24} style={{ flexShrink: 0, marginTop: "24px" }}>
+                <path d={`M0,${CARD_H / 2} H20 V${CARD_H + GAP + CARD_H / 2} H20`} stroke="var(--border)" strokeWidth="1.5" fill="none" />
+                <path d={`M20,${(CARD_H + CARD_H + GAP) / 2} H40`} stroke="var(--border)" strokeWidth="1.5" fill="none" />
+                <path d={`M0,${2 * (CARD_H + GAP) + CARD_H / 2} H20 V${3 * (CARD_H + GAP) + CARD_H / 2} H20`} stroke="var(--border)" strokeWidth="1.5" fill="none" />
+                <path d={`M20,${(2 * (CARD_H + GAP) + 3 * (CARD_H + GAP) + CARD_H) / 2} H40`} stroke="var(--border)" strokeWidth="1.5" fill="none" />
+              </svg>
+
+              {/* Semis */}
+              <div style={{ width: "152px" }}>
+                <ColLabel label="Semifinal" />
+                <div style={{ paddingTop: `${(CARD_H + GAP) / 2}px` }} className="flex flex-col">
+                  {semis[0] && (
+                    <div style={{ marginBottom: `${(CARD_H + GAP) * 2 - CARD_H - GAP}px` }}>
+                      <MatchCard match={semis[0]} />
+                    </div>
+                  )}
+                  {semis[1] && <MatchCard match={semis[1]} />}
+                </div>
+              </div>
+
+              {/* Connector S→F */}
+              <svg width="40" height={COL_H + 24} style={{ flexShrink: 0, marginTop: "24px" }}>
+                <path
+                  d={`M0,${(CARD_H + GAP) / 2 + CARD_H / 2} H20 V${(CARD_H + GAP) * 2 + (CARD_H + GAP) / 2 + CARD_H / 2} H20`}
+                  stroke="var(--border)" strokeWidth="1.5" fill="none"
+                />
+                <path
+                  d={`M20,${((CARD_H + GAP) / 2 + CARD_H / 2 + (CARD_H + GAP) * 2 + (CARD_H + GAP) / 2 + CARD_H / 2) / 2} H40`}
+                  stroke="var(--border)" strokeWidth="1.5" fill="none"
+                />
+              </svg>
+
+              {/* Final */}
+              <div style={{ width: "176px" }}>
+                <ColLabel label="Final" />
+                {finalMatch && (
+                  <div style={{ paddingTop: `${(CARD_H + GAP) * 1.5 - CARD_H * 0.5}px` }}>
+                    <MatchCard match={finalMatch} size="lg" />
+                    <div className="flex items-center justify-center gap-1.5 mt-3">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2">
+                        <path d="M8 21h8M12 17v4M17 3H7l-2 7h4l-1 4h8l-1-4h4L17 3z" />
+                      </svg>
+                      <span className="text-xs font-semibold" style={{ color: "var(--accent)", fontFamily: "Oswald, sans-serif" }}>Campeão</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Status note */}
+          {pendingSemi && (
+            <div
+              className="mt-4 rounded-xl p-3 text-xs"
+              style={{ background: "var(--card)", border: "1px solid var(--border)", color: "var(--muted-foreground)" }}
+            >
+              <span style={{ color: "var(--primary)", fontWeight: 600 }}>{pendingSemi.slot}</span> — {pendingSemi.teamA.name} × {pendingSemi.teamB.name} ainda não foi disputada.
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,8 @@
+name = "copa-ataci-tests"
+compatibility_date = "2024-09-01"
+main = "worker.js"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "copa-ataci-test"
+database_id = "copa-ataci-test"
