@@ -88,7 +88,6 @@ export interface Team {
   abbr: string;
   color: string;
   crestUrl: string | null;
-  formation: string | null;
 }
 
 export interface Player {
@@ -109,6 +108,7 @@ export interface Sponsor {
   initials: string;
   color: string;
   tagline: string | null;
+  logoUrl?: string | null;
 }
 
 export type EventType = "gol" | "amarelo" | "vermelho";

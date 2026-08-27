@@ -104,7 +104,6 @@ describe("GET /api/teams e /api/teams/:id", () => {
     expect(res.status).toBe(200);
     const team = (await res.json()) as any;
     expect(team.name).toBe("Ataci FC");
-    expect(team.formation).toBe("3-2-3");
     expect(team.players.length).toBe(12);
     const gol = team.players.find((p: any) => p.position === "GOL");
     expect(gol.posX).toBe(50);

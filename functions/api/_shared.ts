@@ -132,6 +132,22 @@ export type TeamSide = {
   score: number | null;
 };
 
+// ---------------------------------------------------------------------------
+// Validação de imagem enviada como data URI (upload de logo/escudo).
+// Aceita PNG/JPEG/WebP/GIF/SVG em base64, com teto de tamanho para não inflar
+// o D1. Retorna mensagem de erro (string) ou null se válido/ausente.
+// ---------------------------------------------------------------------------
+const IMG_DATA_URI = /^data:image\/(png|jpe?g|webp|gif|svg\+xml);base64,[A-Za-z0-9+/=]+$/;
+const MAX_IMG_CHARS = 700_000; // ~500 KB binário em base64
+
+export function validateImageDataUri(value: unknown, field: string): string | null {
+  if (value === null || value === undefined || value === "") return null; // opcional
+  if (typeof value !== "string") return `${field} inválido.`;
+  if (value.length > MAX_IMG_CHARS) return `${field}: imagem muito grande (máx. ~500KB).`;
+  if (!IMG_DATA_URI.test(value)) return `${field}: formato de imagem inválido (envie PNG/JPEG/WebP).`;
+  return null;
+}
+
 /** Monta o lado de um confronto a partir de colunas cruas do join. */
 export function teamSide(opts: {
   abbr: unknown;

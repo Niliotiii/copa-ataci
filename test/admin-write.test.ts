@@ -118,6 +118,24 @@ describe("PUT /api/sponsors — substituir lista", () => {
     ],
   };
 
+  it("persiste o logo (imagem data URI) do patrocinador", async () => {
+    const logo = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA=";
+    const res = await putSponsors(
+      makeCtx(req("/api/sponsors", { method: "PUT", headers: authHeaders, body: JSON.stringify({ sponsors: [{ name: "Logo Co", initials: "LC", color: "#112233", logoUrl: logo }] }) })),
+    );
+    expect(res.status).toBe(200);
+    const after = await getSponsors(makeCtx(req("/api/sponsors")));
+    const list = (await after.json()) as any[];
+    expect(list[0].logoUrl).toBe(logo);
+  });
+
+  it("rejeita logo com data URI não-imagem", async () => {
+    const res = await putSponsors(
+      makeCtx(req("/api/sponsors", { method: "PUT", headers: authHeaders, body: JSON.stringify({ sponsors: [{ name: "X", initials: "X", color: "#112233", logoUrl: "data:text/html;base64,PHM+" }] }) })),
+    );
+    expect(res.status).toBe(400);
+  });
+
   it("401 sem token", async () => {
     const res = await putSponsors(
       makeCtx(

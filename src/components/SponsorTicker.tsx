@@ -8,10 +8,10 @@ function SponsorItem({ sponsor }: { sponsor: Sponsor }) {
       style={{ borderRight: "1px solid var(--border)" }}
     >
       <div
-        className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0"
-        style={{ background: sponsor.color, fontSize: "10px", fontFamily: "Oswald, sans-serif" }}
+        className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden"
+        style={{ background: sponsor.logoUrl ? "var(--card)" : sponsor.color, fontSize: "10px", fontFamily: "Oswald, sans-serif" }}
       >
-        {sponsor.initials}
+        {sponsor.logoUrl ? <img src={sponsor.logoUrl} alt="" className="w-full h-full object-contain" /> : sponsor.initials}
       </div>
       <div>
         <div

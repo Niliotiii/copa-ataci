@@ -4,7 +4,7 @@ import { json, serverError, type PagesContext } from "./_shared";
 export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
   try {
     const { results } = await ctx.env.DB.prepare(
-      `SELECT id, name, abbr, color, crest_url AS crestUrl, formation
+      `SELECT id, name, abbr, color, crest_url AS crestUrl
          FROM teams
         ORDER BY sort_order ASC, name ASC;`,
     ).all();

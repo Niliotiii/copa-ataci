@@ -24,6 +24,24 @@ const authHeaders = {
 };
 
 describe("PUT /api/teams/:id (dados do time)", () => {
+  it("aceita escudo como imagem (data URI) e persiste", async () => {
+    const crest = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA=";
+    const res = await putTeam(
+      makeCtx(req("/api/teams/ATA", { method: "PUT", headers: authHeaders, body: JSON.stringify({ crestUrl: crest }) }), { id: "ATA" }),
+    );
+    expect(res.status).toBe(200);
+    const check = await getTeam(makeCtx(req("/api/teams/ATA"), { id: "ATA" }));
+    const team = (await check.json()) as any;
+    expect(team.crestUrl).toBe(crest);
+  });
+
+  it("rejeita escudo com data URI não-imagem", async () => {
+    const res = await putTeam(
+      makeCtx(req("/api/teams/ATA", { method: "PUT", headers: authHeaders, body: JSON.stringify({ crestUrl: "data:text/html;base64,PHNjcmlwdD4=" }) }), { id: "ATA" }),
+    );
+    expect(res.status).toBe(400);
+  });
+
   it("401 sem token", async () => {
     const res = await putTeam(
       makeCtx(
@@ -68,13 +86,13 @@ describe("PUT /api/teams/:id (dados do time)", () => {
     expect(res.status).toBe(404);
   });
 
-  it("200 e persiste nome/cor/formação", async () => {
+  it("200 e persiste nome/cor", async () => {
     const res = await putTeam(
       makeCtx(
         req("/api/teams/ATA", {
           method: "PUT",
           headers: authHeaders,
-          body: JSON.stringify({ name: "Ataci Futebol Clube", color: "#123456", formation: "2-3-2" }),
+          body: JSON.stringify({ name: "Ataci Futebol Clube", color: "#123456" }),
         }),
         { id: "ATA" },
       ),
@@ -84,7 +102,6 @@ describe("PUT /api/teams/:id (dados do time)", () => {
     expect(out.ok).toBe(true);
     expect(out.team.name).toBe("Ataci Futebol Clube");
     expect(out.team.color).toBe("#123456");
-    expect(out.team.formation).toBe("2-3-2");
 
     // Lê de volta.
     const check = await getTeam(makeCtx(req("/api/teams/ATA"), { id: "ATA" }));

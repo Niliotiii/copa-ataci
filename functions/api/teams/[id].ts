@@ -1,4 +1,4 @@
-import { json, jsonMutation, error, serverError, requireAuth, type PagesContext } from "../_shared";
+import { json, jsonMutation, error, serverError, requireAuth, validateImageDataUri, type PagesContext } from "../_shared";
 
 // GET /api/teams/:id — time + elenco com coordenadas pos_x/pos_y (Modo Cartola).
 export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
@@ -6,7 +6,7 @@ export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
     const id = ctx.params.id as string;
 
     const team = await ctx.env.DB.prepare(
-      `SELECT id, name, abbr, color, crest_url AS crestUrl, formation
+      `SELECT id, name, abbr, color, crest_url AS crestUrl
          FROM teams WHERE id = ?;`,
     )
       .bind(id)
@@ -34,7 +34,6 @@ type TeamUpdateBody = {
   abbr?: string;
   color?: string;
   crestUrl?: string | null;
-  formation?: string | null;
 };
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
@@ -83,15 +82,13 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
       if (body.crestUrl !== null && typeof body.crestUrl !== "string") {
         return error("crestUrl inválido.", 400);
       }
+      // Se vier como imagem (data URI), valida tipo/tamanho; URL comum passa.
+      if (typeof body.crestUrl === "string" && body.crestUrl.startsWith("data:")) {
+        const imgErr = validateImageDataUri(body.crestUrl, "crestUrl");
+        if (imgErr) return error(imgErr, 400);
+      }
       sets.push("crest_url = ?");
       binds.push(body.crestUrl);
-    }
-    if ("formation" in body) {
-      if (body.formation !== null && typeof body.formation !== "string") {
-        return error("formation inválido.", 400);
-      }
-      sets.push("formation = ?");
-      binds.push(body.formation);
     }
 
     if (sets.length === 0) {
@@ -109,7 +106,7 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
       .run();
 
     const updated = await ctx.env.DB.prepare(
-      `SELECT id, name, abbr, color, crest_url AS crestUrl, formation
+      `SELECT id, name, abbr, color, crest_url AS crestUrl
          FROM teams WHERE id = ?;`,
     )
       .bind(id)

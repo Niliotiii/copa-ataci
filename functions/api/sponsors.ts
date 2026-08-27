@@ -1,10 +1,10 @@
-import { json, jsonMutation, error, serverError, requireAuth, type PagesContext } from "./_shared";
+import { json, jsonMutation, error, serverError, requireAuth, validateImageDataUri, type PagesContext } from "./_shared";
 
 // GET /api/sponsors
 export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
   try {
     const { results } = await ctx.env.DB.prepare(
-      `SELECT name, initials, color, tagline
+      `SELECT name, initials, color, tagline, logo_url AS logoUrl
          FROM sponsors
         ORDER BY sort_order ASC, id ASC;`,
     ).all();
@@ -19,6 +19,7 @@ type SponsorInput = {
   initials?: unknown;
   color?: unknown;
   tagline?: unknown;
+  logoUrl?: unknown;
 };
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
@@ -31,6 +32,12 @@ function validateSponsor(s: SponsorInput, i: number): string | null {
     return `patrocinador ${i}: color inválido (#rrggbb).`;
   if (s.tagline != null && typeof s.tagline !== "string")
     return `patrocinador ${i}: tagline inválido.`;
+  if (typeof s.logoUrl === "string" && s.logoUrl.startsWith("data:")) {
+    const imgErr = validateImageDataUri(s.logoUrl, `patrocinador ${i}: logo`);
+    if (imgErr) return imgErr;
+  } else if (s.logoUrl != null && typeof s.logoUrl !== "string") {
+    return `patrocinador ${i}: logo inválido.`;
+  }
   return null;
 }
 
@@ -60,8 +67,8 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
 
     // Substitui a lista atomicamente: DELETE + INSERTs num único batch.
     const insertStmt = ctx.env.DB.prepare(
-      `INSERT INTO sponsors (name, initials, color, tagline, sort_order)
-       VALUES (?, ?, ?, ?, ?);`,
+      `INSERT INTO sponsors (name, initials, color, tagline, logo_url, sort_order)
+       VALUES (?, ?, ?, ?, ?, ?);`,
     );
     const statements = [
       ctx.env.DB.prepare("DELETE FROM sponsors;"),
@@ -71,6 +78,7 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
           (s.initials as string).trim(),
           s.color as string,
           (s.tagline as string | undefined) ?? null,
+          (s.logoUrl as string | undefined) ?? null,
           i + 1,
         ),
       ),
@@ -78,7 +86,7 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
     await ctx.env.DB.batch(statements);
 
     const { results } = await ctx.env.DB.prepare(
-      `SELECT name, initials, color, tagline FROM sponsors ORDER BY sort_order ASC, id ASC;`,
+      `SELECT name, initials, color, tagline, logo_url AS logoUrl FROM sponsors ORDER BY sort_order ASC, id ASC;`,
     ).all();
 
     return jsonMutation({ ok: true, count: (results ?? []).length, sponsors: results ?? [] });

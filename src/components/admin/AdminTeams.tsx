@@ -4,6 +4,7 @@ import type { Team, TeamDetail, Player, Position } from "../../data/types";
 import { LoadingState, ErrorState } from "../States";
 import { authedPut, adminStyles, labelClass, type SaveResult } from "./shared";
 import PitchEditor from "./PitchEditor";
+import ImageUpload from "./ImageUpload";
 import { CloseIcon } from "../icons";
 
 const POSITIONS: Position[] = ["GOL", "DEF", "ALA", "MED", "ATA"];
@@ -37,7 +38,7 @@ export default function AdminTeams({ token }: { token: string }) {
   const [name, setName] = useState("");
   const [abbr, setAbbr] = useState("");
   const [color, setColor] = useState("#16a34a");
-  const [formation, setFormation] = useState("");
+  const [crestUrl, setCrestUrl] = useState<string | null>(null);
   const [players, setPlayers] = useState<EditablePlayer[]>([]);
 
   const [savingTeam, setSavingTeam] = useState(false);
@@ -50,7 +51,7 @@ export default function AdminTeams({ token }: { token: string }) {
     setName(squad.name);
     setAbbr(squad.abbr);
     setColor(squad.color);
-    setFormation(squad.formation ?? "");
+    setCrestUrl(squad.crestUrl ?? null);
     setPlayers(squad.players.map(toEditable));
     setTeamResult(null);
     setSquadResult(null);
@@ -61,7 +62,7 @@ export default function AdminTeams({ token }: { token: string }) {
     setSavingTeam(true);
     setTeamResult(null);
     const res = await authedPut(`/api/teams/${activeId}`, token, {
-      name, abbr, color, formation: formation || null,
+      name, abbr, color, crestUrl: crestUrl || null,
     });
     setTeamResult(res);
     setSavingTeam(false);
@@ -151,9 +152,7 @@ export default function AdminTeams({ token }: { token: string }) {
                 </div>
               </div>
               <div>
-                <label className={labelClass} style={adminStyles.label}>Formação</label>
-                <input value={formation} onChange={(e) => setFormation(e.target.value)}
-                  placeholder="3-2-3" className="w-full mt-1.5 rounded-lg px-3 py-2 text-sm outline-none" style={adminStyles.input} />
+                <ImageUpload label="Escudo / Logo" value={crestUrl} onChange={setCrestUrl} />
               </div>
             </div>
             <button onClick={saveTeam} disabled={savingTeam || !token}

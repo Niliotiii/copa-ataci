@@ -136,7 +136,7 @@ Todas as rotas de escrita exigem o header `Authorization: Bearer <ADMIN_TOKEN>`.
 | Método | Rota | Descrição |
 |--------|------|-----------|
 | PUT | `/api/matches/:id` | Placar, status e dados do jogo |
-| PUT | `/api/teams/:id` | Dados do time (nome, sigla, cor, formação) |
+| PUT | `/api/teams/:id` | Dados do time (nome, sigla, cor, escudo/logo) |
 | PUT | `/api/teams/:id/players` | Substitui o elenco inteiro (com `posX`/`posY`) |
 | PUT | `/api/sponsors` | Substitui a lista de patrocinadores |
 | PUT | `/api/matches/:id/events` | Registra gols/cartões por jogador (gera suspensões) |
@@ -251,10 +251,10 @@ guardado só na sessão (`sessionStorage`) e vale para todas as seções; há bo
 - **Jogos** — selecionar um jogo e editar placar, status, data, horário, local e
   os times de casa/visitante. Inclui **gerar a tabela da fase de grupos**
   (round-robin) e **gerar o mata-mata** a partir da classificação.
-- **Times** — editar nome, sigla, cor (color picker) e formação; e editar o
-  elenco (nome, número, posição e coordenadas `posX`/`posY`), com adicionar/remover.
-  As posições podem ser definidas **arrastando os jogadores direto no campo**
-  (Modo Cartola) ou digitando as coordenadas X/Y.
+- **Times** — editar nome, sigla, cor (color picker) e **escudo/logo (upload de
+  imagem)**; e editar o elenco (nome, número, posição e coordenadas `posX`/`posY`),
+  com adicionar/remover. As posições podem ser definidas **arrastando os jogadores
+  direto no campo** (Modo Cartola) ou digitando as coordenadas X/Y.
 - **Patrocinadores** — adicionar, remover e editar a lista (nome, sigla, cor, slogan).
 - **Suspensões** — dar baixa (marcar como cumprida) nos jogadores suspensos.
 

@@ -78,14 +78,13 @@ export default function TeamLineup() {
               aria-label={`Ver elenco de ${t.name}`}
             >
               <div
-                className="w-11 h-11 rounded-full flex items-center justify-center font-bold flex-shrink-0"
-                style={{ background: t.color, color: textColorOn(t.color), fontFamily: "Oswald, sans-serif", fontSize: "12px" }}
+                className="w-11 h-11 rounded-full flex items-center justify-center font-bold flex-shrink-0 overflow-hidden"
+                style={{ background: t.crestUrl ? "var(--secondary)" : t.color, color: textColorOn(t.color), fontFamily: "Oswald, sans-serif", fontSize: "12px" }}
               >
-                {t.abbr}
+                {t.crestUrl ? <img src={t.crestUrl} alt="" className="w-full h-full object-contain" /> : t.abbr}
               </div>
               <div className="min-w-0">
                 <div className="text-sm font-semibold truncate" style={{ color: "var(--foreground)" }}>{t.name}</div>
-                {t.formation && <div className="text-xs" style={{ color: "var(--muted-foreground)" }}>{t.formation}</div>}
               </div>
             </button>
           ))}
@@ -108,10 +107,10 @@ export default function TeamLineup() {
                   style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                 >
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-base flex-shrink-0"
-                    style={{ background: squad.color, fontFamily: "Oswald, sans-serif" }}
+                    className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-base flex-shrink-0 overflow-hidden"
+                    style={{ background: squad.crestUrl ? "var(--secondary)" : squad.color, fontFamily: "Oswald, sans-serif" }}
                   >
-                    {initials(squad.name)}
+                    {squad.crestUrl ? <img src={squad.crestUrl} alt="" className="w-full h-full object-contain" /> : initials(squad.name)}
                   </div>
                   <div className="flex-1">
                     <div
@@ -121,7 +120,7 @@ export default function TeamLineup() {
                       {squad.name}
                     </div>
                     <div className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>
-                      {squad.players.length} jogadores{squad.formation ? ` · ${squad.formation}` : ""}
+                      {squad.players.length} jogadores
                     </div>
                   </div>
                 </div>
