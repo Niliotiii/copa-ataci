@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useApi, invalidateCache } from "../data/useApi";
+import { useApi } from "../data/useApi";
 import type { Suspension } from "../data/types";
 import { textColorOn } from "../data/color";
 import { LoadingState, ErrorState, EmptyState } from "./States";
@@ -9,27 +8,10 @@ const REASON_LABEL: Record<Suspension["reason"], string> = {
   "3_amarelos": "3 amarelos",
 };
 
+// Visualização pública das suspensões. A gestão (dar baixa) fica no painel Admin.
 export default function Suspensions() {
   const { data, loading, error } = useApi<Suspension[]>("/api/suspensions");
   const list = data ?? [];
-  // Token de admin (se presente na sessão) habilita dar baixa.
-  const token = sessionStorage.getItem("copa-ataci-admin-token") ?? "";
-  const [busy, setBusy] = useState<number | null>(null);
-
-  async function markServed(id: number) {
-    if (!token) return;
-    setBusy(id);
-    try {
-      await fetch(`/api/suspensions/${id}`, {
-        method: "PUT",
-        headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
-        body: JSON.stringify({ served: true }),
-      });
-      invalidateCache("/api/suspensions");
-    } finally {
-      setBusy(null);
-    }
-  }
 
   return (
     <div>
@@ -63,13 +45,6 @@ export default function Suspensions() {
                 style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", fontFamily: "Oswald, sans-serif", fontSize: "10px" }}>
                 Suspenso
               </span>
-              {token && (
-                <button onClick={() => markServed(s.id)} disabled={busy === s.id}
-                  className="text-xs px-3 py-2 rounded-lg font-semibold uppercase disabled:opacity-50"
-                  style={{ background: "var(--primary)", color: "#fff", fontFamily: "Oswald, sans-serif", letterSpacing: "0.04em" }}>
-                  {busy === s.id ? "…" : "Cumprida"}
-                </button>
-              )}
             </div>
           ))}
         </div>

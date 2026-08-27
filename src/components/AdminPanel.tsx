@@ -3,11 +3,13 @@ import { useAdminToken, adminStyles, labelClass } from "./admin/shared";
 import AdminMatches from "./admin/AdminMatches";
 import AdminTeams from "./admin/AdminTeams";
 import AdminSponsors from "./admin/AdminSponsors";
+import AdminSuspensions from "./admin/AdminSuspensions";
 
 const sections = [
   { id: "jogos", label: "Jogos" },
   { id: "times", label: "Times" },
   { id: "patrocinadores", label: "Patrocinadores" },
+  { id: "suspensoes", label: "Suspensões" },
 ];
 
 export default function AdminPanel() {
@@ -70,6 +72,7 @@ export default function AdminPanel() {
       {section === "jogos" && <AdminMatches token={token} />}
       {section === "times" && <AdminTeams token={token} />}
       {section === "patrocinadores" && <AdminSponsors token={token} />}
+      {section === "suspensoes" && <AdminSuspensions token={token} />}
     </div>
   );
 }
