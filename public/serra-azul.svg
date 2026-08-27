@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 260" width="240" height="260" role="img" aria-label="Escudo Serra Azul Esporte Clube">
+  <defs>
+    <clipPath id="ball"><circle cx="120" cy="86" r="46"/></clipPath>
+  </defs>
+
+  <!-- estrelas superiores -->
+  <g fill="#f59e0b">
+    <path d="M120 6l3 7 8 .5-6 5 2 8-7-4-7 4 2-8-6-5 8-.5z"/>
+    <path d="M84 14l2.4 5.6 6.4.4-4.8 4 1.6 6.4-5.6-3.2-5.6 3.2 1.6-6.4-4.8-4 6.4-.4z"/>
+    <path d="M156 14l2.4 5.6 6.4.4-4.8 4 1.6 6.4-5.6-3.2-5.6 3.2 1.6-6.4-4.8-4 6.4-.4z"/>
+    <path d="M56 34l2 4.6 5.2.3-4 3.4 1.4 5.2-4.6-2.8-4.6 2.8 1.4-5.2-4-3.4 5.2-.3z"/>
+    <path d="M184 34l2 4.6 5.2.3-4 3.4 1.4 5.2-4.6-2.8-4.6 2.8 1.4-5.2-4-3.4 5.2-.3z"/>
+  </g>
+
+  <!-- louros laranjas -->
+  <g fill="#f59e0b" opacity="0.95">
+    <path d="M60 70 q-16 6 -18 26 q14 -6 18 -18z"/>
+    <path d="M56 96 q-16 6 -16 26 q14 -6 18 -18z"/>
+    <path d="M56 122 q-16 6 -14 26 q14 -6 16 -18z"/>
+    <path d="M60 148 q-14 8 -10 26 q12 -8 14 -20z"/>
+    <path d="M180 70 q16 6 18 26 q-14 -6 -18 -18z"/>
+    <path d="M184 96 q16 6 16 26 q-14 -6 -18 -18z"/>
+    <path d="M184 122 q16 6 14 26 q-14 -6 -16 -18z"/>
+    <path d="M180 148 q14 8 10 26 q-12 -8 -14 -20z"/>
+  </g>
+
+  <!-- bola de futebol -->
+  <circle cx="120" cy="86" r="48" fill="#2b3990"/>
+  <g clip-path="url(#ball)">
+    <circle cx="120" cy="86" r="46" fill="#ffffff"/>
+    <g fill="#2b3990" stroke="#2b3990" stroke-width="2" stroke-linejoin="round">
+      <path d="M120 66l16 12-6 19h-20l-6-19z"/>
+      <path d="M120 58l-22 6-2-14 24-8 24 8-2 14z" fill="none"/>
+      <path d="M86 92l10-16 12 8-4 18-16 2z"/>
+      <path d="M154 92l-10-16-12 8 4 18 16 2z"/>
+      <path d="M104 118l6-14h20l6 14-16 12z"/>
+    </g>
+  </g>
+
+  <!-- faixa SERRA AZUL -->
+  <g>
+    <polygon points="30,150 210,150 198,172 210,194 30,194 42,172" fill="#2b3990"/>
+    <polygon points="30,150 210,150 210,156 30,156" fill="#1f2a6b"/>
+    <text x="120" y="176" text-anchor="middle" fill="#ffffff" font-family="Oswald, Arial Narrow, sans-serif" font-weight="700" font-size="24" letter-spacing="1">SERRA AZUL</text>
+    <text x="120" y="188" text-anchor="middle" fill="#f59e0b" font-family="Oswald, Arial, sans-serif" font-weight="600" font-size="8" letter-spacing="1">FUNDAÇÃO 1975</text>
+  </g>
+
+  <!-- base laranja Esporte Clube -->
+  <path d="M52 200 h136 v14 q0 26 -68 42 q-68 -16 -68 -42z" fill="#2b3990"/>
+  <path d="M58 204 h124 v10 q0 22 -62 36 q-62 -14 -62 -36z" fill="#f59e0b"/>
+  <text x="120" y="222" text-anchor="middle" fill="#ffffff" font-family="Oswald, Arial, sans-serif" font-weight="600" font-size="13" letter-spacing="2">Esporte</text>
+  <text x="120" y="238" text-anchor="middle" fill="#ffffff" font-family="Oswald, Arial, sans-serif" font-weight="600" font-size="13" letter-spacing="2">Clube</text>
+</svg>

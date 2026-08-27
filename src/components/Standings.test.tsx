@@ -6,8 +6,8 @@ import { render, screen, within } from "@testing-library/react";
 vi.mock("../data/useApi", () => ({
   useApi: () => ({
     data: [
-      { pos: 1, abbr: "ATA", name: "Ataci FC", color: "#16a34a", pts: 6, j: 2, v: 2, e: 0, d: 0, gp: 11, gc: 3, sg: 8 },
-      { pos: 2, abbr: "REL", name: "Relâmpago SC", color: "#d97706", pts: 3, j: 1, v: 1, e: 0, d: 0, gp: 6, gc: 1, sg: 5 },
+      { pos: 1, abbr: "ATA", name: "Ataci FC", color: "#16a34a", pts: 6, j: 2, v: 2, e: 0, d: 0, gp: 11, gc: 3, sg: 8, red: 0, yellow: 2, fouls: 8 },
+      { pos: 2, abbr: "REL", name: "Relâmpago SC", color: "#d97706", pts: 3, j: 1, v: 1, e: 0, d: 0, gp: 6, gc: 1, sg: 5, red: 1, yellow: 3, fouls: 11 },
     ],
     loading: false,
     error: null,

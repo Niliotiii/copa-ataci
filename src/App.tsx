@@ -30,15 +30,8 @@ export default function App() {
         {/* Logo */}
         <div className="px-6 py-8 border-b" style={{ borderColor: "var(--border)" }}>
           <div className="flex items-center gap-3 mb-1">
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
-              style={{ background: "var(--primary)" }}
-            >
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" fill="white" fillOpacity="0.15" />
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="white" strokeWidth="1.5" fill="none" />
-                <path d="M12 6l1.5 4.5H18l-3.75 2.73 1.43 4.39L12 15.3l-3.68 2.32 1.43-4.39L6 10.5h4.5L12 6z" fill="white" />
-              </svg>
+            <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+              <img src="/serra-azul.svg" alt="Escudo Serra Azul Esporte Clube" width="48" height="48" style={{ display: "block" }} />
             </div>
             <div>
               <h1
@@ -48,17 +41,16 @@ export default function App() {
                 Copa Ataci
               </h1>
               <p className="text-xs" style={{ color: "var(--accent)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
-                4ª Edição · 2026
+                5ª Edição · 2026
               </p>
             </div>
           </div>
           <div className="mt-4">
             <span
               className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-semibold uppercase tracking-wide"
-              style={{ background: "rgba(22,163,74,0.15)", color: "var(--primary)", fontSize: "11px" }}
+              style={{ background: "rgba(212,160,23,0.15)", color: "var(--accent)", fontSize: "11px" }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse inline-block" />
-              Em Curso
+              5ª Edição
             </span>
           </div>
         </div>
@@ -108,15 +100,8 @@ export default function App() {
         >
           <div className="px-4 pt-4 pb-0">
             <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ background: "var(--primary)" }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" fill="white" fillOpacity="0.15" />
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="white" strokeWidth="1.5" fill="none" />
-                  <path d="M12 6l1.5 4.5H18l-3.75 2.73 1.43 4.39L12 15.3l-3.68 2.32 1.43-4.39L6 10.5h4.5L12 6z" fill="white" />
-                </svg>
+              <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+                <img src="/serra-azul.svg" alt="Escudo Serra Azul Esporte Clube" width="40" height="40" style={{ display: "block" }} />
               </div>
               <div>
                 <h1
@@ -126,16 +111,8 @@ export default function App() {
                   Copa Ataci
                 </h1>
                 <p className="text-xs" style={{ color: "var(--accent)", fontFamily: "Oswald, sans-serif" }}>
-                  4ª Edição · 2026
+                  5ª Edição · 2026
                 </p>
-              </div>
-              <div className="ml-auto">
-                <span
-                  className="text-xs px-2 py-1 rounded-full font-semibold uppercase"
-                  style={{ background: "rgba(22,163,74,0.15)", color: "var(--primary)", fontSize: "10px" }}
-                >
-                  Em Curso
-                </span>
               </div>
             </div>
             <nav className="flex overflow-x-auto -mx-4 px-4" style={{ scrollbarWidth: "none" }}>
@@ -178,7 +155,7 @@ export default function App() {
             {tabs.find((t) => t.id === activeTab)?.label}
           </h2>
           <span style={{ color: "var(--muted-foreground)" }}>·</span>
-          <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>Copa Ataci 4ª Edição</span>
+          <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>Copa Ataci 5ª Edição</span>
         </div>
 
         {/* CONTENT */}

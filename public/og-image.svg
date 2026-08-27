@@ -4,17 +4,30 @@
       <stop offset="0" stop-color="#0f1117"/>
       <stop offset="1" stop-color="#1a1d27"/>
     </linearGradient>
+    <clipPath id="ball"><circle cx="300" cy="250" r="70"/></clipPath>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
-  <rect x="0" y="0" width="1200" height="12" fill="#16a34a"/>
-  <rect x="0" y="618" width="1200" height="12" fill="#d4a017"/>
-  <g transform="translate(600 250)" text-anchor="middle" font-family="Oswald, Arial, sans-serif">
-    <circle cx="0" cy="-60" r="56" fill="#16a34a"/>
-    <path d="M0 -96 l12 36 h38 l-30 22 11 35 -31 -19 -31 19 11 -35 -30 -22 h38 z" fill="#fff"/>
-    <text x="0" y="80" fill="#f0f2f5" font-size="88" font-weight="700" letter-spacing="4">COPA ATACI</text>
-    <text x="0" y="140" fill="#d4a017" font-size="38" font-weight="600" letter-spacing="6">4ª EDIÇÃO · SOCIETY 7X7 · 2026</text>
+  <rect x="0" y="0" width="1200" height="12" fill="#2b3990"/>
+  <rect x="0" y="618" width="1200" height="12" fill="#f59e0b"/>
+
+  <!-- escudo (versão simplificada) à esquerda -->
+  <g transform="translate(0 20)">
+    <circle cx="300" cy="250" r="74" fill="#2b3990"/>
+    <g clip-path="url(#ball)">
+      <circle cx="300" cy="250" r="70" fill="#ffffff"/>
+      <g fill="#2b3990"><path d="M300 214l28 20-10 32h-36l-10-32z"/></g>
+    </g>
+    <polygon points="200,330 400,330 388,354 400,378 200,378 212,354" fill="#2b3990"/>
+    <text x="300" y="360" text-anchor="middle" fill="#fff" font-family="Oswald, Arial, sans-serif" font-weight="700" font-size="28">SERRA AZUL</text>
+    <g fill="#f59e0b">
+      <path d="M300 150l4 9 10 .6-8 6 3 10-9-5-9 5 3-10-8-6 10-.6z"/>
+    </g>
   </g>
-  <text x="600" y="560" text-anchor="middle" fill="#9aa3b5" font-family="Inter, Arial, sans-serif" font-size="28">
-    Classificação · Jogos · Mata-Mata · Escalações
-  </text>
+
+  <!-- título à direita -->
+  <g font-family="Oswald, Arial, sans-serif">
+    <text x="470" y="270" fill="#f0f2f5" font-size="92" font-weight="700" letter-spacing="3">COPA ATACI</text>
+    <text x="474" y="330" fill="#f59e0b" font-size="34" font-weight="600" letter-spacing="4">5ª EDIÇÃO · SOCIETY 7X7 · 2026</text>
+    <text x="474" y="392" fill="#9aa3b5" font-family="Inter, Arial, sans-serif" font-size="26">Classificação · Jogos · Mata-Mata · Escalações</text>
+  </g>
 </svg>

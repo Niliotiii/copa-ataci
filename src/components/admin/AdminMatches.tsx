@@ -24,6 +24,10 @@ export default function AdminMatches({ token }: { token: string }) {
   const [location, setLocation] = useState("");
   const [homeTeamId, setHomeTeamId] = useState("");
   const [awayTeamId, setAwayTeamId] = useState("");
+  // Disciplina (cartões e faltas) por lado.
+  const [disc, setDisc] = useState({
+    homeRed: "", awayRed: "", homeYellow: "", awayYellow: "", homeFouls: "", awayFouls: "",
+  });
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<SaveResult | null>(null);
 
@@ -39,6 +43,14 @@ export default function AdminMatches({ token }: { token: string }) {
     setLocation(selected.location);
     setHomeTeamId(selected.teamA.abbr ?? "");
     setAwayTeamId(selected.teamB.abbr ?? "");
+    setDisc({
+      homeRed: String(selected.teamA.red ?? 0),
+      awayRed: String(selected.teamB.red ?? 0),
+      homeYellow: String(selected.teamA.yellow ?? 0),
+      awayYellow: String(selected.teamB.yellow ?? 0),
+      homeFouls: String(selected.teamA.fouls ?? 0),
+      awayFouls: String(selected.teamB.fouls ?? 0),
+    });
     setResult(null);
   }, [selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -46,6 +58,7 @@ export default function AdminMatches({ token }: { token: string }) {
     if (!selected) return;
     setSaving(true);
     setResult(null);
+    const num = (v: string) => (v === "" ? 0 : Number(v));
     const body: Record<string, unknown> = {
       status,
       homeScore: homeScore === "" ? null : Number(homeScore),
@@ -55,6 +68,9 @@ export default function AdminMatches({ token }: { token: string }) {
       location,
       homeTeamId: homeTeamId || null,
       awayTeamId: awayTeamId || null,
+      homeRed: num(disc.homeRed), awayRed: num(disc.awayRed),
+      homeYellow: num(disc.homeYellow), awayYellow: num(disc.awayYellow),
+      homeFouls: num(disc.homeFouls), awayFouls: num(disc.awayFouls),
     };
     const res = await authedPut(`/api/matches/${selected.id}`, token, body);
     setResult(res);
@@ -141,6 +157,32 @@ export default function AdminMatches({ token }: { token: string }) {
                 <label className={labelClass} style={adminStyles.label}>Local</label>
                 <input value={location} onChange={(e) => setLocation(e.target.value)}
                   placeholder="Arena Ataci" className="w-full mt-1.5 rounded-lg px-3 py-2 text-sm outline-none" style={adminStyles.input} />
+              </div>
+
+              {/* Disciplina: cartões e faltas (usados nos critérios de desempate) */}
+              <div className="mb-3">
+                <label className={labelClass} style={adminStyles.label}>Disciplina (casa / visitante)</label>
+                <div className="grid gap-2 mt-1.5" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+                  {([
+                    ["Vermelhos", "homeRed", "awayRed"],
+                    ["Amarelos", "homeYellow", "awayYellow"],
+                    ["Faltas", "homeFouls", "awayFouls"],
+                  ] as const).map(([lbl, hk, ak]) => (
+                    <div key={lbl}>
+                      <div className="text-xs mb-1 text-center" style={{ color: "var(--muted-foreground)" }}>{lbl}</div>
+                      <div className="flex gap-1">
+                        <input type="number" min={0} max={999} value={disc[hk]}
+                          onChange={(e) => setDisc((d) => ({ ...d, [hk]: e.target.value }))}
+                          aria-label={`${lbl} casa`} placeholder="0"
+                          className="w-full rounded-lg px-1 py-2 text-sm outline-none text-center" style={adminStyles.input} />
+                        <input type="number" min={0} max={999} value={disc[ak]}
+                          onChange={(e) => setDisc((d) => ({ ...d, [ak]: e.target.value }))}
+                          aria-label={`${lbl} visitante`} placeholder="0"
+                          className="w-full rounded-lg px-1 py-2 text-sm outline-none text-center" style={adminStyles.input} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Status */}

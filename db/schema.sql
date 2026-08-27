@@ -40,6 +40,13 @@ CREATE TABLE matches (
   away_score   INTEGER CHECK (away_score IS NULL OR (away_score >= 0 AND away_score <= 999)),
   status       TEXT NOT NULL DEFAULT 'agendado'
                CHECK (status IN ('agendado','andamento','finalizado')),
+  -- Disciplina por lado (para os critérios de desempate). NULL/0 quando não informado.
+  home_red     INTEGER NOT NULL DEFAULT 0 CHECK (home_red >= 0),
+  away_red     INTEGER NOT NULL DEFAULT 0 CHECK (away_red >= 0),
+  home_yellow  INTEGER NOT NULL DEFAULT 0 CHECK (home_yellow >= 0),
+  away_yellow  INTEGER NOT NULL DEFAULT 0 CHECK (away_yellow >= 0),
+  home_fouls   INTEGER NOT NULL DEFAULT 0 CHECK (home_fouls >= 0),
+  away_fouls   INTEGER NOT NULL DEFAULT 0 CHECK (away_fouls >= 0),
   -- rótulos placeholder para o chaveamento (quando ainda não há time definido),
   -- ex.: "Vencedor SF2"
   home_placeholder TEXT,

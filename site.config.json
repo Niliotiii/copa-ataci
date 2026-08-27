@@ -1,8 +1,9 @@
 {
-  "title": "Copa Ataci · 4ª Edição",
-  "description": "Portal oficial da Copa Ataci 4ª Edição — classificação, jogos, mata-mata e escalações do torneio society 7x7.",
+  "title": "Copa Ataci · 5ª Edição",
+  "description": "Portal oficial da Copa Ataci 5ª Edição — classificação, jogos, mata-mata e escalações do torneio society 7x7.",
   "language": "pt-BR",
   "robots": { "index": true },
+  "icons": { "icon": "/favicon-32.png" },
   "openGraph": {
     "image": "/og-image.png"
   },

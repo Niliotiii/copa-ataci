@@ -71,7 +71,11 @@ export default function Standings() {
                   <th scope="col" className="hidden lg:table-cell text-center py-2.5 w-8"><abbr title="Empates">E</abbr></th>
                   <th scope="col" className="hidden lg:table-cell text-center py-2.5 w-8"><abbr title="Derrotas">D</abbr></th>
                   <th scope="col" className="text-center py-2.5 w-9"><abbr title="Saldo de gols">SG</abbr></th>
-                  <th scope="col" className="hidden lg:table-cell text-center py-2.5 w-9 pr-3"><abbr title="Gols pró">GP</abbr></th>
+                  <th scope="col" className="hidden lg:table-cell text-center py-2.5 w-9"><abbr title="Gols pró">GP</abbr></th>
+                  <th scope="col" className="hidden xl:table-cell text-center py-2.5 w-9"><abbr title="Gols contra">GC</abbr></th>
+                  <th scope="col" className="hidden xl:table-cell text-center py-2.5 w-8"><abbr title="Cartões vermelhos">CV</abbr></th>
+                  <th scope="col" className="hidden xl:table-cell text-center py-2.5 w-8"><abbr title="Cartões amarelos">CA</abbr></th>
+                  <th scope="col" className="hidden xl:table-cell text-center py-2.5 w-9 pr-3"><abbr title="Faltas">F</abbr></th>
                 </tr>
               </thead>
               <tbody>
@@ -102,7 +106,11 @@ export default function Standings() {
                       <td className="hidden lg:table-cell text-center text-sm" style={{ color: "var(--muted-foreground)" }}>{team.e}</td>
                       <td className="hidden lg:table-cell text-center text-sm" style={{ color: "#ef4444" }}>{team.d}</td>
                       <td className="text-center text-sm font-medium" style={{ color: sgColor }}>{team.sg > 0 ? `+${team.sg}` : team.sg}</td>
-                      <td className="hidden lg:table-cell text-center text-sm pr-3" style={{ color: "var(--muted-foreground)" }}>{team.gp}</td>
+                      <td className="hidden lg:table-cell text-center text-sm" style={{ color: "var(--muted-foreground)" }}>{team.gp}</td>
+                      <td className="hidden xl:table-cell text-center text-sm" style={{ color: "var(--muted-foreground)" }}>{team.gc}</td>
+                      <td className="hidden xl:table-cell text-center text-sm" style={{ color: "#ef4444" }}>{team.red}</td>
+                      <td className="hidden xl:table-cell text-center text-sm" style={{ color: "#d4a017" }}>{team.yellow}</td>
+                      <td className="hidden xl:table-cell text-center text-sm pr-3" style={{ color: "var(--muted-foreground)" }}>{team.fouls}</td>
                     </tr>
                   );
                 })}

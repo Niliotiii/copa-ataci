@@ -18,13 +18,14 @@ INSERT INTO teams (id, name, abbr, color, formation, sort_order) VALUES
 -- matches — Fase de grupos
 -- Rodada 1 finalizada; Rodadas 2 e 3 agendadas (fiel ao Schedule.tsx).
 -- ---------------------------------------------------------------------------
+INSERT INTO matches (phase, round, match_date, match_time, location, home_team_id, away_team_id, home_score, away_score, status, home_red, away_red, home_yellow, away_yellow, home_fouls, away_fouls) VALUES
+  -- Rodada 1 (com disciplina: cartões e faltas por lado)
+  ('grupos', 1, 'Sáb, 12 Jul', '15:00', 'Arena Ataci', 'ATA', 'TRO', 7, 2, 'finalizado', 0, 1, 2, 3, 8, 12),
+  ('grupos', 1, 'Sáb, 12 Jul', '17:00', 'Arena Ataci', 'LEO', 'EST', 5, 3, 'finalizado', 0, 0, 1, 2, 6, 9),
+  ('grupos', 1, 'Dom, 13 Jul', '10:00', 'Arena Ataci', 'FAL', 'FOR', 4, 4, 'finalizado', 0, 0, 2, 2, 10, 10),
+  ('grupos', 1, 'Dom, 13 Jul', '12:00', 'Arena Ataci', 'REL', 'CAC', 6, 1, 'finalizado', 1, 0, 3, 1, 11, 7);
+
 INSERT INTO matches (phase, round, match_date, match_time, location, home_team_id, away_team_id, home_score, away_score, status) VALUES
-  -- Rodada 1
-  ('grupos', 1, 'Sáb, 12 Jul', '15:00', 'Arena Ataci', 'ATA', 'TRO', 7, 2, 'finalizado'),
-  ('grupos', 1, 'Sáb, 12 Jul', '17:00', 'Arena Ataci', 'LEO', 'EST', 5, 3, 'finalizado'),
-  ('grupos', 1, 'Dom, 13 Jul', '10:00', 'Arena Ataci', 'FAL', 'FOR', 4, 4, 'finalizado'),
-  ('grupos', 1, 'Dom, 13 Jul', '12:00', 'Arena Ataci', 'REL', 'CAC', 6, 1, 'finalizado'),
-  -- Rodada 2
   ('grupos', 2, 'Sáb, 19 Jul', '15:00', 'Arena Ataci', 'ATA', 'LEO', NULL, NULL, 'agendado'),
   ('grupos', 2, 'Sáb, 19 Jul', '17:00', 'Arena Ataci', 'FAL', 'REL', NULL, NULL, 'agendado'),
   ('grupos', 2, 'Dom, 20 Jul', '10:00', 'Arena Ataci', 'EST', 'CAC', NULL, NULL, 'agendado'),

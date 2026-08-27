@@ -90,13 +90,13 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
 
   function handleWhatsApp() {
     const text = encodeURIComponent(
-      `⚽ *Copa Ataci 4ª Edição*\n${round} · ${match.date} às ${match.time}\n\n${match.teamA.name} ${isPlayed ? match.teamA.score + " x " + match.teamB.score : "x"} ${match.teamB.name}\n\n📍 ${match.location}`
+      `⚽ *Copa Ataci 5ª Edição*\n${round} · ${match.date} às ${match.time}\n\n${match.teamA.name} ${isPlayed ? match.teamA.score + " x " + match.teamB.score : "x"} ${match.teamB.name}\n\n📍 ${match.location}`
     );
     window.open(`https://wa.me/?text=${text}`, "_blank");
   }
 
   async function handleCopy() {
-    const text = `⚽ Copa Ataci 4ª Edição · ${round} · ${match.date} às ${match.time}\n${match.teamA.name} ${isPlayed ? match.teamA.score + " x " + match.teamB.score : "x"} ${match.teamB.name} · ${match.location}`;
+    const text = `⚽ Copa Ataci 5ª Edição · ${round} · ${match.date} às ${match.time}\n${match.teamA.name} ${isPlayed ? match.teamA.score + " x " + match.teamB.score : "x"} ${match.teamB.name} · ${match.location}`;
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -174,7 +174,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
               </div>
               <div>
                 <div style={{ color: "#f0f2f5", fontSize: "11px", fontWeight: 700, letterSpacing: "0.06em" }}>COPA ATACI</div>
-                <div style={{ color: "#d4a017", fontSize: "8px", letterSpacing: "0.08em" }}>4ª EDIÇÃO · 2026</div>
+                <div style={{ color: "#d4a017", fontSize: "8px", letterSpacing: "0.08em" }}>5ª EDIÇÃO · 2026</div>
               </div>
             </div>
             <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
@@ -287,7 +287,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
                 #CopaAtaci
               </div>
               <div style={{ color: "#4b5563", fontSize: "8px", letterSpacing: "0.04em" }}>
-                4ª EDIÇÃO · SOCIETY
+                5ª EDIÇÃO · SOCIETY
               </div>
             </div>
           </div>

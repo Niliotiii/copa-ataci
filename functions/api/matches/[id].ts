@@ -9,9 +9,22 @@ type UpdateBody = {
   location?: string;
   homeTeamId?: string | null;
   awayTeamId?: string | null;
+  homeRed?: number;
+  awayRed?: number;
+  homeYellow?: number;
+  awayYellow?: number;
+  homeFouls?: number;
+  awayFouls?: number;
 };
 
 const VALID_STATUS = new Set(["agendado", "andamento", "finalizado"]);
+
+// Campos de disciplina: mapeamento chave do corpo → coluna.
+const DISCIPLINE: [keyof UpdateBody, string][] = [
+  ["homeRed", "home_red"], ["awayRed", "away_red"],
+  ["homeYellow", "home_yellow"], ["awayYellow", "away_yellow"],
+  ["homeFouls", "home_fouls"], ["awayFouls", "away_fouls"],
+];
 
 // Mapa de avanço do mata-mata: o vencedor de cada slot alimenta um lado
 // (home/away) do slot seguinte.
@@ -34,7 +47,10 @@ export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
       `SELECT id, phase, round, bracket_slot AS bracketSlot, match_date AS date,
               match_time AS time, location, status,
               home_team_id AS homeTeamId, away_team_id AS awayTeamId,
-              home_score AS homeScore, away_score AS awayScore
+              home_score AS homeScore, away_score AS awayScore,
+              home_red AS homeRed, away_red AS awayRed,
+              home_yellow AS homeYellow, away_yellow AS awayYellow,
+              home_fouls AS homeFouls, away_fouls AS awayFouls
          FROM matches WHERE id = ?;`,
     )
       .bind(id)
@@ -159,6 +175,18 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
       }
     }
 
+    // Disciplina: inteiros >= 0.
+    for (const [key, col] of DISCIPLINE) {
+      if (key in body) {
+        const v = body[key];
+        if (typeof v !== "number" || !Number.isInteger(v) || v < 0 || v > 999) {
+          return error(`${key} inválido (inteiro 0-999).`, 400);
+        }
+        sets.push(`${col} = ?`);
+        binds.push(v);
+      }
+    }
+
     if (sets.length === 0) {
       return error("Nada para atualizar.", 400);
     }
@@ -183,7 +211,10 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
       `SELECT id, phase, round, bracket_slot AS bracketSlot, status,
               match_date AS date, match_time AS time, location,
               home_team_id AS homeTeamId, away_team_id AS awayTeamId,
-              home_score AS homeScore, away_score AS awayScore
+              home_score AS homeScore, away_score AS awayScore,
+              home_red AS homeRed, away_red AS awayRed,
+              home_yellow AS homeYellow, away_yellow AS awayYellow,
+              home_fouls AS homeFouls, away_fouls AS awayFouls
          FROM matches WHERE id = ?;`,
     )
       .bind(id)

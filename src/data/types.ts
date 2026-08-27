@@ -18,6 +18,9 @@ export interface StandingRow {
   gp: number;
   gc: number;
   sg: number;
+  red: number;
+  yellow: number;
+  fouls: number;
 }
 
 export interface MatchTeam {
@@ -25,6 +28,9 @@ export interface MatchTeam {
   name: string;
   color: string;
   score: number | null;
+  red?: number;
+  yellow?: number;
+  fouls?: number;
 }
 
 export interface Match {
@@ -54,6 +60,12 @@ export interface MatchDetail {
   awayTeamId: string | null;
   homeScore: number | null;
   awayScore: number | null;
+  homeRed?: number;
+  awayRed?: number;
+  homeYellow?: number;
+  awayYellow?: number;
+  homeFouls?: number;
+  awayFouls?: number;
 }
 
 export interface BracketBox {
