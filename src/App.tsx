@@ -31,7 +31,7 @@ export default function App() {
         <div className="px-6 py-8 border-b" style={{ borderColor: "var(--border)" }}>
           <div className="flex items-center gap-3 mb-1">
             <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
-              <img src="/serra-azul.svg" alt="Escudo Serra Azul Esporte Clube" width="48" height="48" style={{ display: "block" }} />
+              <img src="/serra-azul.png" alt="Escudo Serra Azul Esporte Clube" width="48" height="48" style={{ display: "block" }} />
             </div>
             <div>
               <h1
@@ -101,7 +101,7 @@ export default function App() {
           <div className="px-4 pt-4 pb-0">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-                <img src="/serra-azul.svg" alt="Escudo Serra Azul Esporte Clube" width="40" height="40" style={{ display: "block" }} />
+                <img src="/serra-azul.png" alt="Escudo Serra Azul Esporte Clube" width="40" height="40" style={{ display: "block" }} />
               </div>
               <div>
                 <h1
