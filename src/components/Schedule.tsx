@@ -60,7 +60,7 @@ export default function Schedule() {
         {!loading && !error && visible.length === 0 && <EmptyState label="Nenhum jogo nesta rodada." />}
 
         {!loading && !error && visible.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-3">
             {visible.map((match) => {
               const isDone = match.status === "finalizado";
               return (

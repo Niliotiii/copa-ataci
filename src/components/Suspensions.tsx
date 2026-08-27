@@ -47,7 +47,7 @@ export default function Suspensions() {
       {!loading && !error && list.length === 0 && <EmptyState label="Nenhum jogador suspenso no momento." />}
 
       {!loading && !error && list.length > 0 && (
-        <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
           {list.map((s) => (
             <div key={s.id} className="rounded-xl px-4 py-3 flex items-center gap-3" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
               <span className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"

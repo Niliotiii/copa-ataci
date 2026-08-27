@@ -237,8 +237,8 @@ export default function App() {
         </div>
 
         {/* CONTENT */}
-        <main className="flex-1 px-4 py-4 lg:px-8 lg:py-6">
-          <div className="max-w-4xl">
+        <main className="flex-1 px-4 py-4 lg:px-8 lg:py-6 2xl:px-12">
+          <div className="w-full max-w-[1600px] mx-auto">
             {activeTab === "classificacao" && <Standings />}
             {activeTab === "jogos" && <Schedule />}
             {activeTab === "mata-mata" && <Bracket />}
