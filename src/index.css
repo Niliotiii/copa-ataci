@@ -32,7 +32,7 @@
   --secondary-foreground: #3a4353;
   --muted: #e6eaf0;
   --muted-foreground: #5b6474;
-  --accent: #b8860b;
+  --accent: #8a6508;
   --accent-foreground: #ffffff;
   --border: #d7dce5;
   --ring: #16a34a;
@@ -41,6 +41,14 @@
 
 * {
   box-sizing: border-box;
+}
+
+/* Foco de teclado visível e consistente (WCAG 2.4.7). Só no foco por teclado
+   (:focus-visible), não no clique de mouse. */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 html, body, #root {

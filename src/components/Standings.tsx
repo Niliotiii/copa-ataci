@@ -100,7 +100,7 @@ export default function Standings() {
                       <td className="hidden lg:table-cell text-center text-sm" style={{ color: "var(--muted-foreground)" }}>{team.gp}</td>
                       <td className="hidden xl:table-cell text-center text-sm" style={{ color: "var(--muted-foreground)" }}>{team.gc}</td>
                       <td className="hidden xl:table-cell text-center text-sm" style={{ color: "#ef4444" }}>{team.red}</td>
-                      <td className="hidden xl:table-cell text-center text-sm" style={{ color: "#d4a017" }}>{team.yellow}</td>
+                      <td className="hidden xl:table-cell text-center text-sm" style={{ color: "#a16207" }}>{team.yellow}</td>
                       <td className="hidden xl:table-cell text-center text-sm pr-3" style={{ color: "var(--muted-foreground)" }}>{team.fouls}</td>
                     </tr>
                   );

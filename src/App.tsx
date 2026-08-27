@@ -7,6 +7,8 @@ import Footer from "./components/Footer";
 import AdminRoute from "./components/AdminRoute";
 import Scorers from "./components/Scorers";
 import { usePath, navigate } from "./router";
+import { useApi } from "./data/useApi";
+import type { Tournament } from "./data/types";
 import { TrophyIcon, BallIcon, ShirtIcon, ScorerIcon, MenuIcon, CloseIcon, CollapseIcon, ExpandIcon } from "./components/icons";
 import type { ComponentType } from "react";
 
@@ -35,6 +37,9 @@ export default function App() {
 
 function Portal({ path }: { path: string }) {
   const activeTab = tabForPath(path);
+  const { data: tournament } = useApi<Tournament>("/api/tournament");
+  const tName = tournament?.name ?? "Copa Ataci";
+  const tSub = [tournament?.edition, tournament?.season].filter(Boolean).join(" · ");
   const [menuOpen, setMenuOpen] = useState(false);
   // Sidebar recolhida (só ícones) — preferência persistida no navegador.
   const [collapsed, setCollapsed] = useState(
@@ -93,10 +98,10 @@ function Portal({ path }: { path: string }) {
                   className="text-xl leading-tight uppercase tracking-wider truncate"
                   style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)", fontWeight: 700 }}
                 >
-                  Copa Ataci
+                  {tName}
                 </h1>
                 <p className="text-xs" style={{ color: "var(--accent)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
-                  5ª Edição · 2026
+                  {tSub}
                 </p>
               </div>
             )}
@@ -162,10 +167,10 @@ function Portal({ path }: { path: string }) {
                   className="text-base leading-tight uppercase tracking-wider truncate"
                   style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)", fontWeight: 700 }}
                 >
-                  Copa Ataci
+                  {tName}
                 </h1>
                 <p className="text-xs" style={{ color: "var(--accent)", fontFamily: "Oswald, sans-serif" }}>
-                  5ª Edição · 2026
+                  {tSub}
                 </p>
               </div>
             </div>

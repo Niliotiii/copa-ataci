@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS match_events;
 DROP TABLE IF EXISTS players;
 DROP TABLE IF EXISTS matches;
 DROP TABLE IF EXISTS sponsors;
+DROP TABLE IF EXISTS tournament;
 DROP TABLE IF EXISTS teams;
 
 -- ---------------------------------------------------------------------------
@@ -134,3 +135,16 @@ CREATE TABLE sponsors (
   logo_url     TEXT,
   sort_order   INTEGER NOT NULL DEFAULT 0
 );
+
+-- ---------------------------------------------------------------------------
+-- tournament — metadados/config do torneio (linha única, id=1).
+-- ---------------------------------------------------------------------------
+CREATE TABLE tournament (
+  id       INTEGER PRIMARY KEY CHECK (id = 1),
+  name     TEXT NOT NULL,
+  edition  TEXT,
+  season   TEXT
+);
+
+INSERT INTO tournament (id, name, edition, season) VALUES
+  (1, 'Copa Ataci', '5ª Edição', '2026');

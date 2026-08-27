@@ -51,6 +51,22 @@ describe("Avanço automático do mata-mata", () => {
     expect(b.final.teamB.abbr).toBe("???");
   });
 
+  it("reverter SF1 em cascata limpa o lado A da final já preenchida", async () => {
+    const sf1 = await slotId("SF1");
+    const finalId = await slotId("F");
+    // Finaliza SF1 (ATA vence) → Final home = ATA.
+    await finishMatchByEvents(sf1, "ATA", 2, "LEO", 1);
+    let b = (await (await getBracket(makeCtx(req("/api/bracket")))).json()) as any;
+    expect(b.final.teamA.abbr).toBe("ATA");
+    // Finaliza a final com ATA (placar qualquer).
+    await finishMatchByEvents(finalId, "ATA", 1, "ATA", 0);
+    // Reverte SF1 (zera eventos + agendado) → cascata deve limpar o lado A da final.
+    await putEvents(makeCtx(req(`/api/matches/${sf1}/events`, { method: "PUT", headers: auth, body: JSON.stringify({ events: [] }) }), { id: String(sf1) }));
+    await putMatch(makeCtx(req(`/api/matches/${sf1}`, { method: "PUT", headers: auth, body: JSON.stringify({ status: "agendado" }) }), { id: String(sf1) }));
+    b = (await (await getBracket(makeCtx(req("/api/bracket")))).json()) as any;
+    expect(b.final.teamA.abbr).toBe("???");
+  });
+
   it("empate em jogo de mata-mata não promove ninguém", async () => {
     const id = await slotId("SF2");
     // 0x0 (empate) — REL não tem elenco no seed; o importante é não haver vencedor.

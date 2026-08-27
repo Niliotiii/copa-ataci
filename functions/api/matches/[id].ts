@@ -103,6 +103,36 @@ async function advanceStatements(
   ];
 }
 
+/**
+ * Propaga o vencedor pela cadeia do mata-mata, EM CASCATA: ao atualizar o slot
+ * seguinte, reavalia também esse slot (pois seu vencedor pode ter mudado/limpado),
+ * até o fim do chaveamento. Assim, reverter um resultado no meio limpa o restante.
+ */
+async function applyAdvanceCascade(db: Env["DB"], matchId: number): Promise<void> {
+  // Descobre o slot deste jogo e caminha pela cadeia (QF→SF→F).
+  const start = (await db
+    .prepare("SELECT bracket_slot AS slot FROM matches WHERE id = ?;")
+    .bind(matchId)
+    .first()) as { slot: string | null } | null;
+
+  let currentId: number | null = matchId;
+  let slot = start?.slot ?? null;
+  const seen = new Set<string>();
+  while (currentId != null && slot && ADVANCE[slot] && !seen.has(slot)) {
+    seen.add(slot);
+    const stmts = await advanceStatements(db, currentId);
+    if (stmts.length > 0) await db.batch(stmts);
+    // Avança para o próximo slot e continua a cascata a partir dele.
+    const nextSlot: string = ADVANCE[slot].next;
+    const nextRow = (await db
+      .prepare("SELECT id FROM matches WHERE bracket_slot = ?;")
+      .bind(nextSlot)
+      .first()) as { id: number } | null;
+    currentId = nextRow?.id ?? null;
+    slot = nextSlot;
+  }
+}
+
 // PUT /api/matches/:id — atualiza placar/status/dados do jogo (PROTEGIDO).
 export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
   const unauthorized = await requireAuth(ctx);
@@ -213,11 +243,8 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
       .bind(...binds)
       .run();
 
-    // Se for jogo de mata-mata, propaga (ou reverte) o vencedor no slot seguinte.
-    const advance = await advanceStatements(ctx.env.DB, id);
-    if (advance.length > 0) {
-      await ctx.env.DB.batch(advance);
-    }
+    // Se for jogo de mata-mata, propaga (ou reverte) o vencedor em cascata.
+    await applyAdvanceCascade(ctx.env.DB, id);
 
     const updated = await ctx.env.DB.prepare(
       `SELECT id, phase, round, bracket_slot AS bracketSlot, status,

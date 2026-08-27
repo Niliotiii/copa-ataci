@@ -114,6 +114,12 @@ export interface Sponsor {
   logoUrl?: string | null;
 }
 
+export interface Tournament {
+  name: string;
+  edition: string | null;
+  season: string | null;
+}
+
 export type EventType = "gol" | "gol_contra" | "amarelo" | "vermelho";
 
 export interface MatchEvent {

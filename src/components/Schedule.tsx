@@ -72,13 +72,17 @@ export default function Schedule() {
           <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-3">
             {visible.map((match) => {
               const isDone = match.status === "finalizado";
+              const isLive = match.status === "andamento";
+              const badge = isDone
+                ? { label: "Encerrado", bg: "rgba(107,114,128,0.2)", color: "var(--muted-foreground)" }
+                : isLive
+                  ? { label: "Ao vivo", bg: "rgba(220,38,38,0.15)", color: "#dc2626" }
+                  : { label: "Próximo", bg: "rgba(22,163,74,0.15)", color: "var(--primary)" };
               return (
-                <button
+                <div
                   key={match.id}
-                  className="rounded-xl overflow-hidden text-left w-full transition-all hover:scale-[1.01] hover:brightness-110 active:scale-[0.99]"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)", cursor: "pointer" }}
-                  aria-label={`Compartilhar jogo ${match.teamA.name} contra ${match.teamB.name}`}
-                  onClick={() => setShareMatch({ match, round: roundLabel })}
+                  className="rounded-xl overflow-hidden w-full"
+                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
                 >
                   {/* Top bar */}
                   <div
@@ -93,19 +97,25 @@ export default function Schedule() {
                         className="text-xs px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider"
                         style={{
                           fontSize: "10px",
-                          background: isDone ? "rgba(107,114,128,0.2)" : "rgba(22,163,74,0.15)",
-                          color: isDone ? "var(--muted-foreground)" : "var(--primary)",
+                          background: badge.bg,
+                          color: badge.color,
                           fontFamily: "Oswald, sans-serif",
                         }}
                       >
-                        {isDone ? "Encerrado" : "Próximo"}
+                        {badge.label}
                       </span>
-                      <span style={{ color: "var(--muted-foreground)", opacity: 0.6 }}>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <button
+                        type="button"
+                        onClick={() => setShareMatch({ match, round: roundLabel })}
+                        aria-label={`Compartilhar ${match.teamA.name} contra ${match.teamB.name}`}
+                        className="flex items-center justify-center rounded-lg"
+                        style={{ width: 32, height: 32, color: "var(--muted-foreground)", background: "transparent" }}
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
                           <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
                         </svg>
-                      </span>
+                      </button>
                     </div>
                   </div>
 
@@ -150,7 +160,7 @@ export default function Schedule() {
                     </svg>
                     <span className="text-xs">{match.location}</span>
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>

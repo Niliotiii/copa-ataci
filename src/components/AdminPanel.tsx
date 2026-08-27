@@ -3,12 +3,14 @@ import AdminMatches from "./admin/AdminMatches";
 import AdminTeams from "./admin/AdminTeams";
 import AdminSponsors from "./admin/AdminSponsors";
 import AdminSuspensions from "./admin/AdminSuspensions";
+import AdminTournament from "./admin/AdminTournament";
 
 const sections = [
   { id: "jogos", label: "Jogos" },
   { id: "times", label: "Times" },
   { id: "patrocinadores", label: "Patrocinadores" },
   { id: "suspensoes", label: "Suspensões" },
+  { id: "torneio", label: "Torneio" },
 ];
 
 export default function AdminPanel({ token, onLogout }: { token: string; onLogout: () => void }) {
@@ -66,6 +68,7 @@ export default function AdminPanel({ token, onLogout }: { token: string; onLogou
         {section === "times" && <AdminTeams token={token} />}
         {section === "patrocinadores" && <AdminSponsors token={token} />}
         {section === "suspensoes" && <AdminSuspensions token={token} />}
+        {section === "torneio" && <AdminTournament token={token} />}
       </div>
     </div>
   );

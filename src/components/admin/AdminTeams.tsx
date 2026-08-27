@@ -67,7 +67,7 @@ export default function AdminTeams({ token }: { token: string }) {
     setSavingTeam(true);
     setTeamResult(null);
     const res = await authedPut(`/api/teams/${activeId}`, token, {
-      name, abbr, color, crestUrl: crestUrl || null,
+      name, color, crestUrl: crestUrl || null,
     });
     setTeamResult(res);
     setSavingTeam(false);
@@ -190,9 +190,10 @@ export default function AdminTeams({ token }: { token: string }) {
                   className="w-full mt-1.5 rounded-lg px-3 py-2 text-sm outline-none" style={adminStyles.input} />
               </div>
               <div>
-                <label className={labelClass} style={adminStyles.label}>Sigla (2-4)</label>
-                <input value={abbr} onChange={(e) => setAbbr(e.target.value)} maxLength={4}
-                  className="w-full mt-1.5 rounded-lg px-3 py-2 text-sm outline-none uppercase" style={adminStyles.input} />
+                <label className={labelClass} style={adminStyles.label}>Sigla (identificador, fixo)</label>
+                <input value={abbr} readOnly disabled maxLength={4}
+                  aria-label="Sigla do time (fixa)"
+                  className="w-full mt-1.5 rounded-lg px-3 py-2 text-sm outline-none uppercase" style={{ ...adminStyles.input, opacity: 0.7, cursor: "not-allowed" }} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3 mb-3">
