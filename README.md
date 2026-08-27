@@ -135,19 +135,24 @@ Todas as rotas de escrita exigem o header `Authorization: Bearer <ADMIN_TOKEN>`.
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| PUT | `/api/matches/:id` | Placar, status e dados do jogo |
-| PUT | `/api/teams/:id` | Dados do time (nome, sigla, cor, escudo/logo) |
+| POST | `/api/matches` | Cria um jogo avulso |
+| PUT | `/api/matches/:id` | Status, data, hora, local, times e faltas (placar/cartões vêm dos eventos; pênaltis no mata-mata) |
+| DELETE | `/api/matches/:id` | Exclui um jogo (limpa o slot seguinte se for mata-mata) |
+| POST | `/api/teams` | Cria um time (id = sigla) |
+| PUT | `/api/teams/:id` | Dados do time (nome, cor, escudo/logo) |
+| DELETE | `/api/teams/:id` | Exclui um time (recusa se estiver em jogos) |
 | PUT | `/api/teams/:id/players` | Substitui o elenco inteiro (com `posX`/`posY`) |
 | PUT | `/api/sponsors` | Substitui a lista de patrocinadores |
-| PUT | `/api/matches/:id/events` | Registra gols/cartões por jogador (gera suspensões) |
+| PUT | `/api/tournament` | Metadados do torneio (nome, edição, temporada) |
+| PUT | `/api/matches/:id/events` | Registra gols/gol contra/cartões por jogador (deriva placar, artilharia e suspensões) |
 | PUT | `/api/suspensions/:id` | Marca uma suspensão como cumprida (`{served}`) |
-| POST | `/api/matches/generate-groups` | Gera a tabela da fase de grupos (todos-contra-todos, turno único) |
+| POST | `/api/matches/generate-groups` | Gera a tabela da fase de grupos (todos-contra-todos, turno único; preserva agenda) |
 | POST | `/api/matches/generate-bracket` | Gera o mata-mata a partir da classificação (4 classificados: 1º×4º, 2º×3º) |
 | POST | `/api/admin/verify` | Valida o token de admin (login do painel `/admin`) |
 
 **`PUT /api/matches/:id`** — campos aceitos (todos opcionais):
 
-- `homeScore` / `awayScore`: inteiro 0–999 ou `null`
+- `homeScore` / `awayScore`: **não editáveis** (derivados dos eventos por jogador)
 - `status`: `"agendado"` | `"andamento"` | `"finalizado"`
 - `date`, `time`, `location`: texto não-vazio
 - `homeTeamId`, `awayTeamId`: id de time existente ou `null`
@@ -158,7 +163,7 @@ Exemplo — finalizar um jogo 4×1:
 curl -X PUT http://127.0.0.1:8788/api/matches/5 \
   -H "authorization: Bearer $ADMIN_TOKEN" \
   -H "content-type: application/json" \
-  -d '{"homeScore":4,"awayScore":1,"status":"finalizado"}'
+  -d '{"status":"finalizado"}'
 ```
 
 **`PUT /api/teams/:id/players`** e **`PUT /api/sponsors`** substituem a coleção
