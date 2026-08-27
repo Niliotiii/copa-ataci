@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
+    "api": "wrangler pages dev dist --port 8788 --ip 127.0.0.1",
+    "dev:full": "npm run build && (npm run api & sleep 3 && npm run dev)",
     "build": "vite build",
     "preview": "npm run build && wrangler pages dev dist",
     "format": "oxfmt",

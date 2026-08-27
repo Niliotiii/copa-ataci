@@ -60,11 +60,25 @@ cp .dev.vars.example .dev.vars
 npm run db:reset      # roda db:schema + db:seed no D1 local (--local)
 
 # 4a. Rodar o frontend com hot-reload (SEM backend/D1)
-npm run dev           # http://localhost:8443  (as chamadas /api falham nesse modo)
+npm run dev           # http://localhost:8443
+#   ⚠️ Sozinho, o `dev` serve só o React. As telas (classificação, jogos,
+#   mata-mata…) buscam de /api e ficarão VAZIAS/COM ERRO sem um backend.
 
-# 4b. Rodar tudo junto (frontend + Functions + D1) — recomendado
-npm run preview       # faz o build e sobe wrangler pages dev em dist/
+# 4b. Dev com hot-reload E dados reais — sobe backend + frontend juntos
+npm run dev:full      # build + `wrangler pages dev` (8788) + `vite` (8443)
+#   O `vite` faz proxy de /api → 8788, então http://localhost:8443 tem HMR
+#   do React E dados reais da API. (Rode `npm run db:reset` antes, uma vez.)
+
+# 4c. Rodar tudo junto a partir do build (sem HMR) — o mais próximo de prod
+npm run preview       # faz o build e sobe wrangler pages dev em dist/ (8788)
 ```
+
+> **Por que as telas parecem "não dinâmicas"?** No `npm run dev` puro (só Vite),
+> não existe `/api` — o frontend chama `/api/standings`, `/api/matches`,
+> `/api/bracket` etc. e recebe erro, então classificação/jogos/mata-mata ficam
+> vazios. Use `npm run dev:full` (com proxy) ou `npm run preview` para ver os
+> dados. Em produção o Pages serve frontend + Functions na mesma origem, sem
+> proxy.
 
 > **Importante:** rode `npx wrangler pages dev dist` **sem** a flag `--d1`.
 > O binding do banco vem do `wrangler.toml`. Passar `--d1` cria um banco

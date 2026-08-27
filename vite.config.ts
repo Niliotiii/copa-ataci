@@ -17,6 +17,15 @@ export default defineConfig({
     host: '0.0.0.0',
     port: parseInt(process.env.PORT || '8443'),
     strictPort: true,
+    // Encaminha as chamadas /api para o wrangler pages dev (Functions + D1),
+    // que deve rodar em paralelo na 8788 (`npm run api`). Assim o `npm run dev`
+    // tem hot-reload do React E dados reais da API.
+    proxy: {
+      '/api': {
+        target: process.env.API_TARGET || 'http://127.0.0.1:8788',
+        changeOrigin: true,
+      },
+    },
   },
   preview: {
     host: '0.0.0.0',
