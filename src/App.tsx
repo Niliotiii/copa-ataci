@@ -70,14 +70,6 @@ export default function App() {
               </p>
             </div>
           </div>
-          <div className="mt-4">
-            <span
-              className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-semibold uppercase tracking-wide"
-              style={{ background: "rgba(212,160,23,0.15)", color: "var(--accent)", fontSize: "11px" }}
-            >
-              5ª Edição
-            </span>
-          </div>
         </div>
 
         {/* Sidebar nav */}

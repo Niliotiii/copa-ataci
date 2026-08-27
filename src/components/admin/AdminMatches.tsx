@@ -34,6 +34,9 @@ export default function AdminMatches({ token }: { token: string }) {
   // Gerador da tabela de grupos.
   const [generating, setGenerating] = useState(false);
   const [genResult, setGenResult] = useState<(SaveResult & { info?: string }) | null>(null);
+  // Gerador do mata-mata.
+  const [generatingKO, setGeneratingKO] = useState(false);
+  const [koResult, setKoResult] = useState<(SaveResult & { info?: string }) | null>(null);
 
   const selected = matches.find((m) => m.id === selectedId) ?? null;
 
@@ -100,6 +103,24 @@ export default function AdminMatches({ token }: { token: string }) {
     setGenerating(false);
   }
 
+  async function handleGenerateBracket() {
+    const ok = window.confirm(
+      "Gerar o mata-mata a partir da classificação atual?\n\n" +
+        "Semifinais: 1º × 4º e 2º × 3º (mando do melhor colocado). Substitui o mata-mata atual. " +
+        "A ação é bloqueada se já houver placares lançados no mata-mata.",
+    );
+    if (!ok) return;
+    setGeneratingKO(true);
+    setKoResult(null);
+    const res = await authedPost("/api/matches/generate-bracket", token, { location: "Arena Ataci" });
+    if (res.ok) {
+      setKoResult({ ok: true, info: "Mata-mata gerado a partir da classificação. Confira a aba Mata-Mata." });
+    } else {
+      setKoResult(res);
+    }
+    setGeneratingKO(false);
+  }
+
   return (
     <div>
       {loading && <LoadingState label="Carregando jogos…" />}
@@ -108,11 +129,8 @@ export default function AdminMatches({ token }: { token: string }) {
       {!loading && !error && (
         <div className="rounded-xl p-4 mb-4" style={adminStyles.card}>
           <label className={labelClass} style={adminStyles.label}>Tabela da fase de grupos</label>
-          <p className="text-xs mt-1 mb-3" style={{ color: "var(--muted-foreground)" }}>
-            Gera automaticamente todos-contra-todos (turno único) a partir dos times cadastrados.
-          </p>
           <button onClick={handleGenerate} disabled={generating || !token}
-            className="w-full rounded-xl py-2.5 font-semibold text-sm uppercase transition-opacity disabled:opacity-50"
+            className="w-full mt-3 rounded-xl py-2.5 font-semibold text-sm uppercase transition-opacity disabled:opacity-50"
             style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
             {generating ? "Gerando…" : "Gerar tabela da fase de grupos"}
           </button>
@@ -126,6 +144,25 @@ export default function AdminMatches({ token }: { token: string }) {
               {genResult.ok ? genResult.info : genResult.error}
             </div>
           )}
+
+          <div className="mt-4 pt-4 border-t" style={{ borderColor: "var(--border)" }}>
+            <label className={labelClass} style={adminStyles.label}>Mata-mata</label>
+            <button onClick={handleGenerateBracket} disabled={generatingKO || !token}
+              className="w-full mt-3 rounded-xl py-2.5 font-semibold text-sm uppercase transition-opacity disabled:opacity-50"
+              style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
+              {generatingKO ? "Gerando…" : "Gerar mata-mata da classificação"}
+            </button>
+            {koResult && (
+              <div className="mt-3 rounded-lg p-3 text-sm" role="status" aria-live="polite"
+                style={{
+                  background: koResult.ok ? "rgba(22,163,74,0.1)" : "rgba(239,68,68,0.1)",
+                  border: `1px solid ${koResult.ok ? "var(--primary)" : "rgba(239,68,68,0.5)"}`,
+                  color: koResult.ok ? "var(--primary)" : "#ef4444",
+                }}>
+                {koResult.ok ? koResult.info : koResult.error}
+              </div>
+            )}
+          </div>
         </div>
       )}
 

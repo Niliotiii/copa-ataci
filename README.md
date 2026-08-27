@@ -124,6 +124,7 @@ Todas as rotas de escrita exigem o header `Authorization: Bearer <ADMIN_TOKEN>`.
 | PUT | `/api/matches/:id/events` | Registra gols/cartões por jogador (gera suspensões) |
 | PUT | `/api/suspensions/:id` | Marca uma suspensão como cumprida (`{served}`) |
 | POST | `/api/matches/generate-groups` | Gera a tabela da fase de grupos (todos-contra-todos, turno único) |
+| POST | `/api/matches/generate-bracket` | Gera o mata-mata a partir da classificação (4 classificados: 1º×4º, 2º×3º) |
 
 **`PUT /api/matches/:id`** — campos aceitos (todos opcionais):
 
