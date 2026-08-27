@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { resetDb, makeCtx, getEnv } from "./helpers";
+import { resetDb, makeCtx, getEnv, finishMatchByEvents } from "./helpers";
 
 import { onRequestGet as getStandings } from "../functions/api/standings";
 import { onRequestGet as getBracket } from "../functions/api/bracket";
 import { onRequestGet as getMatches } from "../functions/api/matches";
 import { onRequestPut as putMatch, onRequestGet as getMatch } from "../functions/api/matches/[id]";
+import { onRequestPut as putEvents } from "../functions/api/matches/[id]/events";
 import { onRequestPut as putPlayers } from "../functions/api/teams/[id]/players";
 
 beforeEach(async () => {
@@ -28,16 +29,7 @@ describe("Avanço automático do mata-mata", () => {
   it("finalizar SF2 promove o vencedor para o lado B da final", async () => {
     // No seed, SF2 = FAL x REL (agendado) e a final tem ATA vs placeholder.
     const id = await slotId("SF2");
-    await putMatch(
-      makeCtx(
-        req(`/api/matches/${id}`, {
-          method: "PUT",
-          headers: auth,
-          body: JSON.stringify({ homeScore: 3, awayScore: 1, status: "finalizado" }),
-        }),
-        { id: String(id) },
-      ),
-    );
+    await finishMatchByEvents(id, "FAL", 3, "REL", 1);
 
     const res = await getBracket(makeCtx(req("/api/bracket")));
     const b = (await res.json()) as any;
@@ -47,10 +39,11 @@ describe("Avanço automático do mata-mata", () => {
 
   it("reverter a final (status agendado) limpa o vencedor promovido", async () => {
     const id = await slotId("SF2");
-    // Primeiro promove
-    await putMatch(makeCtx(req(`/api/matches/${id}`, { method: "PUT", headers: auth, body: JSON.stringify({ homeScore: 3, awayScore: 1, status: "finalizado" }) }), { id: String(id) }));
-    // Depois desfaz (volta a agendado / placar null)
-    await putMatch(makeCtx(req(`/api/matches/${id}`, { method: "PUT", headers: auth, body: JSON.stringify({ homeScore: null, awayScore: null, status: "agendado" }) }), { id: String(id) }));
+    // Primeiro promove (via eventos).
+    await finishMatchByEvents(id, "FAL", 3, "REL", 1);
+    // Depois desfaz: zera os eventos (placar volta a null) e status agendado.
+    await putEvents(makeCtx(req(`/api/matches/${id}/events`, { method: "PUT", headers: auth, body: JSON.stringify({ events: [] }) }), { id: String(id) }));
+    await putMatch(makeCtx(req(`/api/matches/${id}`, { method: "PUT", headers: auth, body: JSON.stringify({ status: "agendado" }) }), { id: String(id) }));
 
     const res = await getBracket(makeCtx(req("/api/bracket")));
     const b = (await res.json()) as any;
@@ -60,7 +53,8 @@ describe("Avanço automático do mata-mata", () => {
 
   it("empate em jogo de mata-mata não promove ninguém", async () => {
     const id = await slotId("SF2");
-    await putMatch(makeCtx(req(`/api/matches/${id}`, { method: "PUT", headers: auth, body: JSON.stringify({ homeScore: 2, awayScore: 2, status: "finalizado" }) }), { id: String(id) }));
+    // 0x0 (empate) — REL não tem elenco no seed; o importante é não haver vencedor.
+    await finishMatchByEvents(id, "FAL", 0, "REL", 0);
     const res = await getBracket(makeCtx(req("/api/bracket")));
     const b = (await res.json()) as any;
     expect(b.final.teamB.abbr).toBe("???");
@@ -68,11 +62,6 @@ describe("Avanço automático do mata-mata", () => {
 });
 
 describe("Standings — desempates isolados", () => {
-  // Zera tudo e monta um cenário controlado de 1 rodada.
-  async function setScore(id: number, hs: number, as_: number) {
-    await putMatch(makeCtx(req(`/api/matches/${id}`, { method: "PUT", headers: auth, body: JSON.stringify({ homeScore: hs, awayScore: as_, status: "finalizado" }) }), { id: String(id) }));
-  }
-
   it("desempate por saldo de gols quando pontos iguais", async () => {
     // Reaproveita o seed: R1 já finalizada. ATA (7-2,+5) e REL (6-1,+5) têm
     // mesmo pts e saldo; desempata por gols pró → ATA (7) acima de REL (6).
@@ -89,16 +78,11 @@ describe("Standings — desempates isolados", () => {
 });
 
 describe("Validações limítrofes", () => {
-  it("aceita score 999 e rejeita 1000", async () => {
-    const ok = await putMatch(makeCtx(req("/api/matches/5", { method: "PUT", headers: auth, body: JSON.stringify({ homeScore: 999 }) }), { id: "5" }));
-    expect(ok.status).toBe(200);
-    const bad = await putMatch(makeCtx(req("/api/matches/5", { method: "PUT", headers: auth, body: JSON.stringify({ homeScore: 1000 }) }), { id: "5" }));
-    expect(bad.status).toBe(400);
-  });
-
-  it("rejeita score float", async () => {
-    const res = await putMatch(makeCtx(req("/api/matches/5", { method: "PUT", headers: auth, body: JSON.stringify({ homeScore: 4.5 }) }), { id: "5" }));
-    expect(res.status).toBe(400);
+  it("PUT rejeita campos derivados de eventos (placar e cartões)", async () => {
+    for (const field of ["homeScore", "awayScore", "homeRed", "awayYellow"]) {
+      const res = await putMatch(makeCtx(req("/api/matches/5", { method: "PUT", headers: auth, body: JSON.stringify({ [field]: 1 }) }), { id: "5" }));
+      expect(res.status).toBe(400);
+    }
   });
 
   it("aceita posX 0 e 100, rejeita 100.01 e -0.1", async () => {

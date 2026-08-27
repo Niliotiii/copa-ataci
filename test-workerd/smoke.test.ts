@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { resetDb, makeCtx } from "./helpers";
+import { resetDb, makeCtx, finishMatchByEvents } from "./helpers";
 
 // Importa os handlers REAIS das Pages Functions do projeto.
 import { onRequestGet as getStandings } from "../functions/api/standings";
@@ -46,17 +46,8 @@ describe("Functions no runtime real (workerd + D1 nativo)", () => {
   });
 
   it("PUT matches com token finaliza e recalcula standings", async () => {
-    const put = await putMatch(
-      makeCtx(
-        req("/api/matches/5", {
-          method: "PUT",
-          headers: auth,
-          body: JSON.stringify({ homeScore: 4, awayScore: 1, status: "finalizado" }),
-        }),
-        { id: "5" },
-      ),
-    );
-    expect(put.status).toBe(200);
+    // Placar via eventos por jogador (jogo 5 = ATA x LEO).
+    await finishMatchByEvents(5, "ATA", 4, "LEO", 1);
 
     const res = await getStandings(makeCtx(req("/api/standings")));
     const rows = (await res.json()) as any[];

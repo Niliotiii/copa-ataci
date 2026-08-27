@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { resetDb, makeCtx } from "./helpers";
+import { resetDb, makeCtx, finishMatchByEvents } from "./helpers";
 import { sortStandings } from "../functions/api/standings";
 import { onRequestGet as getStandings } from "../functions/api/standings";
 import { onRequestPut as putMatch, onRequestGet as getMatch } from "../functions/api/matches/[id]";
@@ -71,28 +71,21 @@ describe("sortStandings — sequência de critérios de desempate", () => {
 });
 
 describe("Disciplina — registro e agregação", () => {
-  it("PUT aceita cartões/faltas e o GET reflete", async () => {
-    const res = await putMatch(
-      makeCtx(
-        req("/api/matches/5", {
-          method: "PUT",
-          headers: auth,
-          body: JSON.stringify({ homeScore: 2, awayScore: 0, status: "finalizado", homeYellow: 3, awayRed: 1, awayFouls: 9 }),
-        }),
-        { id: "5" },
-      ),
-    );
-    expect(res.status).toBe(200);
+  it("cartões vêm dos eventos e faltas do PUT; o GET reflete", async () => {
+    // Match 5 = ATA (casa) x LEO (visitante). 3 amarelos casa, 1 vermelho fora
+    // via eventos; 9 faltas do visitante via PUT.
+    await finishMatchByEvents(5, "ATA", 2, "LEO", 0, { homeYellow: 3, awayRed: 1, awayFouls: 9 });
     const check = await getMatch(makeCtx(req("/api/matches/5"), { id: "5" }));
     const m = (await check.json()) as any;
+    expect(m.homeScore).toBe(2);
     expect(m.homeYellow).toBe(3);
     expect(m.awayRed).toBe(1);
     expect(m.awayFouls).toBe(9);
   });
 
-  it("PUT rejeita disciplina negativa", async () => {
+  it("PUT rejeita cartões (derivados dos eventos)", async () => {
     const res = await putMatch(
-      makeCtx(req("/api/matches/5", { method: "PUT", headers: auth, body: JSON.stringify({ homeRed: -1 }) }), { id: "5" }),
+      makeCtx(req("/api/matches/5", { method: "PUT", headers: auth, body: JSON.stringify({ homeRed: 1 }) }), { id: "5" }),
     );
     expect(res.status).toBe(400);
   });

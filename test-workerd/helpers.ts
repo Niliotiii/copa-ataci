@@ -44,3 +44,39 @@ export function makeCtx(request: Request, params: Params = {}): any {
     data: {},
   };
 }
+
+import { onRequestPut as putEvents } from "../functions/api/matches/[id]/events";
+import { onRequestPut as putMatchStatus } from "../functions/api/matches/[id]";
+
+const AUTH = { authorization: "Bearer test-token", "content-type": "application/json" };
+
+/** Finaliza um jogo registrando gols/cartões como eventos (placar derivado). */
+export async function finishMatchByEvents(
+  matchId: number,
+  home: string,
+  homeGoals: number,
+  away: string,
+  awayGoals: number,
+  opts: { status?: string; homeFouls?: number; awayFouls?: number } = {},
+): Promise<void> {
+  const players = async (teamId: string): Promise<number[]> => {
+    const { results } = await env.DB.prepare("SELECT id FROM players WHERE team_id=? ORDER BY id;").bind(teamId).all();
+    return (results as { id: number }[]).map((r) => r.id);
+  };
+  const hp = await players(home);
+  const ap = await players(away);
+  const events: { playerId: number; type: string }[] = [];
+  for (let i = 0; hp.length && i < homeGoals; i++) events.push({ playerId: hp[i % hp.length], type: "gol" });
+  for (let i = 0; ap.length && i < awayGoals; i++) events.push({ playerId: ap[i % ap.length], type: "gol" });
+
+  const idStr = String(matchId);
+  await putEvents(
+    makeCtx(new Request(`https://test.local/api/matches/${idStr}/events`, { method: "PUT", headers: AUTH, body: JSON.stringify({ events }) }), { id: idStr }),
+  );
+  const body: Record<string, unknown> = { status: opts.status ?? "finalizado" };
+  if (opts.homeFouls != null) body.homeFouls = opts.homeFouls;
+  if (opts.awayFouls != null) body.awayFouls = opts.awayFouls;
+  await putMatchStatus(
+    makeCtx(new Request(`https://test.local/api/matches/${idStr}`, { method: "PUT", headers: AUTH, body: JSON.stringify(body) }), { id: idStr }),
+  );
+}

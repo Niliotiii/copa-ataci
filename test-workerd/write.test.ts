@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { env } from "cloudflare:test";
-import { resetDb, makeCtx } from "./helpers";
+import { resetDb, makeCtx, finishMatchByEvents } from "./helpers";
 
 import { onRequestGet as getStandings } from "../functions/api/standings";
 import { onRequestGet as getBracket } from "../functions/api/bracket";
@@ -54,7 +54,7 @@ describe("Escrita no runtime real (workerd + D1 nativo)", () => {
 
   it("propaga o vencedor da SF2 para a final", async () => {
     const id = await slotId("SF2");
-    await putMatch(makeCtx(req(`/api/matches/${id}`, { method: "PUT", headers: auth, body: JSON.stringify({ homeScore: 3, awayScore: 1, status: "finalizado" }) }), { id: String(id) }));
+    await finishMatchByEvents(id, "FAL", 3, "REL", 1);
     const res = await getBracket(makeCtx(req("/api/bracket")));
     const b = (await res.json()) as any;
     expect(b.final.teamB.abbr).toBe("FAL");
@@ -62,7 +62,7 @@ describe("Escrita no runtime real (workerd + D1 nativo)", () => {
 
   it("recalcula standings após finalizar um jogo de grupos", async () => {
     // jogo 5 = R2 ATA x LEO
-    await putMatch(makeCtx(req("/api/matches/5", { method: "PUT", headers: auth, body: JSON.stringify({ homeScore: 4, awayScore: 1, status: "finalizado" }) }), { id: "5" }));
+    await finishMatchByEvents(5, "ATA", 4, "LEO", 1);
     const res = await getStandings(makeCtx(req("/api/standings")));
     const rows = (await res.json()) as any[];
     const ata = rows.find((r) => r.abbr === "ATA");

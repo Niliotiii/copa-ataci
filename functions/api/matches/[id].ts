@@ -1,28 +1,24 @@
 import { json, jsonMutation, error, serverError, requireAuth, type PagesContext, type Env } from "../_shared";
 
 type UpdateBody = {
-  homeScore?: number | null;
-  awayScore?: number | null;
   status?: "agendado" | "andamento" | "finalizado";
   date?: string;
   time?: string;
   location?: string;
   homeTeamId?: string | null;
   awayTeamId?: string | null;
-  homeRed?: number;
-  awayRed?: number;
-  homeYellow?: number;
-  awayYellow?: number;
   homeFouls?: number;
   awayFouls?: number;
 };
 
 const VALID_STATUS = new Set(["agendado", "andamento", "finalizado"]);
 
-// Campos de disciplina: mapeamento chave do corpo → coluna.
+// Campos DERIVADOS dos eventos por jogador — não podem ser editados aqui.
+// (placar e cartões são recalculados por PUT /api/matches/:id/events.)
+const DERIVED_FIELDS = ["homeScore", "awayScore", "homeRed", "awayRed", "homeYellow", "awayYellow"];
+
+// Faltas continuam manuais (não são eventos por jogador).
 const DISCIPLINE: [keyof UpdateBody, string][] = [
-  ["homeRed", "home_red"], ["awayRed", "away_red"],
-  ["homeYellow", "home_yellow"], ["awayYellow", "away_yellow"],
   ["homeFouls", "home_fouls"], ["awayFouls", "away_fouls"],
 ];
 
@@ -108,29 +104,25 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
     const id = Number(ctx.params.id);
     if (!Number.isInteger(id)) return error("ID inválido.", 400);
 
-    let body: UpdateBody;
+    let body: UpdateBody & Record<string, unknown>;
     try {
-      body = (await ctx.request.json()) as UpdateBody;
+      body = (await ctx.request.json()) as UpdateBody & Record<string, unknown>;
     } catch {
       return error("Corpo JSON inválido.", 400);
+    }
+
+    // Placar e cartões são DERIVADOS dos eventos por jogador — não editáveis aqui.
+    const derived = DERIVED_FIELDS.filter((f) => f in body);
+    if (derived.length > 0) {
+      return error(
+        `Campos derivados dos eventos não podem ser editados aqui (${derived.join(", ")}). Use os eventos por jogador em /api/matches/:id/events.`,
+        400,
+      );
     }
 
     const sets: string[] = [];
     const binds: unknown[] = [];
 
-    const validScore = (v: unknown): v is number | null =>
-      v === null || (typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= 999);
-
-    if ("homeScore" in body) {
-      if (!validScore(body.homeScore)) return error("homeScore inválido (0-999 ou null).", 400);
-      sets.push("home_score = ?");
-      binds.push(body.homeScore);
-    }
-    if ("awayScore" in body) {
-      if (!validScore(body.awayScore)) return error("awayScore inválido (0-999 ou null).", 400);
-      sets.push("away_score = ?");
-      binds.push(body.awayScore);
-    }
     if ("status" in body) {
       if (!body.status || !VALID_STATUS.has(body.status)) {
         return error("status inválido (agendado|andamento|finalizado).", 400);

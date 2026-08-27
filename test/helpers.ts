@@ -59,3 +59,84 @@ export function makeCtx(request: Request, params: Params = {}): PagesContext {
 }
 
 export { getEnv as env };
+
+// -----------------------------------------------------------------------------
+// Helper de cenário: finaliza um jogo registrando gols/cartões via EVENTOS por
+// jogador (o placar e os cartões do jogo são derivados dos eventos). Depois
+// marca o status via PUT /api/matches/:id. Faltas continuam manuais (PUT).
+// -----------------------------------------------------------------------------
+import { onRequestPut as putEvents } from "../functions/api/matches/[id]/events";
+import { onRequestPut as putMatchStatus } from "../functions/api/matches/[id]";
+
+const AUTH = { authorization: `Bearer ${ADMIN_TOKEN}`, "content-type": "application/json" };
+
+/** Ids dos jogadores de um time (via SQL direto). */
+async function playersOf(teamId: string): Promise<number[]> {
+  const { results } = await getEnv().DB.prepare(
+    "SELECT id FROM players WHERE team_id = ? ORDER BY id;",
+  ).bind(teamId).all();
+  return (results as { id: number }[]).map((r) => r.id);
+}
+
+type FinishOpts = {
+  homeYellow?: number; awayYellow?: number;
+  homeRed?: number; awayRed?: number;
+  homeFouls?: number; awayFouls?: number;
+  status?: "agendado" | "andamento" | "finalizado";
+};
+
+/**
+ * Finaliza (ou agenda) um jogo entre `home` e `away` com o placar dado,
+ * registrando os gols/cartões como eventos dos jogadores desses times.
+ * Requer que ambos os times tenham elenco suficiente no seed.
+ */
+export async function finishMatchByEvents(
+  matchId: number,
+  home: string,
+  homeGoals: number,
+  away: string,
+  awayGoals: number,
+  opts: FinishOpts = {},
+): Promise<void> {
+  const hp = await playersOf(home);
+  const ap = await playersOf(away);
+  const events: { playerId: number; type: string }[] = [];
+  const pick = (arr: number[], i: number) => arr[i % arr.length];
+  // Só gera eventos para lados que têm elenco cadastrado (evita NaN).
+  const hHas = hp.length > 0;
+  const aHas = ap.length > 0;
+
+  for (let i = 0; hHas && i < homeGoals; i++) events.push({ playerId: pick(hp, i), type: "gol" });
+  for (let i = 0; aHas && i < awayGoals; i++) events.push({ playerId: pick(ap, i), type: "gol" });
+  for (let i = 0; hHas && i < (opts.homeYellow ?? 0); i++) events.push({ playerId: pick(hp, i), type: "amarelo" });
+  for (let i = 0; aHas && i < (opts.awayYellow ?? 0); i++) events.push({ playerId: pick(ap, i), type: "amarelo" });
+  for (let i = 0; hHas && i < (opts.homeRed ?? 0); i++) events.push({ playerId: pick(hp, i), type: "vermelho" });
+  for (let i = 0; aHas && i < (opts.awayRed ?? 0); i++) events.push({ playerId: pick(ap, i), type: "vermelho" });
+
+  const idStr = String(matchId);
+  await putEvents(
+    makeCtx(
+      new Request(`https://test.local/api/matches/${idStr}/events`, {
+        method: "PUT",
+        headers: AUTH,
+        body: JSON.stringify({ events }),
+      }),
+      { id: idStr },
+    ),
+  );
+
+  // Status + faltas (não derivados de eventos).
+  const body: Record<string, unknown> = { status: opts.status ?? "finalizado" };
+  if (opts.homeFouls != null) body.homeFouls = opts.homeFouls;
+  if (opts.awayFouls != null) body.awayFouls = opts.awayFouls;
+  await putMatchStatus(
+    makeCtx(
+      new Request(`https://test.local/api/matches/${idStr}`, {
+        method: "PUT",
+        headers: AUTH,
+        body: JSON.stringify(body),
+      }),
+      { id: idStr },
+    ),
+  );
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { resetDb, makeCtx } from "./helpers";
+import { resetDb, makeCtx, finishMatchByEvents } from "./helpers";
 
 import { onRequestGet as getStandings } from "../functions/api/standings";
 import { onRequestGet as getMatches } from "../functions/api/matches";
@@ -44,18 +44,8 @@ describe("GET /api/standings (classificação calculada)", () => {
   });
 
   it("reflete um novo resultado após atualização (recálculo automático)", async () => {
-    // Finaliza jogo 5 (Rodada 2: ATA x LEO) 4x1.
-    const put = await putMatch(
-      makeCtx(
-        req("/api/matches/5", {
-          method: "PUT",
-          headers: { authorization: "Bearer test-token", "content-type": "application/json" },
-          body: JSON.stringify({ homeScore: 4, awayScore: 1, status: "finalizado" }),
-        }),
-        { id: "5" },
-      ),
-    );
-    expect(put.status).toBe(200);
+    // Finaliza jogo 5 (Rodada 2: ATA x LEO) 4x1 — via eventos por jogador.
+    await finishMatchByEvents(5, "ATA", 4, "LEO", 1);
 
     const res = await getStandings(makeCtx(req("/api/standings")));
     const rows = (await res.json()) as any[];
@@ -152,7 +142,7 @@ describe("GET /api/matches/:id", () => {
 });
 
 describe("PUT /api/matches/:id (protegido)", () => {
-  const body = JSON.stringify({ homeScore: 4, awayScore: 1, status: "finalizado" });
+  const body = JSON.stringify({ status: "finalizado", location: "Arena Ataci" });
 
   it("401 sem token", async () => {
     const res = await putMatch(
@@ -175,13 +165,13 @@ describe("PUT /api/matches/:id (protegido)", () => {
     expect(res.status).toBe(401);
   });
 
-  it("400 para placar inválido", async () => {
+  it("400 rejeita campos derivados (placar/cartões vêm dos eventos)", async () => {
     const res = await putMatch(
       makeCtx(
         req("/api/matches/5", {
           method: "PUT",
           headers: { authorization: "Bearer test-token", "content-type": "application/json" },
-          body: JSON.stringify({ homeScore: -5 }),
+          body: JSON.stringify({ homeScore: 3 }),
         }),
         { id: "5" },
       ),
@@ -231,10 +221,11 @@ describe("PUT /api/matches/:id (protegido)", () => {
     expect(res.status).toBe(200);
     const out = (await res.json()) as any;
     expect(out.ok).toBe(true);
-    expect(out.match.homeScore).toBe(4);
     expect(out.match.status).toBe("finalizado");
+    expect(out.match.location).toBe("Arena Ataci");
 
-    // Confirma persistência lendo de volta.
+    // O placar é derivado dos eventos: registrar 4x1 reflete no jogo.
+    await finishMatchByEvents(5, "ATA", 4, "LEO", 1);
     const check = await getMatch(makeCtx(req("/api/matches/5"), { id: "5" }));
     const m = (await check.json()) as any;
     expect(m.homeScore).toBe(4);
