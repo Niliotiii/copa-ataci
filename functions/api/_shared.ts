@@ -38,18 +38,23 @@ export async function requireAuth(ctx: PagesContext): Promise<Response | null> {
 
 /**
  * Igualdade em tempo constante comparando HMACs dos valores com uma chave
- * aleatória por processo. Como os dois lados passam pelo mesmo HMAC de tamanho
- * fixo (32 bytes), o tempo de comparação não depende do conteúdo/tamanho dos
- * inputs originais.
+ * aleatória por processo. A chave é gerada preguiçosamente na 1ª chamada — o
+ * workerd proíbe I/O assíncrono e geração de aleatoriedade no escopo global.
  */
-const hmacKeyPromise = crypto.subtle.generateKey(
-  { name: "HMAC", hash: "SHA-256" },
-  false,
-  ["sign"],
-) as Promise<CryptoKey>;
+let hmacKeyPromise: Promise<CryptoKey> | null = null;
+function getHmacKey(): Promise<CryptoKey> {
+  if (!hmacKeyPromise) {
+    hmacKeyPromise = crypto.subtle.generateKey(
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"],
+    ) as Promise<CryptoKey>;
+  }
+  return hmacKeyPromise;
+}
 
 async function timingSafeEqual(a: string, b: string): Promise<boolean> {
-  const key = await hmacKeyPromise;
+  const key = await getHmacKey();
   const enc = new TextEncoder();
   const [da, db] = await Promise.all([
     crypto.subtle.sign("HMAC", key, enc.encode(a)),
