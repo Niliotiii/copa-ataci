@@ -98,10 +98,6 @@ export default function AdminSponsors({ token }: { token: string }) {
             )}
           </div>
 
-          <p className="text-xs mb-3" style={{ color: "var(--muted-foreground)" }}>
-            Colunas: Nome · Sigla (1–4) · Cor · Slogan.
-          </p>
-
           <button onClick={save} disabled={saving || !token}
             className="w-full rounded-xl py-2.5 font-semibold text-sm uppercase transition-opacity disabled:opacity-50"
             style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>

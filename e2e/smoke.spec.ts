@@ -48,6 +48,15 @@ test.describe("Copa Ataci — smoke E2E", () => {
     await expect(page.getByRole("table")).toBeVisible();
   });
 
+  test("abre a aba Times e renderiza o elenco (regressão: tela preta)", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: "Times" }).first().click();
+    // A tela de Times chegou a quebrar com tela preta (crash de render por
+    // acessar squad.players quando o fallback era a lista). Garante que renderiza.
+    await expect(page.getByRole("heading", { name: "Elenco" })).toBeVisible();
+    await expect(page.getByText("Goleiro").first()).toBeVisible();
+  });
+
   test("mobile: menu hambúrguer abre, navega e fecha", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 }); // iPhone-ish
     await page.goto("/");

@@ -19,7 +19,8 @@ const positionLabels: { key: Position; label: string }[] = [
   { key: "ATA", label: "Atacantes" },
 ];
 
-function initials(name: string) {
+function initials(name: string | undefined | null) {
+  if (!name) return "";
   return name.split(" ").map((w) => w[0]).join("").slice(0, 2);
 }
 
@@ -45,9 +46,6 @@ export default function TeamLineup() {
           >
             Elenco
           </h2>
-          <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>
-            Society · Escalação no campo
-          </p>
         </div>
         {teams && teams.length > 0 && (
           <select
@@ -76,7 +74,7 @@ export default function TeamLineup() {
           <div className="flex-1 min-w-0">
             {squadLoading && <LoadingState label="Carregando elenco…" />}
 
-            {!squadLoading && squad && (
+            {!squadLoading && squad && !Array.isArray(squad) && Array.isArray(squad.players) && (
               <>
                 {/* Team info strip */}
                 <div
@@ -180,7 +178,7 @@ export default function TeamLineup() {
           </div>
 
           {/* Player list by position */}
-          {!squadLoading && squad && (
+          {!squadLoading && squad && !Array.isArray(squad) && Array.isArray(squad.players) && (
             <div
               className="lg:w-60 xl:w-64 rounded-xl overflow-hidden self-start"
               style={{ background: "var(--card)", border: "1px solid var(--border)" }}

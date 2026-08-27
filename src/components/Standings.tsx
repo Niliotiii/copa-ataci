@@ -33,18 +33,9 @@ export default function Standings() {
           >
             Classificação
           </h2>
-          <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>Society 7x7 · Fase de Grupos</p>
         </div>
         <span className="text-xs px-2 py-1 rounded" style={{ background: "var(--muted)", color: "var(--muted-foreground)" }}>
           Temporada 2026
-        </span>
-      </div>
-
-      {/* Legend */}
-      <div className="flex gap-4 mb-3 text-xs" style={{ color: "var(--muted-foreground)" }}>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm" style={{ background: "var(--primary)" }} />
-          Classificado para Mata-Mata (Top 4)
         </span>
       </div>
 

@@ -221,21 +221,6 @@ export default function App() {
         {/* SPONSOR TICKER — both mobile and desktop */}
         <SponsorTicker />
 
-        {/* DESKTOP PAGE TITLE BAR */}
-        <div
-          className="hidden lg:flex items-center gap-3 px-8 py-5 border-b"
-          style={{ borderColor: "var(--border)" }}
-        >
-          <h2
-            className="text-2xl uppercase tracking-wide font-bold"
-            style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)" }}
-          >
-            {tabs.find((t) => t.id === activeTab)?.label}
-          </h2>
-          <span style={{ color: "var(--muted-foreground)" }}>·</span>
-          <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>Copa Ataci 5ª Edição</span>
-        </div>
-
         {/* CONTENT */}
         <main className="flex-1 px-4 py-4 lg:px-8 lg:py-6 2xl:px-12">
           <div className="w-full max-w-[1600px] mx-auto">

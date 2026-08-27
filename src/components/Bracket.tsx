@@ -90,9 +90,6 @@ export default function Bracket() {
   const semis = data?.semis ?? [];
   const finalMatch = data?.final ?? null;
 
-  // Semifinal ainda não disputada (para a nota de status).
-  const pendingSemi = semis.find((s) => s.winner === null && (s.teamA.score === null || s.teamB.score === null));
-
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -100,7 +97,6 @@ export default function Bracket() {
           <h2 className="text-xl uppercase tracking-wide" style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, color: "var(--foreground)" }}>
             Mata-Mata
           </h2>
-          <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>Society 7x7 · Eliminatórias · Copa Ataci 2026</p>
         </div>
         <span
           className="text-xs px-2 py-1 rounded"
@@ -195,16 +191,6 @@ export default function Bracket() {
               </div>
             </div>
           </div>
-
-          {/* Status note */}
-          {pendingSemi && (
-            <div
-              className="mt-4 rounded-xl p-3 text-xs"
-              style={{ background: "var(--card)", border: "1px solid var(--border)", color: "var(--muted-foreground)" }}
-            >
-              <span style={{ color: "var(--primary)", fontWeight: 600 }}>{pendingSemi.slot}</span> — {pendingSemi.teamA.name} × {pendingSemi.teamB.name} ainda não foi disputada.
-            </div>
-          )}
         </>
       )}
     </div>

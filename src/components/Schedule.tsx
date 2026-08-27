@@ -41,7 +41,6 @@ export default function Schedule() {
             <h2 className="text-xl uppercase tracking-wide" style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, color: "var(--foreground)" }}>
               Calendário
             </h2>
-            <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>Society 7x7 · Fase de Grupos</p>
           </div>
           {rounds.length > 0 && (
             <select

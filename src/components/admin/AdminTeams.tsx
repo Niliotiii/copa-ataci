@@ -221,10 +221,6 @@ export default function AdminTeams({ token }: { token: string }) {
               )}
             </div>
 
-            <p className="text-xs mb-3" style={{ color: "var(--muted-foreground)" }}>
-              Colunas: Nome · Nº · Posição · X · Y (coordenadas 0–100 no campo).
-            </p>
-
             <button onClick={saveSquad} disabled={savingSquad || !token}
               className="w-full rounded-xl py-2.5 font-semibold text-sm uppercase transition-opacity disabled:opacity-50"
               style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
