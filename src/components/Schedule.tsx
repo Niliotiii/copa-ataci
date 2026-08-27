@@ -29,7 +29,17 @@ export default function Schedule() {
     return Array.from(set).sort((a, b) => a - b);
   }, [matches]);
 
-  const activeRound = selectedRound ?? rounds[0] ?? null;
+  // Rodada padrão: a 1ª que ainda tem jogo a cumprir (não finalizado). Se todas
+  // já estão completas, cai na última rodada.
+  const defaultRound = useMemo(() => {
+    if (rounds.length === 0) return null;
+    const pending = rounds.find((r) =>
+      matches.some((m) => m.round === r && m.status !== "finalizado"),
+    );
+    return pending ?? rounds[rounds.length - 1];
+  }, [rounds, matches]);
+
+  const activeRound = selectedRound ?? defaultRound;
   const visible = matches.filter((m) => m.round === activeRound);
   const roundLabel = activeRound != null ? `Rodada ${activeRound}` : "";
 
