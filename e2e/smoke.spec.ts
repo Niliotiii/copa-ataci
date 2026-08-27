@@ -50,13 +50,16 @@ test.describe("Copa Ataci — smoke E2E", () => {
     await expect(page.getByRole("table")).toBeVisible();
   });
 
-  test("abre a aba Times e renderiza o elenco (regressão: tela preta)", async ({ page }) => {
+  test("abre a aba Times: lista → detalhe do elenco (regressão: tela preta)", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("button", { name: "Times" }).first().click();
-    // A tela de Times chegou a quebrar com tela preta (crash de render por
-    // acessar squad.players quando o fallback era a lista). Garante que renderiza.
-    await expect(page.getByRole("heading", { name: "Elenco" })).toBeVisible();
+    // Primeiro a lista de times; clicar num time abre o elenco.
+    await page.getByRole("button", { name: /Ver elenco de Ataci FC/ }).click();
+    // A tela de elenco chegou a quebrar com tela preta (crash de render).
     await expect(page.getByText("Goleiro").first()).toBeVisible();
+    // Voltar à lista.
+    await page.getByRole("button", { name: /Todos os times/ }).click();
+    await expect(page.getByRole("button", { name: /Ver elenco de Leões/ })).toBeVisible();
   });
 
   test("admin fica em /admin e exige login válido (fora do menu)", async ({ page }) => {

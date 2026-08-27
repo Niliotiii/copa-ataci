@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useApi } from "../data/useApi";
 import type { Team, TeamDetail, Player, Position } from "../data/types";
+import { textColorOn } from "../data/color";
 import { LoadingState, ErrorState, EmptyState } from "./States";
 
 const positionColors: Record<Position, string> = {
@@ -28,9 +29,10 @@ export default function TeamLineup() {
   const { data: teams, loading: teamsLoading, error: teamsError } = useApi<Team[]>("/api/teams");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const activeId = selectedId ?? teams?.[0]?.id ?? null;
+  // Só busca o elenco quando um time foi escolhido. Sem seleção, o path aponta
+  // para a lista (inofensivo) e a visão de detalhe fica oculta.
   const { data: squad, loading: squadLoading, error: squadError } = useApi<TeamDetail>(
-    activeId ? `/api/teams/${activeId}` : "/api/teams",
+    selectedId ? `/api/teams/${selectedId}` : "/api/teams",
   );
 
   const byPosition = (pos: Position) => (squad?.players ?? []).filter((p) => p.position === pos);
@@ -38,37 +40,56 @@ export default function TeamLineup() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h2
-            className="text-xl uppercase tracking-wide"
-            style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, color: "var(--foreground)" }}
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <h2
+          className="text-xl uppercase tracking-wide"
+          style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, color: "var(--foreground)" }}
+        >
+          Times
+        </h2>
+        {selectedId && (
+          <button
+            onClick={() => setSelectedId(null)}
+            className="text-sm px-3 py-1.5 rounded-lg font-semibold"
+            style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.04em" }}
           >
-            Elenco
-          </h2>
-        </div>
-        {teams && teams.length > 0 && (
-          <select
-            value={activeId ?? ""}
-            onChange={(e) => setSelectedId(e.target.value)}
-            className="text-sm rounded-lg px-3 py-1.5 outline-none cursor-pointer"
-            style={{
-              background: "var(--secondary)",
-              color: "var(--foreground)",
-              border: "1px solid var(--border)",
-              fontFamily: "Inter, sans-serif",
-            }}
-          >
-            {teams.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-          </select>
+            ← Todos os times
+          </button>
         )}
       </div>
 
       {teamsLoading && <LoadingState label="Carregando times…" />}
       {teamsError && <ErrorState message={teamsError} />}
+
+      {/* LISTA DE TIMES (sem seleção) */}
+      {!teamsError && !selectedId && teams && (
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+          {teams.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setSelectedId(t.id)}
+              className="rounded-xl p-4 flex items-center gap-3 text-left transition-all hover:brightness-105 active:scale-[0.99]"
+              style={{ background: "var(--card)", border: "1px solid var(--border)", cursor: "pointer" }}
+              aria-label={`Ver elenco de ${t.name}`}
+            >
+              <div
+                className="w-11 h-11 rounded-full flex items-center justify-center font-bold flex-shrink-0"
+                style={{ background: t.color, color: textColorOn(t.color), fontFamily: "Oswald, sans-serif", fontSize: "12px" }}
+              >
+                {t.abbr}
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-semibold truncate" style={{ color: "var(--foreground)" }}>{t.name}</div>
+                {t.formation && <div className="text-xs" style={{ color: "var(--muted-foreground)" }}>{t.formation}</div>}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
       {squadError && <ErrorState message={squadError} />}
 
-      {!teamsError && !squadError && (
+      {selectedId && !teamsError && !squadError && (
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Pitch */}
           <div className="flex-1 min-w-0">

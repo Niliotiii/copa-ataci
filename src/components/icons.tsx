@@ -54,7 +54,7 @@ export function BracketIcon({ size = 18, className }: IconProps) {
 export function ShirtIcon({ size = 18, className }: IconProps) {
   return (
     <svg {...base(size)} className={className}>
-      <path d="M8 3l4 2 4-2 4 3-2.5 3H18v11H6V9H3.5L1 6l4-3h3z" />
+      <path d="M9 3 5 5 3 8l3 2v10h12V10l3-2-2-3-4-2a3 3 0 0 1-6 0z" />
     </svg>
   );
 }
