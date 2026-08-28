@@ -153,9 +153,24 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
       wrap.style.top = "0";
     }
     try {
+      // Garante que as fontes do banner (Oswald bold e bold-italic) estejam
+      // carregadas ANTES de rasterizar — senão o html2canvas usa fallback (Arial)
+      // e o PNG sai com tipografia diferente/pior que o preview.
+      if (document.fonts) {
+        try {
+          await Promise.all([
+            document.fonts.load("700 100px Oswald"),
+            document.fonts.load("italic 700 100px Oswald"),
+            document.fonts.load("400 100px Inter"),
+          ]);
+          await document.fonts.ready;
+        } catch {
+          /* segue mesmo se a API de fontes falhar */
+        }
+      }
       const { default: html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(bannerRef.current, {
-        scale: 1,
+        scale: 2,
         useCORS: true,
         backgroundColor: "#08241b",
         logging: false,
