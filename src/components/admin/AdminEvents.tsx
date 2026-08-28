@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useApi, invalidateCache } from "../../data/useApi";
 import type { Match, MatchEvent, TeamDetail, EventType } from "../../data/types";
 import { adminStyles, labelClass, type SaveResult } from "./shared";
+import ResultBanner from "./ResultBanner";
 import Select from "../Select";
 
 const TYPE_LABEL: Record<EventType, string> = {
@@ -112,7 +113,7 @@ export default function AdminEvents({ match, token }: { match: Match; token: str
               </span>
               <span className="text-sm flex-1" style={{ color: "var(--foreground)" }}>{d.playerName}</span>
               <button onClick={() => removeEvent(d.key)} aria-label="Remover evento"
-                className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ color: "#ef4444" }}>✕</button>
+                className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ color: "var(--danger)" }}>✕</button>
             </div>
           ))}
         </div>
@@ -124,16 +125,7 @@ export default function AdminEvents({ match, token }: { match: Match; token: str
         {saving ? "Salvando…" : "Salvar eventos"}
       </button>
 
-      {result && (
-        <div className="mt-3 rounded-lg p-3 text-sm" role="status" aria-live="polite"
-          style={{
-            background: result.ok ? "rgba(22,163,74,0.1)" : "rgba(239,68,68,0.1)",
-            border: `1px solid ${result.ok ? "var(--primary)" : "rgba(239,68,68,0.5)"}`,
-            color: result.ok ? "var(--primary)" : "#ef4444",
-          }}>
-          {result.ok ? "Eventos salvos! Artilharia e suspensões atualizadas." : result.error}
-        </div>
-      )}
+      <ResultBanner result={result} successLabel="Eventos salvos! Artilharia e suspensões atualizadas." />
     </div>
   );
 }

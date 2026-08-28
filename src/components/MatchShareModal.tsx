@@ -185,7 +185,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
               <div
                 style={{
                   width: "32px", height: "32px", borderRadius: "50%",
-                  background: "#16a34a", display: "flex", alignItems: "center", justifyContent: "center",
+                  background: "#0b6e4f", display: "flex", alignItems: "center", justifyContent: "center",
                 }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -246,7 +246,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
                     <span style={{ fontSize: "28px", fontWeight: 700, color: "#374151", letterSpacing: "0.08em" }}>VS</span>
                     <div
                       style={{
-                        background: "rgba(22,163,74,0.15)", color: "#16a34a",
+                        background: "rgba(11,110,79,0.15)", color: "#0b6e4f",
                         fontSize: "9px", fontWeight: 700, padding: "2px 8px", borderRadius: "999px",
                         letterSpacing: "0.08em",
                       }}
@@ -364,7 +364,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
             onClick={handleCopy}
             className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all"
             style={{
-              background: copied ? "rgba(22,163,74,0.15)" : "var(--secondary)",
+              background: copied ? "var(--primary-soft)" : "var(--secondary)",
               color: copied ? "var(--primary)" : "var(--foreground)",
               border: `1px solid ${copied ? "var(--primary)" : "var(--border)"}`,
               fontFamily: "Oswald, sans-serif",

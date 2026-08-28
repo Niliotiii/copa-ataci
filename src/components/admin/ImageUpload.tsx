@@ -87,13 +87,13 @@ export default function ImageUpload({
             type="button"
             onClick={() => { onChange(null); if (inputRef.current) inputRef.current.value = ""; }}
             className="text-xs px-3 py-2 rounded-lg"
-            style={{ color: "#ef4444", border: "1px solid var(--border)" }}
+            style={{ color: "var(--danger)", border: "1px solid var(--border)" }}
           >
             Remover
           </button>
         )}
       </div>
-      {err && <p className="text-xs mt-1" style={{ color: "#ef4444" }}>{err}</p>}
+      {err && <p className="text-xs mt-1" style={{ color: "var(--danger)" }}>{err}</p>}
     </div>
   );
 }

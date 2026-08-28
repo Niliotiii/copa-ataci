@@ -3,6 +3,7 @@ import { useApi } from "../../data/useApi";
 import type { Sponsor } from "../../data/types";
 import { LoadingState, ErrorState } from "../States";
 import { authedPut, adminStyles, labelClass, type SaveResult } from "./shared";
+import ResultBanner from "./ResultBanner";
 import ImageUpload from "./ImageUpload";
 import { CloseIcon } from "../icons";
 
@@ -90,7 +91,7 @@ export default function AdminSponsors({ token }: { token: string }) {
                     className="rounded-lg px-2 py-2 text-sm outline-none" style={adminStyles.input} />
                   <button onClick={() => remove(i)} aria-label={`Remover patrocinador ${i + 1}`}
                     className="w-11 h-11 rounded-lg flex items-center justify-center"
-                    style={{ background: "rgba(239,68,68,0.12)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.4)" }}>
+                    style={{ background: "rgba(217,45,45,0.12)", color: "var(--danger)", border: "1px solid rgba(217,45,45,0.4)" }}>
                     <CloseIcon size={14} />
                   </button>
                 </div>
@@ -110,16 +111,7 @@ export default function AdminSponsors({ token }: { token: string }) {
             {saving ? "Salvando…" : "Salvar patrocinadores"}
           </button>
 
-          {result && (
-            <div className="mt-3 rounded-lg p-3 text-sm" role="status" aria-live="polite"
-              style={{
-                background: result.ok ? "rgba(22,163,74,0.1)" : "rgba(239,68,68,0.1)",
-                border: `1px solid ${result.ok ? "var(--primary)" : "rgba(239,68,68,0.5)"}`,
-                color: result.ok ? "var(--primary)" : "#ef4444",
-              }}>
-              {result.ok ? "Patrocinadores salvos!" : result.error}
-            </div>
-          )}
+          <ResultBanner result={result} successLabel="Patrocinadores salvos!" />
         </div>
       )}
     </div>

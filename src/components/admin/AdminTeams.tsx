@@ -3,6 +3,7 @@ import { useApi } from "../../data/useApi";
 import type { Team, TeamDetail, Player, Position } from "../../data/types";
 import { LoadingState, ErrorState } from "../States";
 import { authedPut, authedPost, authedDelete, adminStyles, labelClass, type SaveResult } from "./shared";
+import ResultBanner from "./ResultBanner";
 import PitchEditor from "./PitchEditor";
 import ImageUpload from "./ImageUpload";
 import ConfirmDialog from "./ConfirmDialog";
@@ -125,16 +126,7 @@ export default function AdminTeams({ token }: { token: string }) {
   }
 
   const feedback = (r: SaveResult | null, okMsg: string) =>
-    r && (
-      <div className="mt-3 rounded-lg p-3 text-sm" role="status" aria-live="polite"
-        style={{
-          background: r.ok ? "rgba(22,163,74,0.1)" : "rgba(239,68,68,0.1)",
-          border: `1px solid ${r.ok ? "var(--primary)" : "rgba(239,68,68,0.5)"}`,
-          color: r.ok ? "var(--primary)" : "#ef4444",
-        }}>
-        {r.ok ? okMsg : r.error}
-      </div>
-    );
+    <ResultBanner result={r} successLabel={okMsg} />;
 
   return (
     <div>
@@ -269,7 +261,7 @@ export default function AdminTeams({ token }: { token: string }) {
                     className="rounded-lg px-1 py-2 text-sm outline-none text-center" style={adminStyles.input} />
                   <button onClick={() => removePlayer(i)} aria-label={`Remover jogador ${i + 1}`}
                     className="w-11 h-11 rounded-lg flex items-center justify-center"
-                    style={{ background: "rgba(239,68,68,0.12)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.4)" }}>
+                    style={{ background: "rgba(217,45,45,0.12)", color: "var(--danger)", border: "1px solid rgba(217,45,45,0.4)" }}>
                     <CloseIcon size={14} />
                   </button>
                 </div>

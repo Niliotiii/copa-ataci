@@ -3,6 +3,7 @@ import { useApi } from "../../data/useApi";
 import type { Tournament } from "../../data/types";
 import { LoadingState, ErrorState } from "../States";
 import { authedPut, adminStyles, labelClass, type SaveResult } from "./shared";
+import ResultBanner from "./ResultBanner";
 
 // Edição dos metadados do torneio (nome, edição, temporada).
 export default function AdminTournament({ token }: { token: string }) {
@@ -55,16 +56,7 @@ export default function AdminTournament({ token }: { token: string }) {
             style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
             {saving ? "Salvando…" : "Salvar torneio"}
           </button>
-          {result && (
-            <div className="mt-3 rounded-lg p-3 text-sm" role="status" aria-live="polite"
-              style={{
-                background: result.ok ? "rgba(22,163,74,0.1)" : "rgba(239,68,68,0.1)",
-                border: `1px solid ${result.ok ? "var(--primary)" : "rgba(239,68,68,0.5)"}`,
-                color: result.ok ? "var(--primary)" : "#ef4444",
-              }}>
-              {result.ok ? "Torneio atualizado!" : result.error}
-            </div>
-          )}
+          <ResultBanner result={result} successLabel="Torneio atualizado!" />
         </>
       )}
     </div>

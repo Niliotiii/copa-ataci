@@ -5,6 +5,7 @@ import { LoadingState, ErrorState } from "../States";
 import { authedPut, authedPost, authedDelete, adminStyles, labelClass, type SaveResult } from "./shared";
 import AdminEvents from "./AdminEvents";
 import ConfirmDialog from "./ConfirmDialog";
+import ResultBanner from "./ResultBanner";
 import Select from "../Select";
 
 const statusOptions: { value: MatchStatus; label: string }[] = [
@@ -151,16 +152,7 @@ export default function AdminMatches({ token }: { token: string }) {
             style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
             {generating ? "Gerando…" : "Gerar tabela da fase de grupos"}
           </button>
-          {genResult && (
-            <div className="mt-3 rounded-lg p-3 text-sm" role="status" aria-live="polite"
-              style={{
-                background: genResult.ok ? "rgba(22,163,74,0.1)" : "rgba(239,68,68,0.1)",
-                border: `1px solid ${genResult.ok ? "var(--primary)" : "rgba(239,68,68,0.5)"}`,
-                color: genResult.ok ? "var(--primary)" : "#ef4444",
-              }}>
-              {genResult.ok ? genResult.info : genResult.error}
-            </div>
-          )}
+          <ResultBanner result={genResult} />
 
           <div className="mt-4 pt-4 border-t" style={{ borderColor: "var(--border)" }}>
             <label className={labelClass} style={adminStyles.label}>Mata-mata</label>
@@ -169,16 +161,7 @@ export default function AdminMatches({ token }: { token: string }) {
               style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
               {generatingKO ? "Gerando…" : "Gerar mata-mata da classificação"}
             </button>
-            {koResult && (
-              <div className="mt-3 rounded-lg p-3 text-sm" role="status" aria-live="polite"
-                style={{
-                  background: koResult.ok ? "rgba(22,163,74,0.1)" : "rgba(239,68,68,0.1)",
-                  border: `1px solid ${koResult.ok ? "var(--primary)" : "rgba(239,68,68,0.5)"}`,
-                  color: koResult.ok ? "var(--primary)" : "#ef4444",
-                }}>
-                {koResult.ok ? koResult.info : koResult.error}
-              </div>
-            )}
+            <ResultBanner result={koResult} />
           </div>
         </div>
       )}
@@ -309,26 +292,17 @@ export default function AdminMatches({ token }: { token: string }) {
 
               <button onClick={handleSave} disabled={saving || !token}
                 className="w-full rounded-xl py-3 font-semibold text-sm uppercase transition-opacity disabled:opacity-50"
-                style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
+                style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em", boxShadow: "var(--shadow-md)" }}>
                 {saving ? "Salvando…" : "Salvar jogo"}
               </button>
 
               <button onClick={handleDeleteMatch} disabled={!token}
                 className="w-full mt-2 rounded-xl py-2.5 font-semibold text-xs uppercase transition-opacity disabled:opacity-50"
-                style={{ background: "transparent", color: "#dc2626", border: "1px solid rgba(220,38,38,0.4)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
+                style={{ background: "transparent", color: "var(--danger)", border: "1px solid rgba(217,45,45,0.4)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
                 Excluir jogo
               </button>
 
-              {result && (
-                <div className="mt-4 rounded-lg p-3 text-sm" role="status" aria-live="polite"
-                  style={{
-                    background: result.ok ? "rgba(22,163,74,0.1)" : "rgba(239,68,68,0.1)",
-                    border: `1px solid ${result.ok ? "var(--primary)" : "rgba(239,68,68,0.5)"}`,
-                    color: result.ok ? "var(--primary)" : "#ef4444",
-                  }}>
-                  {result.ok ? "Jogo salvo! Classificação e chaveamento atualizados." : result.error}
-                </div>
-              )}
+              <ResultBanner result={result} successLabel="Jogo salvo! Classificação e chaveamento atualizados." />
             </>
           )}
         </div>
