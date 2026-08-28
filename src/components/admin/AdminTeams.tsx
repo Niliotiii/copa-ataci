@@ -6,6 +6,7 @@ import { authedPut, authedPost, authedDelete, adminStyles, labelClass, type Save
 import PitchEditor from "./PitchEditor";
 import ImageUpload from "./ImageUpload";
 import ConfirmDialog from "./ConfirmDialog";
+import Select from "../Select";
 import { CloseIcon } from "../icons";
 
 const POSITIONS: Position[] = ["GOL", "DEF", "ALA", "MED", "ATA"];
@@ -173,10 +174,14 @@ export default function AdminTeams({ token }: { token: string }) {
               </button>
             )}
           </div>
-          <select value={activeId ?? ""} onChange={(e) => setSelectedId(e.target.value)}
-            className="w-full mt-1.5 mb-4 rounded-lg px-3 py-2 text-sm outline-none cursor-pointer" style={adminStyles.input}>
-            {teams.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-          </select>
+          <div className="mt-1.5 mb-4">
+            <Select
+              ariaLabel="Time"
+              value={activeId ?? ""}
+              onChange={(v) => setSelectedId(v)}
+              options={teams.map((t) => ({ value: t.id, label: t.name }))}
+            />
+          </div>
 
           {/* Dados do time */}
           <div className="rounded-xl p-4 mb-4" style={adminStyles.card}>
@@ -250,11 +255,12 @@ export default function AdminTeams({ token }: { token: string }) {
                   <input value={p.number} onChange={(e) => updatePlayer(i, { number: e.target.value })}
                     placeholder="#" type="number" aria-label={`Número do jogador ${i + 1}`}
                     className="rounded-lg px-1 py-2 text-sm outline-none text-center" style={adminStyles.input} />
-                  <select value={p.position} onChange={(e) => updatePlayer(i, { position: e.target.value as Position })}
-                    aria-label={`Posição do jogador ${i + 1}`}
-                    className="rounded-lg px-1 py-2 text-xs outline-none cursor-pointer" style={adminStyles.input}>
-                    {POSITIONS.map((pos) => <option key={pos} value={pos}>{pos}</option>)}
-                  </select>
+                  <Select
+                    ariaLabel={`Posição do jogador ${i + 1}`}
+                    value={p.position}
+                    onChange={(v) => updatePlayer(i, { position: v as Position })}
+                    options={POSITIONS.map((pos) => ({ value: pos, label: pos }))}
+                  />
                   <input value={p.posX} onChange={(e) => updatePlayer(i, { posX: e.target.value })}
                     placeholder="X" type="number" min={0} max={100} aria-label={`Coordenada X do jogador ${i + 1}`}
                     className="rounded-lg px-1 py-2 text-sm outline-none text-center" style={adminStyles.input} />

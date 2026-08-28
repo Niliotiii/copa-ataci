@@ -52,14 +52,9 @@ test.describe("Copa Ataci — smoke E2E", () => {
     await page.getByRole("button", { name: "Entrar" }).click();
     await expect(page.getByRole("heading", { name: "Painel do Organizador" })).toBeVisible();
 
-    // Seleciona o jogo ATA x LEO (Rodada 2) pelo texto da opção.
-    const select = page.locator("select").first();
-    const optionValue = await select
-      .locator("option", { hasText: "Ataci FC" })
-      .filter({ hasText: "Leões" })
-      .first()
-      .getAttribute("value");
-    await select.selectOption(optionValue!);
+    // Seleciona o jogo ATA x LEO (Rodada 2) pelo Select customizado.
+    await page.getByRole("button", { name: "Jogo", exact: true }).click();
+    await page.getByRole("option", { name: /\[R2\] Ataci FC × Leões/ }).click();
 
     // Gols e cartões agora vêm dos EVENTOS por jogador (unificado): o formulário
     // do jogo não tem mais campos de placar/cartões, e a seção de eventos aparece.

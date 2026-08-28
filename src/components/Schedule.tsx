@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import MatchShareModal from "./MatchShareModal";
+import Select from "./Select";
 import { useApi } from "../data/useApi";
 import type { Match } from "../data/types";
 import { LoadingState, ErrorState, EmptyState } from "./States";
@@ -53,14 +54,13 @@ export default function Schedule() {
             </h2>
           </div>
           {rounds.length > 0 && (
-            <select
-              value={activeRound ?? ""}
-              onChange={(e) => setSelectedRound(Number(e.target.value))}
-              className="text-sm rounded-lg px-3 py-1.5 outline-none cursor-pointer"
-              style={{ minHeight: 44, background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Inter, sans-serif" }}
-            >
-              {rounds.map((r) => <option key={r} value={r}>Rodada {r}</option>)}
-            </select>
+            <Select
+              className="w-40"
+              ariaLabel="Rodada"
+              value={activeRound != null ? String(activeRound) : ""}
+              onChange={(v) => setSelectedRound(Number(v))}
+              options={rounds.map((r) => ({ value: String(r), label: `Rodada ${r}` }))}
+            />
           )}
         </div>
 

@@ -5,6 +5,7 @@ import { LoadingState, ErrorState } from "../States";
 import { authedPut, authedPost, authedDelete, adminStyles, labelClass, type SaveResult } from "./shared";
 import AdminEvents from "./AdminEvents";
 import ConfirmDialog from "./ConfirmDialog";
+import Select from "../Select";
 
 const statusOptions: { value: MatchStatus; label: string }[] = [
   { value: "agendado", label: "Agendado" },
@@ -192,22 +193,18 @@ export default function AdminMatches({ token }: { token: string }) {
               + Novo jogo
             </button>
           </div>
-          <select
-            value={selectedId ?? ""}
-            onChange={(e) => setSelectedId(e.target.value ? Number(e.target.value) : null)}
-            className="w-full mt-1.5 mb-4 rounded-lg px-3 py-2 text-sm outline-none cursor-pointer"
-            style={adminStyles.input}
-          >
-            <option value="">Selecione um jogo…</option>
-            {matches.map((m) => {
-              const tag = m.round != null ? `R${m.round}` : (m.bracketSlot ?? m.phase);
-              return (
-                <option key={m.id} value={m.id}>
-                  [{tag}] {m.teamA.name} × {m.teamB.name} — {m.status}
-                </option>
-              );
-            })}
-          </select>
+          <div className="mt-1.5 mb-4">
+            <Select
+              ariaLabel="Jogo"
+              value={selectedId != null ? String(selectedId) : ""}
+              onChange={(v) => setSelectedId(v ? Number(v) : null)}
+              placeholder="Selecione um jogo…"
+              options={matches.map((m) => {
+                const tag = m.round != null ? `R${m.round}` : (m.bracketSlot ?? m.phase);
+                return { value: String(m.id), label: `[${tag}] ${m.teamA.name} × ${m.teamB.name} — ${m.status}` };
+              })}
+            />
+          </div>
 
           {selected && (
             <>
@@ -215,19 +212,27 @@ export default function AdminMatches({ token }: { token: string }) {
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
                   <label className={labelClass} style={adminStyles.label}>Time casa</label>
-                  <select value={homeTeamId} onChange={(e) => setHomeTeamId(e.target.value)}
-                    className="w-full mt-1.5 rounded-lg px-3 py-2 text-sm outline-none cursor-pointer" style={adminStyles.input}>
-                    <option value="">— (a definir)</option>
-                    {teamOptions.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                  </select>
+                  <div className="mt-1.5">
+                    <Select
+                      ariaLabel="Time casa"
+                      value={homeTeamId}
+                      onChange={setHomeTeamId}
+                      placeholder="— (a definir)"
+                      options={[{ value: "", label: "— (a definir)" }, ...teamOptions.map((t) => ({ value: t.id, label: t.name }))]}
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className={labelClass} style={adminStyles.label}>Time visitante</label>
-                  <select value={awayTeamId} onChange={(e) => setAwayTeamId(e.target.value)}
-                    className="w-full mt-1.5 rounded-lg px-3 py-2 text-sm outline-none cursor-pointer" style={adminStyles.input}>
-                    <option value="">— (a definir)</option>
-                    {teamOptions.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                  </select>
+                  <div className="mt-1.5">
+                    <Select
+                      ariaLabel="Time visitante"
+                      value={awayTeamId}
+                      onChange={setAwayTeamId}
+                      placeholder="— (a definir)"
+                      options={[{ value: "", label: "— (a definir)" }, ...teamOptions.map((t) => ({ value: t.id, label: t.name }))]}
+                    />
+                  </div>
                 </div>
               </div>
 

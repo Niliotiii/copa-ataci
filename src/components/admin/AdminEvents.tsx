@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useApi, invalidateCache } from "../../data/useApi";
 import type { Match, MatchEvent, TeamDetail, EventType } from "../../data/types";
 import { adminStyles, labelClass, type SaveResult } from "./shared";
+import Select from "../Select";
 
 const TYPE_LABEL: Record<EventType, string> = {
   gol: "Gol",
@@ -147,19 +148,25 @@ function PlayerPicker({ team, onAdd }: { team: TeamDetail; onAdd: (playerId: num
   const players = withIds.data ?? [];
 
   return (
-    <div className="grid gap-2 mt-1.5" style={{ gridTemplateColumns: "1fr 96px 44px" }}>
-      <select value={playerId} onChange={(e) => setPlayerId(e.target.value)} aria-label="Jogador"
-        className="rounded-lg px-2 py-2 text-sm outline-none cursor-pointer" style={adminStyles.input}>
-        <option value="">Jogador…</option>
-        {players.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-      </select>
-      <select value={type} onChange={(e) => setType(e.target.value as EventType)} aria-label="Tipo de evento"
-        className="rounded-lg px-2 py-2 text-sm outline-none cursor-pointer" style={adminStyles.input}>
-        <option value="gol">Gol</option>
-        <option value="gol_contra">Gol contra</option>
-        <option value="amarelo">Amarelo</option>
-        <option value="vermelho">Vermelho</option>
-      </select>
+    <div className="grid gap-2 mt-1.5" style={{ gridTemplateColumns: "1fr 120px 44px" }}>
+      <Select
+        ariaLabel="Jogador"
+        value={playerId}
+        onChange={setPlayerId}
+        placeholder="Jogador…"
+        options={players.map((p) => ({ value: String(p.id), label: p.name }))}
+      />
+      <Select
+        ariaLabel="Tipo de evento"
+        value={type}
+        onChange={(v) => setType(v as EventType)}
+        options={[
+          { value: "gol", label: "Gol" },
+          { value: "gol_contra", label: "Gol contra" },
+          { value: "amarelo", label: "Amarelo" },
+          { value: "vermelho", label: "Vermelho" },
+        ]}
+      />
       <button
         onClick={() => {
           const p = players.find((x) => String(x.id) === playerId);
