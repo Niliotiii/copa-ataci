@@ -1,126 +1,38 @@
-// Ícones SVG (stroke = currentColor) para navegação e ações da UI.
-// Substituem emojis para consistência visual e acessibilidade.
+// Ícones da UI — Phosphor Icons (@phosphor-icons/react).
+// Mantemos wrappers com os mesmos nomes/assinatura ({ size?, className? })
+// para não alterar os consumidores. Peso "bold" para casar com o traço da UI.
+import {
+  Trophy,
+  SoccerBall,
+  TreeStructure,
+  TShirt,
+  Lock,
+  X,
+  List,
+  CaretDoubleLeft,
+  CaretDoubleRight,
+  Target,
+  Cards,
+  type Icon,
+} from "@phosphor-icons/react";
 
 type IconProps = { size?: number; className?: string };
 
-function base(size: number) {
-  return {
-    width: size,
-    height: size,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 2,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-    "aria-hidden": true,
+// Fabrica um wrapper com tamanho padrão e peso consistente.
+function make(Phic: Icon, defaultSize: number) {
+  return function IconWrapper({ size = defaultSize, className }: IconProps) {
+    return <Phic size={size} className={className} weight="bold" aria-hidden />;
   };
 }
 
-// Troféu — Classificação
-export function TrophyIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg {...base(size)} className={className}>
-      <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z" />
-      <path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3" />
-    </svg>
-  );
-}
-
-// Bola — Jogos
-export function BallIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg {...base(size)} className={className}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7l4.7 3.4-1.8 5.5H9.1l-1.8-5.5L12 7z" />
-    </svg>
-  );
-}
-
-// Chave/eliminatória — Mata-Mata
-export function BracketIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg {...base(size)} className={className}>
-      <path d="M6 4v4a2 2 0 0 0 2 2h4M6 20v-4a2 2 0 0 1 2-2h4" />
-      <path d="M12 12h6" />
-      <circle cx="19" cy="12" r="1.5" />
-      <circle cx="6" cy="4" r="1.5" />
-      <circle cx="6" cy="20" r="1.5" />
-    </svg>
-  );
-}
-
-// Camisa — Times
-export function ShirtIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg {...base(size)} className={className}>
-      <path d="M9 3 5 5 3 8l3 2v10h12V10l3-2-2-3-4-2a3 3 0 0 1-6 0z" />
-    </svg>
-  );
-}
-
-// Cadeado — Admin
-export function LockIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg {...base(size)} className={className}>
-      <rect x="4" y="11" width="16" height="9" rx="2" />
-      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-    </svg>
-  );
-}
-
-// X — fechar / remover
-export function CloseIcon({ size = 16, className }: IconProps) {
-  return (
-    <svg {...base(size)} className={className}>
-      <path d="M18 6 6 18M6 6l12 12" />
-    </svg>
-  );
-}
-
-// Menu hambúrguer — navegação mobile
-export function MenuIcon({ size = 22, className }: IconProps) {
-  return (
-    <svg {...base(size)} className={className}>
-      <path d="M4 6h16M4 12h16M4 18h16" />
-    </svg>
-  );
-}
-
-// Chevron duplo à esquerda — recolher a sidebar
-export function CollapseIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg {...base(size)} className={className}>
-      <path d="m11 17-5-5 5-5M18 17l-5-5 5-5" />
-    </svg>
-  );
-}
-
-// Chevron duplo à direita — expandir a sidebar
-export function ExpandIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg {...base(size)} className={className}>
-      <path d="m13 17 5-5-5-5M6 17l5-5-5-5" />
-    </svg>
-  );
-}
-
-// Alvo — Artilharia
-export function ScorerIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg {...base(size)} className={className}>
-      <circle cx="12" cy="12" r="9" />
-      <circle cx="12" cy="12" r="5" />
-      <circle cx="12" cy="12" r="1.5" fill="currentColor" />
-    </svg>
-  );
-}
-
-// Cartão — Suspensões
-export function CardIcon({ size = 18, className }: IconProps) {
-  return (
-    <svg {...base(size)} className={className}>
-      <rect x="7" y="4" width="10" height="16" rx="2" transform="rotate(-12 12 12)" />
-    </svg>
-  );
-}
+export const TrophyIcon = make(Trophy, 18); // Classificação
+export const BallIcon = make(SoccerBall, 18); // Jogos
+export const BracketIcon = make(TreeStructure, 18); // Mata-Mata
+export const ShirtIcon = make(TShirt, 18); // Times
+export const LockIcon = make(Lock, 18); // Admin
+export const CloseIcon = make(X, 16); // Fechar / remover
+export const MenuIcon = make(List, 22); // Menu hambúrguer
+export const CollapseIcon = make(CaretDoubleLeft, 18); // Recolher sidebar
+export const ExpandIcon = make(CaretDoubleRight, 18); // Expandir sidebar
+export const ScorerIcon = make(Target, 18); // Artilharia
+export const CardIcon = make(Cards, 18); // Suspensões

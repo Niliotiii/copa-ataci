@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import MatchShareModal from "./MatchShareModal";
 import Select from "./Select";
+import { ShareNetwork, MapPin } from "@phosphor-icons/react";
 import { useApi } from "../data/useApi";
 import type { Match } from "../data/types";
 import { LoadingState, ErrorState, EmptyState } from "./States";
@@ -111,10 +112,7 @@ export default function Schedule() {
                         className="flex items-center justify-center rounded-lg"
                         style={{ width: 32, height: 32, color: "var(--muted-foreground)", background: "transparent" }}
                       >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
-                          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                        </svg>
+                        <ShareNetwork size={15} weight="bold" aria-hidden />
                       </button>
                     </div>
                   </div>
@@ -154,10 +152,7 @@ export default function Schedule() {
 
                   {/* Location */}
                   <div className="flex items-center gap-1.5 px-4 pb-3" style={{ color: "var(--muted-foreground)" }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
+                    <MapPin size={12} weight="bold" aria-hidden />
                     <span className="text-xs">{match.location}</span>
                   </div>
                 </div>

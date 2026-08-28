@@ -1,5 +1,6 @@
 import { useApi } from "../data/useApi";
 import type { Bracket as BracketData, BracketBox } from "../data/types";
+import { Trophy } from "@phosphor-icons/react";
 import { LoadingState, ErrorState, EmptyState } from "./States";
 
 function MatchCard({ match, size = "sm" }: { match: BracketBox; size?: "sm" | "lg" }) {
@@ -182,9 +183,7 @@ export default function Bracket() {
                   <div style={{ paddingTop: `${(CARD_H + GAP) * 1.5 - CARD_H * 0.5}px` }}>
                     <MatchCard match={finalMatch} size="lg" />
                     <div className="flex items-center justify-center gap-1.5 mt-3">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2">
-                        <path d="M8 21h8M12 17v4M17 3H7l-2 7h4l-1 4h8l-1-4h4L17 3z" />
-                      </svg>
+                      <Trophy size={14} weight="fill" color="var(--accent)" aria-hidden />
                       <span className="text-xs font-semibold" style={{ color: "var(--accent)", fontFamily: "Oswald, sans-serif" }}>Campeão</span>
                     </div>
                   </div>
