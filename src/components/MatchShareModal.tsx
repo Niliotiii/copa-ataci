@@ -16,15 +16,15 @@ function BannerCrest({ team }: { team: MatchTeam }) {
     <div
       className="flex items-center justify-center flex-shrink-0 overflow-hidden"
       style={{
-        width: "96px",
-        height: "96px",
+        width: "80px",
+        height: "80px",
         borderRadius: "50%",
         background: team.crestUrl ? "#fff" : team.color,
         border: "3px solid #fff",
         boxShadow: "0 6px 18px rgba(0,0,0,0.35)",
         color: "#fff",
         fontWeight: 700,
-        fontSize: "26px",
+        fontSize: "22px",
         fontFamily: "Oswald, sans-serif",
         letterSpacing: "0.02em",
       }}
@@ -98,6 +98,15 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
 
   const isPlayed = match.status === "finalizado";
 
+  /** Nome de arquivo limpo (slug), evitando acentos/espaços no download. */
+  function fileName(): string {
+    const slug = (t: string) =>
+      t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+    const a = match.teamA.abbr ?? match.teamA.name;
+    const b = match.teamB.abbr ?? match.teamB.name;
+    return `copa-ataci-${slug(a)}-vs-${slug(b)}.png`;
+  }
+
   async function exportImage(): Promise<Blob | null> {
     if (!bannerRef.current) return null;
     setExporting(true);
@@ -121,7 +130,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `copa-ataci-${match.teamA.abbr ?? "A"}-vs-${match.teamB.abbr ?? "B"}.png`;
+    a.download = fileName();
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -129,11 +138,10 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
   async function handleShare() {
     const blob = await exportImage();
     if (!blob) return;
-    const file = new File([blob], "copa-ataci.png", { type: "image/png" });
+    const file = new File([blob], fileName(), { type: "image/png" });
     if (navigator.canShare?.({ files: [file] })) {
       await navigator.share({
-        title: `Copa Ataci · ${match.teamA.name} vs ${match.teamB.name}`,
-        text: `⚽ ${round} · ${match.date} às ${match.time} · ${match.location}`,
+        text: `⚽ ${round} · ${match.teamA.name} × ${match.teamB.name} · ${match.date} às ${match.time} · ${match.location}`,
         files: [file],
       });
     } else {
@@ -257,7 +265,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
           <div style={{ position: "relative", flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 16px" }}>
             {/* time A: leve deslocamento para cima */}
             <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
-              <div style={{ transform: "translateY(-14px)", zIndex: 2 }}>
+              <div style={{ transform: "translateY(-10px)", zIndex: 2 }}>
                 <BannerCrest team={match.teamA} />
               </div>
             </div>
@@ -265,11 +273,11 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
             {/* placar ou × no centro exato entre os escudos */}
             <div style={{ flexShrink: 0, width: "64px", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 4 }}>
               {isPlayed ? (
-                <div style={{ color: "#fff", fontSize: "48px", fontWeight: 700, lineHeight: 1, textShadow: "0 4px 16px rgba(0,0,0,0.6)", whiteSpace: "nowrap" }}>
+                <div style={{ color: "#fff", fontSize: "44px", fontWeight: 700, lineHeight: 1, textShadow: "0 4px 16px rgba(0,0,0,0.6)", whiteSpace: "nowrap" }}>
                   {match.teamA.score}<span style={{ color: "#c8912b" }}>:</span>{match.teamB.score}
                 </div>
               ) : (
-                <div style={{ color: "#c8912b", fontSize: "52px", fontWeight: 700, lineHeight: 1, textShadow: "0 4px 16px rgba(0,0,0,0.6)" }}>
+                <div style={{ color: "#c8912b", fontSize: "48px", fontWeight: 700, lineHeight: 1, textShadow: "0 4px 16px rgba(0,0,0,0.6)" }}>
                   ×
                 </div>
               )}
@@ -277,22 +285,22 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
 
             {/* time B: leve deslocamento para baixo */}
             <div style={{ flex: 1, display: "flex", justifyContent: "flex-start" }}>
-              <div style={{ transform: "translateY(16px)", zIndex: 2 }}>
+              <div style={{ transform: "translateY(10px)", zIndex: 2 }}>
                 <BannerCrest team={match.teamB} />
               </div>
             </div>
           </div>
 
           {/* ===== NOMES (empilhados à esquerda, tipografia forte) ===== */}
-          <div style={{ position: "relative", padding: "0 22px 4px" }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-              <span style={{ width: "6px", height: "22px", background: match.teamA.color, display: "inline-block", flexShrink: 0, transform: "translateY(3px)" }} />
-              <span style={{ color: "#fff", fontSize: "22px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1 }}>{match.teamA.name}</span>
+          <div style={{ position: "relative", padding: "0 22px 4px", marginTop: "8px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ width: "6px", height: "20px", background: match.teamA.color, display: "inline-block", flexShrink: 0 }} />
+              <span style={{ color: "#fff", fontSize: "21px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1 }}>{match.teamA.name}</span>
             </div>
-            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", fontWeight: 600, letterSpacing: "0.2em", margin: "3px 0 3px 14px" }}>VS</div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-              <span style={{ width: "6px", height: "22px", background: match.teamB.color, display: "inline-block", flexShrink: 0, transform: "translateY(3px)" }} />
-              <span style={{ color: "#fff", fontSize: "22px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1 }}>{match.teamB.name}</span>
+            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "11px", fontWeight: 600, letterSpacing: "0.2em", margin: "4px 0 4px 14px" }}>VS</div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ width: "6px", height: "20px", background: match.teamB.color, display: "inline-block", flexShrink: 0 }} />
+              <span style={{ color: "#fff", fontSize: "21px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1 }}>{match.teamB.name}</span>
             </div>
           </div>
 
