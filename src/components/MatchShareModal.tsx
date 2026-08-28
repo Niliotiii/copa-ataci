@@ -19,8 +19,8 @@ function BannerCrest({ team }: { team: MatchTeam }) {
         height: "268px",
         borderRadius: "50%",
         background: team.crestUrl ? "#fff" : team.color,
-        border: "10px solid #c8912b",
-        boxShadow: "0 16px 40px rgba(0,0,0,0.5)",
+        border: "10px solid #ffffff",
+        boxShadow: "0 16px 40px rgba(0,0,0,0.55)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -41,6 +41,17 @@ function BannerCrest({ team }: { team: MatchTeam }) {
 
 const BANNER_W = 1080;
 const BANNER_H = 1920;
+
+/** Escurece uma cor hex (#rrggbb) por um fator 0..1 — para dar profundidade ao split. */
+function darken(hex: string, factor = 0.55): string {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  const r = Math.round(((n >> 16) & 255) * factor);
+  const g = Math.round(((n >> 8) & 255) * factor);
+  const b = Math.round((n & 255) * factor);
+  return `rgb(${r},${g},${b})`;
+}
 
 function SponsorLogo({ s }: { s: Sponsor }) {
   return (
@@ -269,20 +280,29 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
               flexDirection: "column",
             }}
           >
-            {/* Fundo decorativo (atrás de tudo) */}
+            {/* Fundo split diagonal head-to-head (cores dos dois times) */}
             <div style={{ position: "absolute", inset: 0, overflow: "hidden", zIndex: 0 }} aria-hidden>
-              {/* gradiente rico de base */}
-              <div style={{ position: "absolute", inset: 0, background: "radial-gradient(120% 70% at 50% 42%, #0f8f66 0%, #0b6e4f 38%, #093a2c 72%, #061f18 100%)" }} />
-              {/* raios dourados irradiando do centro do confronto */}
-              <svg style={{ position: "absolute", left: "50%", top: "42%", width: "1600px", height: "1600px", transform: "translate(-50%, -50%)", opacity: 0.10 }} viewBox="0 0 100 100" aria-hidden>
-                {Array.from({ length: 24 }).map((_, i) => (
-                  <path key={i} d="M50 50 L50 0 L54 0 Z" fill="#c8912b" transform={`rotate(${i * 15} 50 50)`} />
-                ))}
+              <svg width={BANNER_W} height={BANNER_H} viewBox={`0 0 ${BANNER_W} ${BANNER_H}`} style={{ display: "block" }}>
+                <defs>
+                  <linearGradient id="gA" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stopColor={match.teamA.color} />
+                    <stop offset="1" stopColor={darken(match.teamA.color, 0.4)} />
+                  </linearGradient>
+                  <linearGradient id="gB" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stopColor={match.teamB.color} />
+                    <stop offset="1" stopColor={darken(match.teamB.color, 0.4)} />
+                  </linearGradient>
+                </defs>
+                {/* metade esquerda (time A) e direita (time B), separadas por diagonal */}
+                <polygon points={`0,0 ${BANNER_W * 0.6},0 ${BANNER_W * 0.4},${BANNER_H} 0,${BANNER_H}`} fill="url(#gA)" />
+                <polygon points={`${BANNER_W * 0.6},0 ${BANNER_W},0 ${BANNER_W},${BANNER_H} ${BANNER_W * 0.4},${BANNER_H}`} fill="url(#gB)" />
+                {/* faixa dourada da diagonal */}
+                <polygon points={`${BANNER_W * 0.6 - 10},0 ${BANNER_W * 0.6 + 10},0 ${BANNER_W * 0.4 + 10},${BANNER_H} ${BANNER_W * 0.4 - 10},${BANNER_H}`} fill="#c8912b" />
+                {/* escurecimento geral para o texto ler bem */}
+                <rect x="0" y="0" width={BANNER_W} height={BANNER_H} fill="rgba(6,20,15,0.28)" />
               </svg>
-              {/* halos de textura */}
-              <div style={{ position: "absolute", top: "-10%", left: "-10%", width: "60%", height: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.06), transparent 70%)" }} />
               {/* número da rodada gigante como marca d'água */}
-              <div style={{ position: "absolute", right: "-60px", top: "8%", fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "560px", lineHeight: 0.8, color: "rgba(255,255,255,0.045)", letterSpacing: "-0.05em" }}>
+              <div style={{ position: "absolute", right: "-40px", top: "60%", fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "460px", lineHeight: 0.8, color: "rgba(255,255,255,0.06)", letterSpacing: "-0.05em" }}>
                 {match.round ?? (match.bracketSlot ?? "")}
               </div>
             </div>
@@ -310,27 +330,40 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
               </div>
             </div>
 
-            {/* ===== CONFRONTO central (escudos + × + nomes agrupados) ===== */}
-            <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "40px", padding: "40px 48px" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "48px" }}>
-                <BannerCrest team={match.teamA} />
-                {isPlayed ? (
-                  <span style={{ color: "#fff", fontSize: "140px", fontWeight: 700, lineHeight: 1, textShadow: "0 6px 24px rgba(0,0,0,0.7)", whiteSpace: "nowrap" }}>
-                    {match.teamA.score}<span style={{ color: "#c8912b" }}>:</span>{match.teamB.score}
-                  </span>
-                ) : (
-                  <span style={{ color: "#c8912b", fontSize: "110px", fontWeight: 700, lineHeight: 1, textShadow: "0 6px 24px rgba(0,0,0,0.7)" }}>×</span>
-                )}
-                <BannerCrest team={match.teamB} />
+            {/* ===== CONFRONTO central (escudos + emblema VS + nomes) ===== */}
+            <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "44px", padding: "40px 40px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0", width: "100%", position: "relative" }}>
+                <div style={{ flex: 1, display: "flex", justifyContent: "flex-end", paddingRight: "20px" }}>
+                  <BannerCrest team={match.teamA} />
+                </div>
+
+                {/* Emblema central: VS ou placar */}
+                <div style={{ flexShrink: 0, zIndex: 3 }}>
+                  {isPlayed ? (
+                    <div style={{ minWidth: "150px", height: "150px", borderRadius: "16px", background: "#c8912b", border: "5px solid #fff", boxShadow: "0 12px 32px rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 20px" }}>
+                      <span style={{ color: "#08241b", fontSize: "72px", fontWeight: 700, lineHeight: 1, whiteSpace: "nowrap" }}>
+                        {match.teamA.score}<span style={{ opacity: 0.7 }}>:</span>{match.teamB.score}
+                      </span>
+                    </div>
+                  ) : (
+                    <div style={{ width: "150px", height: "150px", borderRadius: "50%", background: "#c8912b", border: "6px solid #fff", boxShadow: "0 12px 32px rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ color: "#08241b", fontSize: "64px", fontWeight: 700, lineHeight: 1, letterSpacing: "0.02em" }}>VS</span>
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ flex: 1, display: "flex", justifyContent: "flex-start", paddingLeft: "20px" }}>
+                  <BannerCrest team={match.teamB} />
+                </div>
               </div>
 
               {/* Nomes agrupados logo abaixo dos escudos */}
               <div style={{ textAlign: "center" }}>
-                <div style={{ color: "#fff", fontSize: "60px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.1, textShadow: "0 3px 12px rgba(0,0,0,0.5)" }}>
+                <div style={{ color: "#fff", fontSize: "60px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.1, textShadow: "0 3px 12px rgba(0,0,0,0.6)" }}>
                   {match.teamA.name}
                 </div>
                 <div style={{ color: "#c8912b", fontSize: "30px", fontWeight: 700, letterSpacing: "0.3em", margin: "12px 0" }}>VS</div>
-                <div style={{ color: "#fff", fontSize: "60px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.1, textShadow: "0 3px 12px rgba(0,0,0,0.5)" }}>
+                <div style={{ color: "#fff", fontSize: "60px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.1, textShadow: "0 3px 12px rgba(0,0,0,0.6)" }}>
                   {match.teamB.name}
                 </div>
               </div>
