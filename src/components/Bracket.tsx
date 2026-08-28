@@ -1,5 +1,5 @@
 import { useApi } from "../data/useApi";
-import type { Bracket as BracketData, BracketBox } from "../data/types";
+import type { Bracket as BracketData, BracketBox, Tournament } from "../data/types";
 import { Trophy } from "@phosphor-icons/react";
 import SectionHeader from "./SectionHeader";
 import { LoadingState, ErrorState, EmptyState } from "./States";
@@ -94,6 +94,8 @@ const COL_H = 4 * (CARD_H + GAP) - GAP;
 
 export default function Bracket() {
   const { data, loading, error } = useApi<BracketData>("/api/bracket");
+  const { data: tournament } = useApi<Tournament>("/api/tournament");
+  const seasonLabel = tournament?.season ? `Temporada ${tournament.season}` : "";
 
   const quarters = data?.quarters ?? [];
   const semis = data?.semis ?? [];
@@ -105,12 +107,14 @@ export default function Bracket() {
         kicker="Fase final"
         title="Mata-Mata"
         right={
-          <span
-            className="text-xs px-3 py-1.5 rounded-full font-semibold uppercase"
-            style={{ background: "rgba(200,145,43,0.15)", color: "var(--accent)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}
-          >
-            2026
-          </span>
+          seasonLabel ? (
+            <span
+              className="text-xs px-3 py-1.5 rounded-full font-semibold uppercase"
+              style={{ background: "rgba(200,145,43,0.15)", color: "var(--accent)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}
+            >
+              {seasonLabel}
+            </span>
+          ) : undefined
         }
       />
 

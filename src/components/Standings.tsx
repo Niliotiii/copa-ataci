@@ -1,11 +1,13 @@
 import { useApi } from "../data/useApi";
-import type { StandingRow } from "../data/types";
+import type { StandingRow, Tournament } from "../data/types";
 import TeamCrest from "./TeamCrest";
 import SectionHeader from "./SectionHeader";
 import { LoadingState, ErrorState, EmptyState } from "./States";
 
 export default function Standings() {
   const { data, loading, error } = useApi<StandingRow[]>("/api/standings");
+  const { data: tournament } = useApi<Tournament>("/api/tournament");
+  const seasonLabel = tournament?.season ? `Temporada ${tournament.season}` : "";
 
   const teams = data ?? [];
   const totalMatches = teams.reduce((acc, t) => acc + t.j, 0) / 2;
@@ -18,12 +20,14 @@ export default function Standings() {
         kicker="Fase de grupos"
         title="Classificação"
         right={
-          <span
-            className="text-xs px-3 py-1.5 rounded-full font-semibold uppercase"
-            style={{ background: "var(--secondary)", color: "var(--muted-foreground)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}
-          >
-            Temporada 2026
-          </span>
+          seasonLabel ? (
+            <span
+              className="text-xs px-3 py-1.5 rounded-full font-semibold uppercase"
+              style={{ background: "var(--secondary)", color: "var(--muted-foreground)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}
+            >
+              {seasonLabel}
+            </span>
+          ) : undefined
         }
       />
 
