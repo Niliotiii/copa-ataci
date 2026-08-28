@@ -1,18 +1,19 @@
 import { useApi } from "../data/useApi";
 import type { Bracket as BracketData, BracketBox } from "../data/types";
 import { Trophy } from "@phosphor-icons/react";
+import SectionHeader from "./SectionHeader";
 import { LoadingState, ErrorState, EmptyState } from "./States";
 
 function MatchCard({ match, size = "sm" }: { match: BracketBox; size?: "sm" | "lg" }) {
   const isLg = size === "lg";
   return (
     <div
-      className="rounded-xl overflow-hidden"
+      className="rounded-xl overflow-hidden tnum"
       style={{
         background: "var(--card)",
-        border: "1px solid var(--border)",
+        border: isLg ? "1px solid var(--accent)" : "1px solid var(--border)",
         width: isLg ? "176px" : "152px",
-        boxShadow: isLg ? "0 4px 20px rgba(0,0,0,0.3)" : "none",
+        boxShadow: isLg ? "var(--shadow-lg)" : "var(--shadow-sm)",
       }}
     >
       {[match.teamA, match.teamB].map((team, idx) => {
@@ -23,7 +24,8 @@ function MatchCard({ match, size = "sm" }: { match: BracketBox; size?: "sm" | "l
             className="flex items-center gap-2 px-3 py-2"
             style={{
               borderBottom: idx === 0 ? "1px solid var(--border)" : "none",
-              background: isWinner ? "rgba(22,163,74,0.08)" : "transparent",
+              background: isWinner ? "var(--primary-soft)" : "transparent",
+              borderLeft: isWinner ? "2px solid var(--primary)" : "2px solid transparent",
             }}
           >
             <div
@@ -94,21 +96,20 @@ export default function Bracket() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h2 className="text-xl uppercase tracking-wide" style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, color: "var(--foreground)" }}>
-            Mata-Mata
-          </h2>
-        </div>
-        <span
-          className="text-xs px-2 py-1 rounded"
-          style={{ background: "rgba(212,160,23,0.15)", color: "var(--accent)", fontFamily: "Oswald, sans-serif" }}
-        >
-          2026
-        </span>
-      </div>
+      <SectionHeader
+        kicker="Fase final"
+        title="Mata-Mata"
+        right={
+          <span
+            className="text-xs px-3 py-1.5 rounded-full font-semibold uppercase"
+            style={{ background: "rgba(200,145,43,0.15)", color: "var(--accent)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}
+          >
+            2026
+          </span>
+        }
+      />
 
-      {loading && <LoadingState label="Carregando chaveamento…" />}
+      {loading && <LoadingState label="Carregando chaveamento…" rows={4} />}
       {error && <ErrorState message={error} />}
       {!loading && !error && quarters.length === 0 && <EmptyState label="Mata-mata ainda não definido." />}
 

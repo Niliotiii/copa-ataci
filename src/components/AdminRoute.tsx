@@ -59,14 +59,14 @@ export default function AdminRoute() {
   if (!authed) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "var(--background)" }}>
-        <form onSubmit={handleLogin} className="w-full max-w-sm rounded-2xl p-6" style={adminStyles.card}>
+        <form onSubmit={handleLogin} className="w-full max-w-sm rounded-2xl p-6" style={{ ...adminStyles.card, boxShadow: "var(--shadow-lg)" }}>
           <div className="flex items-center gap-3 mb-5">
             <img src="/serra-azul.png" alt="Escudo Serra Azul Esporte Clube" width="44" height="44" style={{ display: "block" }} />
             <div>
+              <div className="kicker mb-0.5">Acesso restrito</div>
               <h1 className="text-lg uppercase tracking-wider" style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)", fontWeight: 700 }}>
                 Área do Organizador
               </h1>
-              <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>Copa Ataci · acesso restrito</p>
             </div>
           </div>
 
@@ -84,14 +84,14 @@ export default function AdminRoute() {
 
           {error && (
             <div className="mt-3 rounded-lg p-2.5 text-sm" role="alert"
-              style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.5)", color: "#ef4444" }}>
+              style={{ background: "rgba(217,45,45,0.1)", border: "1px solid rgba(217,45,45,0.5)", color: "var(--danger)" }}>
               {error}
             </div>
           )}
 
           <button type="submit" disabled={submitting || !input}
             className="w-full mt-4 rounded-xl py-3 font-semibold text-sm uppercase transition-opacity disabled:opacity-50"
-            style={{ background: "var(--primary)", color: "#fff", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
+            style={{ background: "var(--primary)", color: "#fff", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em", boxShadow: "var(--shadow-md)" }}>
             {submitting ? "Verificando…" : "Entrar"}
           </button>
 

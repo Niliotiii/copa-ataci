@@ -89,7 +89,7 @@ export const adminStyles = {
     border: "1px solid var(--border)",
     fontFamily: "Inter, sans-serif",
   },
-  card: { background: "var(--card)", border: "1px solid var(--border)" },
+  card: { background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" },
 };
 
 export const labelClass = "text-xs font-semibold uppercase tracking-wider";

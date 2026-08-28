@@ -24,10 +24,10 @@ export default function AdminPanel({ token, onLogout }: { token: string; onLogou
           <div className="flex items-center gap-3 min-w-0">
             <img src="/serra-azul.png" alt="Escudo Serra Azul Esporte Clube" width="40" height="40" style={{ display: "block" }} />
             <div className="min-w-0">
-              <h2 className="text-xl uppercase tracking-wide truncate" style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, color: "var(--foreground)" }}>
-                Painel do Organizador
+              <div className="kicker">Painel</div>
+              <h2 className="section-title text-xl lg:text-2xl truncate">
+                Organizador
               </h2>
-              <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>Copa Ataci · 5ª Edição</p>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -57,6 +57,7 @@ export default function AdminPanel({ token, onLogout }: { token: string; onLogou
                   minHeight: 44,
                   background: active ? "var(--primary)" : "transparent",
                   color: active ? "var(--primary-foreground)" : "var(--muted-foreground)",
+                  boxShadow: active ? "var(--shadow-sm)" : "none",
                 }}
               >
                 {s.label}

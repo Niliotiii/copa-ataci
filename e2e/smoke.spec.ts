@@ -50,7 +50,7 @@ test.describe("Copa Ataci — smoke E2E", () => {
     await page.goto("/admin");
     await page.getByLabel("Token de acesso").fill("dev-token-troque-isto");
     await page.getByRole("button", { name: "Entrar" }).click();
-    await expect(page.getByRole("heading", { name: "Painel do Organizador" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Organizador", exact: true })).toBeVisible();
 
     // Seleciona o jogo ATA x LEO (Rodada 2) pelo Select customizado.
     await page.getByRole("button", { name: "Jogo", exact: true }).click();
@@ -86,7 +86,7 @@ test.describe("Copa Ataci — smoke E2E", () => {
     await page.getByLabel("Token de acesso").fill("errado");
     await page.getByRole("button", { name: "Entrar" }).click();
     await expect(page.getByRole("alert")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Painel do Organizador" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Organizador", exact: true })).toHaveCount(0);
   });
 
   test("mobile: menu hambúrguer abre, navega e fecha", async ({ page }) => {

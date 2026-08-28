@@ -3,6 +3,7 @@ import { useApi } from "../data/useApi";
 import type { Team, TeamDetail, Player, Position } from "../data/types";
 import { textColorOn } from "../data/color";
 import { usePath, navigate } from "../router";
+import SectionHeader from "./SectionHeader";
 import { LoadingState, ErrorState, EmptyState } from "./States";
 
 const positionColors: Record<Position, string> = {
@@ -44,26 +45,23 @@ export default function TeamLineup() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <h2
-          className="text-xl uppercase tracking-wide"
-          style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, color: "var(--foreground)" }}
-        >
-          Times
-        </h2>
-        {selectedId && (
-          <button
-            onClick={() => setSelectedId(null)}
-            className="text-sm px-3 py-1.5 rounded-lg font-semibold"
-            style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.04em" }}
-          >
-            ← Todos os times
-          </button>
-        )}
-      </div>
+      <SectionHeader
+        kicker="Elencos"
+        title="Times"
+        right={
+          selectedId ? (
+            <button
+              onClick={() => setSelectedId(null)}
+              className="text-sm px-3 py-1.5 rounded-lg font-semibold transition-colors"
+              style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.04em" }}
+            >
+              ← Todos os times
+            </button>
+          ) : undefined
+        }
+      />
 
-      {teamsLoading && <LoadingState label="Carregando times…" />}
+      {teamsLoading && <LoadingState label="Carregando times…" rows={6} />}
       {teamsError && <ErrorState message={teamsError} />}
 
       {/* LISTA DE TIMES (sem seleção) */}
@@ -73,8 +71,8 @@ export default function TeamLineup() {
             <button
               key={t.id}
               onClick={() => setSelectedId(t.id)}
-              className="rounded-xl p-4 flex items-center gap-3 text-left transition-all hover:brightness-105 active:scale-[0.99]"
-              style={{ background: "var(--card)", border: "1px solid var(--border)", cursor: "pointer" }}
+              className="group rounded-xl p-4 flex items-center gap-3 text-left transition-all hover:-translate-y-0.5 active:scale-[0.99]"
+              style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)", cursor: "pointer" }}
               aria-label={`Ver elenco de ${t.name}`}
             >
               <div
@@ -104,7 +102,7 @@ export default function TeamLineup() {
                 {/* Team info strip */}
                 <div
                   className="rounded-xl p-3 flex items-center gap-3 mb-4"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
                 >
                   <div
                     className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-base flex-shrink-0 overflow-hidden"
@@ -119,7 +117,7 @@ export default function TeamLineup() {
                     >
                       {squad.name}
                     </div>
-                    <div className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>
+                    <div className="text-xs mt-0.5 tnum" style={{ color: "var(--muted-foreground)" }}>
                       {squad.players.length} jogadores
                     </div>
                   </div>
@@ -206,7 +204,7 @@ export default function TeamLineup() {
           {!squadLoading && squad && !Array.isArray(squad) && Array.isArray(squad.players) && (
             <div
               className="w-full lg:w-60 xl:w-64 lg:self-start rounded-xl overflow-hidden"
-              style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+              style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
             >
               {squad.players.length === 0 && <EmptyState label="Elenco não cadastrado." />}
               {positionLabels.map(({ key, label }) => {
