@@ -103,9 +103,9 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
   const { data: sponsorData } = useApi<Sponsor[]>("/api/sponsors");
   const sponsors = sponsorData ?? [];
 
-  // O banner tem tamanho FIXO (1080×1350) para ser determinístico: o que se vê é
-  // exatamente o que o html2canvas exporta. Aqui só medimos a largura disponível
-  // no modal para escalar visualmente o palco (o banner real continua 1080px).
+  // O banner tem tamanho FIXO (1080×1920 — story do Instagram) para ser
+  // determinístico: o que se vê é exatamente o que o snapdom exporta. Aqui só
+  // medimos a largura disponível no modal para escalar visualmente o palco.
   const stageRef = useRef<HTMLDivElement>(null);
   const scaleWrapRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.2);
@@ -141,21 +141,20 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
   async function exportImage(): Promise<Blob | null> {
     if (!bannerRef.current) return null;
     setExporting(true);
-    // Neutraliza a escala visual do wrapper durante a captura, para o html2canvas
-    // renderizar o banner no tamanho REAL (1080×1920), e restaura depois.
+    // Neutraliza a escala visual do wrapper durante a captura, para o snapdom
+    // capturar o banner no tamanho REAL (1080×1920), e restaura depois.
     const wrap = scaleWrapRef.current;
     const prevCss = wrap?.style.cssText ?? "";
     if (wrap) {
-      // Renderiza em tamanho real, fora da tela, para o html2canvas capturar 1080×1920.
+      // Renderiza em tamanho real, fora da tela, para capturar em 1080×1920.
       wrap.style.transform = "none";
       wrap.style.position = "fixed";
       wrap.style.left = "-10000px";
       wrap.style.top = "0";
     }
     try {
-      // Garante que as fontes do banner (Oswald bold e bold-italic) estejam
-      // carregadas ANTES de rasterizar — senão o html2canvas usa fallback (Arial)
-      // e o PNG sai com tipografia diferente/pior que o preview.
+      // Garante que as fontes (Oswald bold/italic, Inter) estejam carregadas
+      // antes de capturar, para o texto sair com a tipografia correta.
       if (document.fonts) {
         try {
           await Promise.all([
@@ -168,18 +167,17 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
           /* segue mesmo se a API de fontes falhar */
         }
       }
-      const { default: html2canvas } = await import("html2canvas");
-      const canvas = await html2canvas(bannerRef.current, {
+      // snapdom captura via <foreignObject> (o próprio navegador rasteriza),
+      // então o PNG fica fiel ao que se vê. embedFonts inclui as @font-face.
+      const { snapdom } = await import("@zumer/snapdom");
+      return await snapdom.toBlob(bannerRef.current, {
+        type: "png",
         scale: 2,
-        useCORS: true,
+        embedFonts: true,
         backgroundColor: "#08241b",
-        logging: false,
         width: BANNER_W,
         height: BANNER_H,
-        windowWidth: BANNER_W,
-        windowHeight: BANNER_H,
       });
-      return await new Promise<Blob | null>((res) => canvas.toBlob(res, "image/png"));
     } finally {
       if (wrap) wrap.style.cssText = prevCss;
       setExporting(false);

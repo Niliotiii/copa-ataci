@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
-    "html2canvas": "^1.4.1",
+    "@zumer/snapdom": "^1.9.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
