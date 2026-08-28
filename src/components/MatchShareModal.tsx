@@ -31,6 +31,18 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
+  // O compartilhamento nativo (Web Share com arquivos) só existe em alguns
+  // navegadores (sobretudo mobile/HTTPS). No desktop normalmente não há, então
+  // evitamos mostrar um botão "Compartilhar" que apenas duplicaria o "Salvar PNG".
+  const [canShareFiles, setCanShareFiles] = useState(false);
+  useEffect(() => {
+    try {
+      const probe = new File([new Blob()], "probe.png", { type: "image/png" });
+      setCanShareFiles(Boolean(navigator.canShare?.({ files: [probe] })));
+    } catch {
+      setCanShareFiles(false);
+    }
+  }, []);
 
   // Fecha no Esc, move o foco para o botão fechar ao abrir e mantém o foco
   // preso dentro do diálogo (focus-trap) enquanto aberto.
@@ -136,15 +148,15 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="share-modal-title"
-        className="w-full max-w-sm flex flex-col gap-4"
-        style={{ maxHeight: "90vh", overflowY: "auto" }}
+        className="w-full max-w-sm flex flex-col rounded-2xl overflow-hidden"
+        style={{ maxHeight: "90vh", overflowY: "auto", background: "var(--card)", boxShadow: "var(--shadow-lg)", border: "1px solid var(--border)" }}
       >
-        {/* Close */}
-        <div className="flex items-center justify-between">
+        {/* Header do modal */}
+        <div className="flex items-center justify-between px-5 py-3.5" style={{ borderBottom: "1px solid var(--border)" }}>
           <span
             id="share-modal-title"
-            className="text-sm font-semibold uppercase tracking-wider"
-            style={{ fontFamily: "Oswald, sans-serif", color: "white" }}
+            className="text-sm font-bold uppercase tracking-wider"
+            style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)", letterSpacing: "0.08em" }}
           >
             Compartilhar Jogo
           </span>
@@ -152,12 +164,15 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
             ref={closeRef}
             onClick={onClose}
             aria-label="Fechar"
-            className="w-11 h-11 rounded-full flex items-center justify-center transition-colors"
-            style={{ background: "rgba(255,255,255,0.1)", color: "white" }}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
+            style={{ background: "var(--secondary)", color: "var(--muted-foreground)" }}
           >
             <CloseIcon size={16} />
           </button>
         </div>
+
+        {/* Corpo com o banner + botões */}
+        <div className="p-5 flex flex-col gap-4">
 
         {/* ===== BANNER ===== */}
         <div
@@ -316,23 +331,44 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
 
         {/* Share buttons */}
         <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={handleShare}
-            disabled={exporting}
-            className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-opacity disabled:opacity-50"
-            style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}
-          >
-            {exporting ? (
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                <polyline points="16 6 12 2 8 6" />
-                <line x1="12" y1="2" x2="12" y2="15" />
-              </svg>
-            )}
-            COMPARTILHAR
-          </button>
+          {/* Ação primária: compartilhar (nativo) OU salvar PNG (desktop) */}
+          {canShareFiles ? (
+            <button
+              onClick={handleShare}
+              disabled={exporting}
+              className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-opacity disabled:opacity-50"
+              style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em", boxShadow: "var(--shadow-md)" }}
+            >
+              {exporting ? (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                  <polyline points="16 6 12 2 8 6" />
+                  <line x1="12" y1="2" x2="12" y2="15" />
+                </svg>
+              )}
+              COMPARTILHAR
+            </button>
+          ) : (
+            <button
+              onClick={handleDownload}
+              disabled={exporting}
+              className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-opacity disabled:opacity-50"
+              style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em", boxShadow: "var(--shadow-md)" }}
+            >
+              {exporting ? (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+              )}
+              SALVAR PNG
+            </button>
+          )}
 
           <button
             onClick={handleWhatsApp}
@@ -346,23 +382,26 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
             WHATSAPP
           </button>
 
-          <button
-            onClick={handleDownload}
-            disabled={exporting}
-            className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-opacity disabled:opacity-50"
-            style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            SALVAR PNG
-          </button>
+          {/* Salvar PNG só aparece aqui quando há share nativo (senão é o primário) */}
+          {canShareFiles && (
+            <button
+              onClick={handleDownload}
+              disabled={exporting}
+              className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-opacity disabled:opacity-50"
+              style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              SALVAR PNG
+            </button>
+          )}
 
           <button
             onClick={handleCopy}
-            className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all"
+            className={`flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all ${canShareFiles ? "" : "col-span-2"}`}
             style={{
               background: copied ? "var(--primary-soft)" : "var(--secondary)",
               color: copied ? "var(--primary)" : "var(--foreground)",
@@ -388,6 +427,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
               </>
             )}
           </button>
+        </div>
         </div>
       </div>
     </div>
