@@ -71,18 +71,6 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
-  // O compartilhamento nativo (Web Share com arquivos) só existe em alguns
-  // navegadores (sobretudo mobile/HTTPS). No desktop normalmente não há, então
-  // evitamos mostrar um botão "Compartilhar" que apenas duplicaria o "Salvar PNG".
-  const [canShareFiles, setCanShareFiles] = useState(false);
-  useEffect(() => {
-    try {
-      const probe = new File([new Blob()], "probe.png", { type: "image/png" });
-      setCanShareFiles(Boolean(navigator.canShare?.({ files: [probe] })));
-    } catch {
-      setCanShareFiles(false);
-    }
-  }, []);
 
   // Fecha no Esc, move o foco para o botão fechar ao abrir e mantém o foco
   // preso dentro do diálogo (focus-trap) enquanto aberto.
@@ -194,20 +182,6 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
     URL.revokeObjectURL(url);
   }
 
-  async function handleShare() {
-    const blob = await exportImage();
-    if (!blob) return;
-    const file = new File([blob], fileName(), { type: "image/png" });
-    if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({
-        text: `⚽ ${round} · ${match.teamA.name} × ${match.teamB.name} · ${match.date} às ${match.time} · ${match.location}`,
-        files: [file],
-      });
-    } else {
-      handleDownload();
-    }
-  }
-
   function handleWhatsApp() {
     const text = encodeURIComponent(
       `⚽ *Copa Ataci 5ª Edição*\n${round} · ${match.date} às ${match.time}\n\n${match.teamA.name} ${isPlayed ? match.teamA.score + " x " + match.teamB.score : "x"} ${match.teamB.name}\n\n📍 ${match.location}`
@@ -301,16 +275,12 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
                 {/* escurecimento geral para o texto ler bem */}
                 <rect x="0" y="0" width={BANNER_W} height={BANNER_H} fill="rgba(6,20,15,0.28)" />
               </svg>
-              {/* número da rodada gigante como marca d'água */}
-              <div style={{ position: "absolute", right: "-40px", top: "60%", fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "460px", lineHeight: 0.8, color: "rgba(255,255,255,0.06)", letterSpacing: "-0.05em" }}>
-                {match.round ?? (match.bracketSlot ?? "")}
-              </div>
             </div>
 
             {/* ===== TOPO: marca ===== */}
             <div style={{ position: "relative", zIndex: 1, padding: "64px 64px 0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "24px" }}>
               <img src="/serra-azul.png" alt="" width="160" height="160" style={{ display: "block", filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.5))" }} />
-              <div style={{ background: "#c8912b", padding: "14px 34px", borderRadius: "999px", boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}>
+              <div style={{ background: "#e0a92e", padding: "14px 34px", borderRadius: "999px", border: "3px solid #fff" }}>
                 <span style={{ color: "#08241b", fontSize: "30px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
                   Copa Ataci · 5ª Edição
                 </span>
@@ -330,40 +300,35 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
               </div>
             </div>
 
-            {/* ===== CONFRONTO central (escudos + emblema VS + nomes) ===== */}
-            <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "44px", padding: "40px 40px" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0", width: "100%", position: "relative" }}>
-                <div style={{ flex: 1, display: "flex", justifyContent: "flex-end", paddingRight: "20px" }}>
-                  <BannerCrest team={match.teamA} />
-                </div>
-
-                {/* Emblema central: VS ou placar */}
-                <div style={{ flexShrink: 0, zIndex: 3 }}>
-                  {isPlayed ? (
-                    <div style={{ minWidth: "150px", height: "150px", borderRadius: "16px", background: "#c8912b", border: "5px solid #fff", boxShadow: "0 12px 32px rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 20px" }}>
-                      <span style={{ color: "#08241b", fontSize: "72px", fontWeight: 700, lineHeight: 1, whiteSpace: "nowrap" }}>
-                        {match.teamA.score}<span style={{ opacity: 0.7 }}>:</span>{match.teamB.score}
-                      </span>
-                    </div>
-                  ) : (
-                    <div style={{ width: "150px", height: "150px", borderRadius: "50%", background: "#c8912b", border: "6px solid #fff", boxShadow: "0 12px 32px rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ color: "#08241b", fontSize: "64px", fontWeight: 700, lineHeight: 1, letterSpacing: "0.02em" }}>VS</span>
-                    </div>
-                  )}
-                </div>
-
-                <div style={{ flex: 1, display: "flex", justifyContent: "flex-start", paddingLeft: "20px" }}>
-                  <BannerCrest team={match.teamB} />
+            {/* ===== CONFRONTO central (escudo+nome por time + emblema VS) ===== */}
+            <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", padding: "60px 24px 40px" }}>
+              {/* Time A: escudo + nome */}
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "28px", paddingRight: "10px" }}>
+                <BannerCrest team={match.teamA} />
+                <div style={{ color: "#fff", fontSize: "50px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.05, textAlign: "center", textShadow: "0 3px 12px rgba(0,0,0,0.7)" }}>
+                  {match.teamA.name}
                 </div>
               </div>
 
-              {/* Nomes agrupados logo abaixo dos escudos */}
-              <div style={{ textAlign: "center" }}>
-                <div style={{ color: "#fff", fontSize: "60px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.1, textShadow: "0 3px 12px rgba(0,0,0,0.6)" }}>
-                  {match.teamA.name}
-                </div>
-                <div style={{ color: "#c8912b", fontSize: "30px", fontWeight: 700, letterSpacing: "0.3em", margin: "12px 0" }}>VS</div>
-                <div style={{ color: "#fff", fontSize: "60px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.1, textShadow: "0 3px 12px rgba(0,0,0,0.6)" }}>
+              {/* Emblema central: VS ou placar (anel escuro real, sem box-shadow spread) */}
+              <div style={{ flexShrink: 0, zIndex: 3, alignSelf: "center", marginTop: "-70px", borderRadius: isPlayed ? "26px" : "50%", background: "#08241b", padding: "8px" }}>
+                {isPlayed ? (
+                  <div style={{ minWidth: "170px", height: "170px", borderRadius: "20px", background: "#e0a92e", border: "6px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 22px" }}>
+                    <span style={{ color: "#08241b", fontSize: "76px", fontWeight: 700, lineHeight: 1, whiteSpace: "nowrap" }}>
+                      {match.teamA.score}<span style={{ opacity: 0.65 }}>:</span>{match.teamB.score}
+                    </span>
+                  </div>
+                ) : (
+                  <div style={{ width: "170px", height: "170px", borderRadius: "50%", background: "#e0a92e", border: "7px solid #fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ color: "#08241b", fontSize: "72px", fontWeight: 700, lineHeight: 1, letterSpacing: "0.02em" }}>VS</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Time B: escudo + nome */}
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "28px", paddingLeft: "10px" }}>
+                <BannerCrest team={match.teamB} />
+                <div style={{ color: "#fff", fontSize: "50px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.05, textAlign: "center", textShadow: "0 3px 12px rgba(0,0,0,0.7)" }}>
                   {match.teamB.name}
                 </div>
               </div>
@@ -381,44 +346,23 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
 
         {/* Share buttons */}
         <div className="grid grid-cols-2 gap-2">
-          {/* Ação primária: compartilhar (nativo) OU salvar PNG (desktop) */}
-          {canShareFiles ? (
-            <button
-              onClick={handleShare}
-              disabled={exporting}
-              className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-opacity disabled:opacity-50"
-              style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em", boxShadow: "var(--shadow-md)" }}
-            >
-              {exporting ? (
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                  <polyline points="16 6 12 2 8 6" />
-                  <line x1="12" y1="2" x2="12" y2="15" />
-                </svg>
-              )}
-              COMPARTILHAR
-            </button>
-          ) : (
-            <button
-              onClick={handleDownload}
-              disabled={exporting}
-              className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-opacity disabled:opacity-50"
-              style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em", boxShadow: "var(--shadow-md)" }}
-            >
-              {exporting ? (
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-              )}
-              SALVAR PNG
-            </button>
-          )}
+          <button
+            onClick={handleDownload}
+            disabled={exporting}
+            className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-opacity disabled:opacity-50"
+            style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em", boxShadow: "var(--shadow-md)" }}
+          >
+            {exporting ? (
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+            )}
+            SALVAR PNG
+          </button>
 
           <button
             onClick={handleWhatsApp}
@@ -432,26 +376,9 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
             WHATSAPP
           </button>
 
-          {/* Salvar PNG só aparece aqui quando há share nativo (senão é o primário) */}
-          {canShareFiles && (
-            <button
-              onClick={handleDownload}
-              disabled={exporting}
-              className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-opacity disabled:opacity-50"
-              style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              SALVAR PNG
-            </button>
-          )}
-
           <button
             onClick={handleCopy}
-            className={`flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all ${canShareFiles ? "" : "col-span-2"}`}
+            className="col-span-2 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all"
             style={{
               background: copied ? "var(--primary-soft)" : "var(--secondary)",
               color: copied ? "var(--primary)" : "var(--foreground)",
