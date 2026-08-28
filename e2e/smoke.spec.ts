@@ -21,6 +21,13 @@ test.describe("Copa Ataci — smoke E2E", () => {
     await page.goBack();
     await expect(page).toHaveURL(/\/times$/);
   });
+  test("artilharia mostra artilheiros do seed (não vazia)", async ({ page }) => {
+    await page.goto("/artilharia");
+    await expect(page.getByRole("table")).toBeVisible();
+    // O seed traz eventos da Rodada 1; deve haver ao menos um artilheiro.
+    await expect(page.getByRole("row").nth(1)).toBeVisible();
+  });
+
   test("navega pelas abas e mostra a classificação calculada", async ({ page }) => {
     await page.goto("/");
 

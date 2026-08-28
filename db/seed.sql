@@ -100,6 +100,66 @@ INSERT INTO players (team_id, name, number, position, pos_x, pos_y) VALUES
   ('FAL', 'Fernando', 9,  'ATA', 50, 14),
   ('FAL', 'Cássio',   17, 'ATA', 72, 14);
 
+-- Relâmpago SC
+INSERT INTO players (team_id, name, number, position, pos_x, pos_y) VALUES
+  ('REL', 'Adriano', 1,  'GOL', 50, 88),
+  ('REL', 'Bruno R', 4,  'DEF', 35, 72),
+  ('REL', 'Cléber',  5,  'DEF', 65, 72),
+  ('REL', 'Diego R', 2,  'ALA', 22, 52),
+  ('REL', 'Elias',   3,  'ALA', 78, 52),
+  ('REL', 'Flávio',  8,  'MED', 35, 32),
+  ('REL', 'Gilberto',10, 'MED', 65, 32),
+  ('REL', 'Hugo',    9,  'ATA', 38, 14),
+  ('REL', 'Ivan',    11, 'ATA', 62, 14);
+
+-- Força Jovem
+INSERT INTO players (team_id, name, number, position, pos_x, pos_y) VALUES
+  ('FOR', 'Jonas',   1,  'GOL', 50, 88),
+  ('FOR', 'Kevin',   4,  'DEF', 35, 72),
+  ('FOR', 'Luan',    5,  'DEF', 65, 72),
+  ('FOR', 'Mário',   2,  'ALA', 22, 52),
+  ('FOR', 'Nelson',  3,  'ALA', 78, 52),
+  ('FOR', 'Otávio',  8,  'MED', 35, 32),
+  ('FOR', 'Paulo',   10, 'MED', 65, 32),
+  ('FOR', 'Quintino',9,  'ATA', 38, 14),
+  ('FOR', 'Rui',     11, 'ATA', 62, 14);
+
+-- Estrelas EC
+INSERT INTO players (team_id, name, number, position, pos_x, pos_y) VALUES
+  ('EST', 'Sérgio',  1,  'GOL', 50, 88),
+  ('EST', 'Téo',     4,  'DEF', 35, 72),
+  ('EST', 'Ulisses', 5,  'DEF', 65, 72),
+  ('EST', 'Válter',  2,  'ALA', 22, 52),
+  ('EST', 'Wander',  3,  'ALA', 78, 52),
+  ('EST', 'Xavier',  8,  'MED', 35, 32),
+  ('EST', 'Yuri',    10, 'MED', 65, 32),
+  ('EST', 'Zé',      9,  'ATA', 38, 14),
+  ('EST', 'Aldo',    11, 'ATA', 62, 14);
+
+-- Caçadores
+INSERT INTO players (team_id, name, number, position, pos_x, pos_y) VALUES
+  ('CAC', 'Beto',    1,  'GOL', 50, 88),
+  ('CAC', 'Cadu',    4,  'DEF', 35, 72),
+  ('CAC', 'Dante',   5,  'DEF', 65, 72),
+  ('CAC', 'Éder',    2,  'ALA', 22, 52),
+  ('CAC', 'Fabinho', 3,  'ALA', 78, 52),
+  ('CAC', 'Gean',    8,  'MED', 35, 32),
+  ('CAC', 'Heitor',  10, 'MED', 65, 32),
+  ('CAC', 'Ícaro',   9,  'ATA', 38, 14),
+  ('CAC', 'Juca',    11, 'ATA', 62, 14);
+
+-- Trovão FC
+INSERT INTO players (team_id, name, number, position, pos_x, pos_y) VALUES
+  ('TRO', 'Kaká',    1,  'GOL', 50, 88),
+  ('TRO', 'Lipe',    4,  'DEF', 35, 72),
+  ('TRO', 'Moa',     5,  'DEF', 65, 72),
+  ('TRO', 'Neto',    2,  'ALA', 22, 52),
+  ('TRO', 'Oscar',   3,  'ALA', 78, 52),
+  ('TRO', 'Pablo',   8,  'MED', 35, 32),
+  ('TRO', 'Quiel',   10, 'MED', 65, 32),
+  ('TRO', 'Ramon',   9,  'ATA', 38, 14),
+  ('TRO', 'Saulo',   11, 'ATA', 62, 14);
+
 -- ---------------------------------------------------------------------------
 -- sponsors (migrado de SponsorTicker.tsx)
 -- ---------------------------------------------------------------------------
@@ -111,3 +171,64 @@ INSERT INTO sponsors (name, initials, color, tagline, sort_order) VALUES
   ('AutoPeças JS',     'JS', '#7c3aed', 'Parceiro do Esporte',  5),
   ('Restaurante BH',   'BH', '#0891b2', 'Força Total',          6),
   ('Academia FitZone', 'FZ', '#9f1239', 'Treine como Campeão',  7);
+
+-- ---------------------------------------------------------------------------
+-- match_events (Rodada 1) — reproduzem os placares/cartões acima, para que
+-- artilharia e disciplina fiquem consistentes num fresh install.
+-- ---------------------------------------------------------------------------
+INSERT INTO match_events (match_id, player_id, team_id, player_name, type) VALUES
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='ATA' AND name='Bruno'), 'ATA', 'Bruno', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='ATA' AND name='Gabriel'), 'ATA', 'Gabriel', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='ATA' AND name='João'), 'ATA', 'João', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='ATA' AND name='Rafael'), 'ATA', 'Rafael', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='ATA' AND name='André'), 'ATA', 'André', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='ATA' AND name='Carlos'), 'ATA', 'Carlos', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='ATA' AND name='Bruno'), 'ATA', 'Bruno', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='ATA' AND name='Rodrigo'), 'ATA', 'Rodrigo', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='ATA' AND name='Diego'), 'ATA', 'Diego', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='TRO' AND name='Ramon'), 'TRO', 'Ramon', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='TRO' AND name='Saulo'), 'TRO', 'Saulo', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='TRO' AND name='Kaká'), 'TRO', 'Kaká', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='TRO' AND name='Moa'), 'TRO', 'Moa', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='TRO' AND name='Lipe'), 'TRO', 'Lipe', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='ATA' AND away_team_id='TRO'), (SELECT id FROM players WHERE team_id='TRO' AND name='Kaká'), 'TRO', 'Kaká', 'vermelho'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='LEO' AND away_team_id='EST'), (SELECT id FROM players WHERE team_id='LEO' AND name='Alan'), 'LEO', 'Alan', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='LEO' AND away_team_id='EST'), (SELECT id FROM players WHERE team_id='LEO' AND name='Júnior'), 'LEO', 'Júnior', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='LEO' AND away_team_id='EST'), (SELECT id FROM players WHERE team_id='LEO' AND name='Leandro'), 'LEO', 'Leandro', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='LEO' AND away_team_id='EST'), (SELECT id FROM players WHERE team_id='LEO' AND name='Igor'), 'LEO', 'Igor', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='LEO' AND away_team_id='EST'), (SELECT id FROM players WHERE team_id='LEO' AND name='Renato'), 'LEO', 'Renato', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='LEO' AND away_team_id='EST'), (SELECT id FROM players WHERE team_id='LEO' AND name='Tiago'), 'LEO', 'Tiago', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='LEO' AND away_team_id='EST'), (SELECT id FROM players WHERE team_id='EST' AND name='Zé'), 'EST', 'Zé', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='LEO' AND away_team_id='EST'), (SELECT id FROM players WHERE team_id='EST' AND name='Aldo'), 'EST', 'Aldo', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='LEO' AND away_team_id='EST'), (SELECT id FROM players WHERE team_id='EST' AND name='Xavier'), 'EST', 'Xavier', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='LEO' AND away_team_id='EST'), (SELECT id FROM players WHERE team_id='EST' AND name='Sérgio'), 'EST', 'Sérgio', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='LEO' AND away_team_id='EST'), (SELECT id FROM players WHERE team_id='EST' AND name='Ulisses'), 'EST', 'Ulisses', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='FAL' AND away_team_id='FOR'), (SELECT id FROM players WHERE team_id='FAL' AND name='Edson'), 'FAL', 'Edson', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='FAL' AND away_team_id='FOR'), (SELECT id FROM players WHERE team_id='FAL' AND name='Fernando'), 'FAL', 'Fernando', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='FAL' AND away_team_id='FOR'), (SELECT id FROM players WHERE team_id='FAL' AND name='Cássio'), 'FAL', 'Cássio', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='FAL' AND away_team_id='FOR'), (SELECT id FROM players WHERE team_id='FAL' AND name='Wesley'), 'FAL', 'Wesley', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='FAL' AND away_team_id='FOR'), (SELECT id FROM players WHERE team_id='FAL' AND name='Samuel'), 'FAL', 'Samuel', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='FAL' AND away_team_id='FOR'), (SELECT id FROM players WHERE team_id='FAL' AND name='Augusto'), 'FAL', 'Augusto', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='FAL' AND away_team_id='FOR'), (SELECT id FROM players WHERE team_id='FOR' AND name='Quintino'), 'FOR', 'Quintino', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='FAL' AND away_team_id='FOR'), (SELECT id FROM players WHERE team_id='FOR' AND name='Rui'), 'FOR', 'Rui', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='FAL' AND away_team_id='FOR'), (SELECT id FROM players WHERE team_id='FOR' AND name='Otávio'), 'FOR', 'Otávio', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='FAL' AND away_team_id='FOR'), (SELECT id FROM players WHERE team_id='FOR' AND name='Paulo'), 'FOR', 'Paulo', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='FAL' AND away_team_id='FOR'), (SELECT id FROM players WHERE team_id='FOR' AND name='Jonas'), 'FOR', 'Jonas', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='FAL' AND away_team_id='FOR'), (SELECT id FROM players WHERE team_id='FOR' AND name='Luan'), 'FOR', 'Luan', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='REL' AND away_team_id='CAC'), (SELECT id FROM players WHERE team_id='REL' AND name='Hugo'), 'REL', 'Hugo', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='REL' AND away_team_id='CAC'), (SELECT id FROM players WHERE team_id='REL' AND name='Ivan'), 'REL', 'Ivan', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='REL' AND away_team_id='CAC'), (SELECT id FROM players WHERE team_id='REL' AND name='Flávio'), 'REL', 'Flávio', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='REL' AND away_team_id='CAC'), (SELECT id FROM players WHERE team_id='REL' AND name='Gilberto'), 'REL', 'Gilberto', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='REL' AND away_team_id='CAC'), (SELECT id FROM players WHERE team_id='REL' AND name='Diego R'), 'REL', 'Diego R', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='REL' AND away_team_id='CAC'), (SELECT id FROM players WHERE team_id='REL' AND name='Elias'), 'REL', 'Elias', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='REL' AND away_team_id='CAC'), (SELECT id FROM players WHERE team_id='REL' AND name='Adriano'), 'REL', 'Adriano', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='REL' AND away_team_id='CAC'), (SELECT id FROM players WHERE team_id='REL' AND name='Cléber'), 'REL', 'Cléber', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='REL' AND away_team_id='CAC'), (SELECT id FROM players WHERE team_id='REL' AND name='Bruno R'), 'REL', 'Bruno R', 'amarelo'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='REL' AND away_team_id='CAC'), (SELECT id FROM players WHERE team_id='REL' AND name='Adriano'), 'REL', 'Adriano', 'vermelho'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='REL' AND away_team_id='CAC'), (SELECT id FROM players WHERE team_id='CAC' AND name='Ícaro'), 'CAC', 'Ícaro', 'gol'),
+  ((SELECT id FROM matches WHERE phase='grupos' AND round=1 AND home_team_id='REL' AND away_team_id='CAC'), (SELECT id FROM players WHERE team_id='CAC' AND name='Beto'), 'CAC', 'Beto', 'amarelo');
+
+-- suspensions pendentes da Rodada 1 (cartões vermelhos).
+INSERT INTO suspensions (player_id, reason, games, served) VALUES
+  ((SELECT id FROM players WHERE team_id='TRO' AND name='Kaká'), 'vermelho', 1, 0),
+  ((SELECT id FROM players WHERE team_id='REL' AND name='Adriano'), 'vermelho', 1, 0);

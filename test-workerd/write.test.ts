@@ -81,8 +81,9 @@ describe("Escrita no runtime real (workerd + D1 nativo)", () => {
       env.DB.prepare("DELETE FROM teams WHERE id = ?;").bind("ATA").run(),
     ).rejects.toThrow(/FOREIGN KEY/i);
 
-    // Removendo as referências em matches, o DELETE passa e o CASCADE de
-    // players remove o elenco.
+    // Removendo as referências em matches (e os eventos, que referenciam o
+    // time), o DELETE passa e o CASCADE de players remove o elenco.
+    await env.DB.prepare("DELETE FROM match_events WHERE team_id = ?;").bind("ATA").run();
     await env.DB.prepare("UPDATE matches SET home_team_id = NULL WHERE home_team_id = ?;").bind("ATA").run();
     await env.DB.prepare("UPDATE matches SET away_team_id = NULL WHERE away_team_id = ?;").bind("ATA").run();
     await env.DB.prepare("DELETE FROM teams WHERE id = ?;").bind("ATA").run();

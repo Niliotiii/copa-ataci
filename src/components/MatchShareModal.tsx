@@ -28,14 +28,34 @@ function SponsorLogo({ s }: { s: Sponsor }) {
 export default function MatchShareModal({ match, round, onClose }: Props) {
   const bannerRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
 
-  // Fecha no Esc e move o foco para o botão fechar ao abrir.
+  // Fecha no Esc, move o foco para o botão fechar ao abrir e mantém o foco
+  // preso dentro do diálogo (focus-trap) enquanto aberto.
   useEffect(() => {
     closeRef.current?.focus();
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab" || !dialogRef.current) return;
+      const focusables = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -112,6 +132,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="share-modal-title"

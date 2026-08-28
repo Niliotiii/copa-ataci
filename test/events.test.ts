@@ -8,6 +8,11 @@ import { onRequestGet as getMatch } from "../functions/api/matches/[id]";
 
 beforeEach(async () => {
   await resetDb();
+  // Estes testes exercitam o MECANISMO de eventos em isolamento (jogo 5, R2).
+  // O seed agora traz eventos/suspensões da Rodada 1 — limpa-os para partir de
+  // um estado neutro e não interferir nas contagens globais.
+  await getEnv().DB.prepare("DELETE FROM match_events;").run();
+  await getEnv().DB.prepare("DELETE FROM suspensions;").run();
 });
 function req(url: string, init?: RequestInit) {
   return new Request(`https://test.local${url}`, init);
