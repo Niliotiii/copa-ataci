@@ -36,16 +36,12 @@ function BannerCrest({ team }: { team: MatchTeam }) {
 
 function SponsorLogo({ s }: { s: Sponsor }) {
   return (
-    <div className="flex flex-col items-center gap-0.5">
-      <div
-        className="rounded-full flex items-center justify-center text-white font-bold overflow-hidden"
-        style={{ width: "26px", height: "26px", background: s.logoUrl ? "#fff" : s.color, fontSize: "8px", fontFamily: "Oswald, sans-serif", border: "1px solid rgba(255,255,255,0.5)" }}
-      >
-        {s.logoUrl ? <img src={s.logoUrl} alt="" className="w-full h-full object-contain" /> : s.initials}
-      </div>
-      <span style={{ fontSize: "6px", color: "rgba(255,255,255,0.75)", fontFamily: "Inter, sans-serif", whiteSpace: "nowrap" }}>
-        {s.name}
-      </span>
+    <div
+      className="rounded-full flex items-center justify-center text-white font-bold overflow-hidden flex-shrink-0"
+      style={{ width: "30px", height: "30px", background: s.logoUrl ? "#fff" : s.color, fontSize: "9px", fontFamily: "Oswald, sans-serif", border: "1px solid rgba(255,255,255,0.5)" }}
+      title={s.name}
+    >
+      {s.logoUrl ? <img src={s.logoUrl} alt={s.name} className="w-full h-full object-contain" /> : s.initials}
     </div>
   );
 }
@@ -206,7 +202,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
             overflow: "hidden",
             fontFamily: "Oswald, sans-serif",
             width: "100%",
-            aspectRatio: "4 / 5",
+            aspectRatio: "5 / 6",
             display: "flex",
             flexDirection: "column",
           }}
@@ -236,14 +232,16 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
             {match.round ?? (match.bracketSlot ?? "")}
           </div>
 
-          {/* ===== TOPO (alinhado à esquerda, não centralizado) ===== */}
-          <div style={{ position: "relative", padding: "22px 22px 0" }}>
-            {/* Marca: logo Serra Azul + nome do torneio */}
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#c8912b", padding: "4px 12px 4px 6px", borderRadius: "999px" }}>
-              <img src="/serra-azul.png" alt="" width="22" height="22" style={{ display: "block", borderRadius: "50%" }} />
-              <span style={{ color: "#08241b", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                Copa Ataci · 5ª Edição
-              </span>
+          {/* ===== TOPO ===== */}
+          <div style={{ position: "relative", padding: "20px 22px 0" }}>
+            {/* Logo Serra Azul grande à esquerda + badge do torneio no lado oposto */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+              <img src="/serra-azul.png" alt="" width="56" height="56" style={{ display: "block", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.4))" }} />
+              <div style={{ background: "#c8912b", padding: "5px 14px", borderRadius: "999px" }}>
+                <span style={{ color: "#08241b", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                  Copa Ataci · 5ª Edição
+                </span>
+              </div>
             </div>
             {/* Rodada + local na mesma linha */}
             <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: "14px" }}>
@@ -299,12 +297,9 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
           </div>
 
           {/* ===== RODAPÉ: patrocinadores em faixa escura ===== */}
-          <div style={{ position: "relative", marginTop: "12px", padding: "10px 16px", background: "#061a14", borderTop: "2px solid #c8912b" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px" }}>
-              <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap", flex: 1 }}>
-                {sponsors.map((s) => <SponsorLogo key={s.initials} s={s} />)}
-              </div>
-              <span style={{ color: "#c8912b", fontSize: "12px", fontWeight: 700, letterSpacing: "0.06em", flexShrink: 0 }}>#CopaAtaci</span>
+          <div style={{ position: "relative", marginTop: "12px", padding: "12px 16px", background: "#061a14", borderTop: "2px solid #c8912b" }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: "16px", alignItems: "center", flexWrap: "wrap" }}>
+              {sponsors.map((s) => <SponsorLogo key={s.initials} s={s} />)}
             </div>
           </div>
         </div>
