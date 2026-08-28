@@ -89,22 +89,30 @@ function Portal({ path }: { path: string }) {
         {/* Logo + toggle */}
         <div className="px-4 py-6 border-b" style={{ borderColor: "var(--border)" }}>
           <div className={`flex items-center gap-3 ${collapsed ? "flex-col" : ""}`}>
-            <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
-              <img src="/serra-azul.png" alt="Escudo Serra Azul Esporte Clube" width="48" height="48" style={{ display: "block" }} />
-            </div>
-            {!collapsed && (
-              <div className="flex-1 min-w-0">
-                <h1
-                  className="text-xl leading-tight uppercase tracking-wider truncate"
-                  style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)", fontWeight: 700 }}
-                >
-                  {tName}
-                </h1>
-                <p className="text-xs" style={{ color: "var(--accent)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
-                  {tSub}
-                </p>
+            <button
+              type="button"
+              onClick={() => selectTab("/")}
+              aria-label="Ir para a tela inicial"
+              className={`flex items-center gap-3 min-w-0 flex-1 text-left ${collapsed ? "flex-col" : ""}`}
+              style={{ background: "transparent", border: "none", cursor: "pointer", padding: 0 }}
+            >
+              <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+                <img src="/serra-azul.png" alt="Escudo Serra Azul Esporte Clube" width="48" height="48" style={{ display: "block" }} />
               </div>
-            )}
+              {!collapsed && (
+                <div className="flex-1 min-w-0">
+                  <h1
+                    className="text-xl leading-tight uppercase tracking-wider truncate"
+                    style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)", fontWeight: 700 }}
+                  >
+                    {tName}
+                  </h1>
+                  <p className="text-xs" style={{ color: "var(--accent)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em" }}>
+                    {tSub}
+                  </p>
+                </div>
+              )}
+            </button>
             <button
               type="button"
               onClick={toggleCollapsed}
@@ -165,7 +173,13 @@ function Portal({ path }: { path: string }) {
           style={{ background: "var(--card)", borderBottom: "1px solid var(--border)" }}
         >
           <div className="px-4 py-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => selectTab("/")}
+              aria-label="Ir para a tela inicial"
+              className="flex items-center gap-3 min-w-0 text-left"
+              style={{ background: "transparent", border: "none", cursor: "pointer", padding: 0 }}
+            >
               <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
                 <img src="/serra-azul.png" alt="Escudo Serra Azul Esporte Clube" width="40" height="40" style={{ display: "block" }} />
               </div>
@@ -180,7 +194,7 @@ function Portal({ path }: { path: string }) {
                   {tSub}
                 </p>
               </div>
-            </div>
+            </button>
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
