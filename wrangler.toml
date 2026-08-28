@@ -10,7 +10,7 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "copa-ataci"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "269c70b7-595d-4931-bc23-90fc8c25836d"
 migrations_dir = "migrations"
 
 # Binding do R2 para as imagens (escudos de times e logos de patrocinadores).
