@@ -2,11 +2,8 @@ import { useApi } from "../data/useApi";
 import type { Sponsor } from "../data/types";
 
 function SponsorItem({ sponsor }: { sponsor: Sponsor }) {
-  return (
-    <div
-      className="flex items-center gap-2.5 flex-shrink-0 px-6"
-      style={{ borderRight: "1px solid var(--border)" }}
-    >
+  const inner = (
+    <>
       <div
         className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden"
         style={{ background: sponsor.logoUrl ? "var(--card)" : sponsor.color, fontSize: "10px", fontFamily: "Oswald, sans-serif" }}
@@ -26,6 +23,27 @@ function SponsorItem({ sponsor }: { sponsor: Sponsor }) {
           </div>
         )}
       </div>
+    </>
+  );
+
+  // Com link: âncora clicável (abre em nova aba). Sem link: div estático.
+  if (sponsor.linkUrl) {
+    return (
+      <a
+        href={sponsor.linkUrl}
+        target="_blank"
+        rel="noopener noreferrer sponsored"
+        title={`Visitar ${sponsor.name}`}
+        className="flex items-center gap-2.5 flex-shrink-0 px-6 transition-opacity hover:opacity-80"
+        style={{ borderRight: "1px solid var(--border)", textDecoration: "none", cursor: "pointer" }}
+      >
+        {inner}
+      </a>
+    );
+  }
+  return (
+    <div className="flex items-center gap-2.5 flex-shrink-0 px-6" style={{ borderRight: "1px solid var(--border)" }}>
+      {inner}
     </div>
   );
 }

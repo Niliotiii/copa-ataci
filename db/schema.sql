@@ -133,6 +133,7 @@ CREATE TABLE sponsors (
   color        TEXT NOT NULL,
   tagline      TEXT,
   logo_url     TEXT,
+  link_url     TEXT,
   sort_order   INTEGER NOT NULL DEFAULT 0
 );
 

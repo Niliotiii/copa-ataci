@@ -174,7 +174,7 @@ inteira (envie o array completo). Ex.:
 ```bash
 curl -X PUT http://127.0.0.1:8788/api/sponsors \
   -H "authorization: Bearer $ADMIN_TOKEN" -H "content-type: application/json" \
-  -d '{"sponsors":[{"name":"Arena Ataci","initials":"AA","color":"#16a34a","tagline":"Oficial"}]}'
+  -d '{"sponsors":[{"name":"Arena Ataci","initials":"AA","color":"#16a34a","tagline":"Oficial","logoUrl":null,"linkUrl":"https://instagram.com/arenaataci"}]}'
 ```
 
 Respostas: `200` com `{ok:true, ...}`; `400` (validação);
@@ -269,7 +269,8 @@ guardado só na sessão (`sessionStorage`) e vale para todas as seções; há bo
   imagem)**; e editar o elenco (nome, número, posição e coordenadas `posX`/`posY`),
   com adicionar/remover. As posições podem ser definidas **arrastando os jogadores
   direto no campo** (Modo Cartola) ou digitando as coordenadas X/Y.
-- **Patrocinadores** — adicionar, remover e editar a lista (nome, sigla, cor, slogan).
+- **Patrocinadores** — adicionar, remover e editar a lista (nome, sigla, cor, slogan,
+  logo e **link opcional**; com link, o item do carrossel vira clicável e abre em nova aba).
 - **Suspensões** — dar baixa (marcar como cumprida) nos jogadores suspensos.
 
 Ao salvar, o painel chama o `PUT` correspondente e invalida o cache local —

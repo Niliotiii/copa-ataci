@@ -136,6 +136,23 @@ describe("PUT /api/sponsors — substituir lista", () => {
     expect(res.status).toBe(400);
   });
 
+  it("persiste o link (URL http/https) do patrocinador", async () => {
+    const res = await putSponsors(
+      makeCtx(req("/api/sponsors", { method: "PUT", headers: authHeaders, body: JSON.stringify({ sponsors: [{ name: "Link Co", initials: "LK", color: "#112233", linkUrl: "https://exemplo.com" }] }) })),
+    );
+    expect(res.status).toBe(200);
+    const after = await getSponsors(makeCtx(req("/api/sponsors")));
+    const list = (await after.json()) as any[];
+    expect(list[0].linkUrl).toBe("https://exemplo.com");
+  });
+
+  it("rejeita link que não é URL http(s)", async () => {
+    const res = await putSponsors(
+      makeCtx(req("/api/sponsors", { method: "PUT", headers: authHeaders, body: JSON.stringify({ sponsors: [{ name: "X", initials: "X", color: "#112233", linkUrl: "javascript:alert(1)" }] }) })),
+    );
+    expect(res.status).toBe(400);
+  });
+
   it("401 sem token", async () => {
     const res = await putSponsors(
       makeCtx(

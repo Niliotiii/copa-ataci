@@ -163,14 +163,14 @@ INSERT INTO players (team_id, name, number, position, pos_x, pos_y) VALUES
 -- ---------------------------------------------------------------------------
 -- sponsors (migrado de SponsorTicker.tsx)
 -- ---------------------------------------------------------------------------
-INSERT INTO sponsors (name, initials, color, tagline, sort_order) VALUES
-  ('Arena Ataci',      'AA', '#16a34a', 'Patrocinador Oficial', 1),
-  ('Barbearia KL',     'KL', '#d97706', 'Estilo em Campo',      2),
-  ('Padaria Central',  'PC', '#dc2626', 'Energia para Jogar',   3),
-  ('Farmácia Vida',    'FV', '#2563eb', 'Saúde do Atleta',      4),
-  ('AutoPeças JS',     'JS', '#7c3aed', 'Parceiro do Esporte',  5),
-  ('Restaurante BH',   'BH', '#0891b2', 'Força Total',          6),
-  ('Academia FitZone', 'FZ', '#9f1239', 'Treine como Campeão',  7);
+INSERT INTO sponsors (name, initials, color, tagline, link_url, sort_order) VALUES
+  ('Arena Ataci',      'AA', '#16a34a', 'Patrocinador Oficial', 'https://instagram.com/arenaataci',  1),
+  ('Barbearia KL',     'KL', '#d97706', 'Estilo em Campo',      'https://instagram.com/barbeariakl', 2),
+  ('Padaria Central',  'PC', '#dc2626', 'Energia para Jogar',   NULL,                                3),
+  ('Farmácia Vida',    'FV', '#2563eb', 'Saúde do Atleta',      NULL,                                4),
+  ('AutoPeças JS',     'JS', '#7c3aed', 'Parceiro do Esporte',  NULL,                                5),
+  ('Restaurante BH',   'BH', '#0891b2', 'Força Total',          NULL,                                6),
+  ('Academia FitZone', 'FZ', '#9f1239', 'Treine como Campeão',  NULL,                                7);
 
 -- ---------------------------------------------------------------------------
 -- match_events (Rodada 1) — reproduzem os placares/cartões acima, para que

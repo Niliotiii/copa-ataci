@@ -114,6 +114,7 @@ export interface Sponsor {
   color: string;
   tagline: string | null;
   logoUrl?: string | null;
+  linkUrl?: string | null;
 }
 
 export interface Tournament {

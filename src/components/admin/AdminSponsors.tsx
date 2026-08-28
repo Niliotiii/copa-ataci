@@ -13,6 +13,7 @@ type EditableSponsor = {
   color: string;
   tagline: string;
   logoUrl: string | null;
+  linkUrl: string;
 };
 
 export default function AdminSponsors({ token }: { token: string }) {
@@ -23,7 +24,7 @@ export default function AdminSponsors({ token }: { token: string }) {
 
   useEffect(() => {
     if (!data) return;
-    setItems(data.map((s) => ({ name: s.name, initials: s.initials, color: s.color, tagline: s.tagline ?? "", logoUrl: s.logoUrl ?? null })));
+    setItems(data.map((s) => ({ name: s.name, initials: s.initials, color: s.color, tagline: s.tagline ?? "", logoUrl: s.logoUrl ?? null, linkUrl: s.linkUrl ?? "" })));
     setResult(null);
   }, [data]);
 
@@ -31,7 +32,7 @@ export default function AdminSponsors({ token }: { token: string }) {
     setItems((prev) => prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
   }
   function add() {
-    setItems((prev) => [...prev, { name: "", initials: "", color: "#16a34a", tagline: "", logoUrl: null }]);
+    setItems((prev) => [...prev, { name: "", initials: "", color: "#16a34a", tagline: "", logoUrl: null, linkUrl: "" }]);
   }
   function remove(i: number) {
     setItems((prev) => prev.filter((_, idx) => idx !== i));
@@ -47,6 +48,7 @@ export default function AdminSponsors({ token }: { token: string }) {
         color: s.color,
         tagline: s.tagline || null,
         logoUrl: s.logoUrl || null,
+        linkUrl: s.linkUrl.trim() || null,
       })),
     };
     const res = await authedPut("/api/sponsors", token, payload);
@@ -96,6 +98,20 @@ export default function AdminSponsors({ token }: { token: string }) {
                   </button>
                 </div>
                 <ImageUpload label="Logo" value={s.logoUrl} token={token} onChange={(v) => update(i, { logoUrl: v })} />
+                <div className="mt-3">
+                  <label className={labelClass} style={adminStyles.label} htmlFor={`sponsor-link-${i}`}>Link (opcional)</label>
+                  <input
+                    id={`sponsor-link-${i}`}
+                    type="url"
+                    inputMode="url"
+                    value={s.linkUrl}
+                    onChange={(e) => update(i, { linkUrl: e.target.value })}
+                    placeholder="https://instagram.com/patrocinador"
+                    aria-label={`Link do patrocinador ${i + 1}`}
+                    className="w-full mt-1.5 rounded-lg px-2 py-2 text-sm outline-none"
+                    style={adminStyles.input}
+                  />
+                </div>
               </div>
             ))}
             {items.length === 0 && (

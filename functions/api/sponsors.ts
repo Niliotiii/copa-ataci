@@ -4,7 +4,7 @@ import { json, jsonMutation, error, serverError, requireAuth, validateImageDataU
 export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
   try {
     const { results } = await ctx.env.DB.prepare(
-      `SELECT name, initials, color, tagline, logo_url AS logoUrl
+      `SELECT name, initials, color, tagline, logo_url AS logoUrl, link_url AS linkUrl
          FROM sponsors
         ORDER BY sort_order ASC, id ASC;`,
     ).all();
@@ -20,6 +20,7 @@ type SponsorInput = {
   color?: unknown;
   tagline?: unknown;
   logoUrl?: unknown;
+  linkUrl?: unknown;
 };
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
@@ -37,6 +38,18 @@ function validateSponsor(s: SponsorInput, i: number): string | null {
     if (imgErr) return imgErr;
   } else if (s.logoUrl != null && typeof s.logoUrl !== "string") {
     return `patrocinador ${i}: logo inválido.`;
+  }
+  // Link opcional: quando presente, precisa ser uma URL http(s) válida.
+  if (s.linkUrl != null && s.linkUrl !== "") {
+    if (typeof s.linkUrl !== "string") return `patrocinador ${i}: link inválido.`;
+    let u: URL;
+    try {
+      u = new URL(s.linkUrl);
+    } catch {
+      return `patrocinador ${i}: link deve ser uma URL válida (https://…).`;
+    }
+    if (u.protocol !== "http:" && u.protocol !== "https:")
+      return `patrocinador ${i}: link deve começar com http:// ou https://.`;
   }
   return null;
 }
@@ -67,8 +80,8 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
 
     // Substitui a lista atomicamente: DELETE + INSERTs num único batch.
     const insertStmt = ctx.env.DB.prepare(
-      `INSERT INTO sponsors (name, initials, color, tagline, logo_url, sort_order)
-       VALUES (?, ?, ?, ?, ?, ?);`,
+      `INSERT INTO sponsors (name, initials, color, tagline, logo_url, link_url, sort_order)
+       VALUES (?, ?, ?, ?, ?, ?, ?);`,
     );
     const statements = [
       ctx.env.DB.prepare("DELETE FROM sponsors;"),
@@ -79,6 +92,7 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
           s.color as string,
           (s.tagline as string | undefined) ?? null,
           (s.logoUrl as string | undefined) ?? null,
+          (s.linkUrl as string | undefined)?.trim() || null,
           i + 1,
         ),
       ),
@@ -86,7 +100,7 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
     await ctx.env.DB.batch(statements);
 
     const { results } = await ctx.env.DB.prepare(
-      `SELECT name, initials, color, tagline, logo_url AS logoUrl FROM sponsors ORDER BY sort_order ASC, id ASC;`,
+      `SELECT name, initials, color, tagline, logo_url AS logoUrl, link_url AS linkUrl FROM sponsors ORDER BY sort_order ASC, id ASC;`,
     ).all();
 
     return jsonMutation({ ok: true, count: (results ?? []).length, sponsors: results ?? [] });
