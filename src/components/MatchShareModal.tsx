@@ -266,14 +266,34 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
                     <stop offset="0" stopColor={match.teamB.color} />
                     <stop offset="1" stopColor={darken(match.teamB.color, 0.4)} />
                   </linearGradient>
+                  {/* textura de linhas diagonais finas — dá movimento sem foto externa */}
+                  <pattern id="stripes" width="46" height="46" patternTransform="rotate(-12)" patternUnits="userSpaceOnUse">
+                    <rect width="46" height="46" fill="none" />
+                    <rect width="2" height="46" fill="rgba(255,255,255,0.05)" />
+                  </pattern>
+                  {/* brilho radial de profundidade, centrado no confronto */}
+                  <radialGradient id="glow" cx="50%" cy="58%" r="60%">
+                    <stop offset="0" stopColor="rgba(255,255,255,0.16)" />
+                    <stop offset="55%" stopColor="rgba(255,255,255,0.03)" />
+                    <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+                  </radialGradient>
+                  {/* vinheta nas bordas para foco central */}
+                  <radialGradient id="vignette" cx="50%" cy="50%" r="75%">
+                    <stop offset="55%" stopColor="rgba(0,0,0,0)" />
+                    <stop offset="100%" stopColor="rgba(3,12,9,0.55)" />
+                  </radialGradient>
                 </defs>
                 {/* metade esquerda (time A) e direita (time B), separadas por diagonal */}
                 <polygon points={`0,0 ${BANNER_W * 0.6},0 ${BANNER_W * 0.4},${BANNER_H} 0,${BANNER_H}`} fill="url(#gA)" />
                 <polygon points={`${BANNER_W * 0.6},0 ${BANNER_W},0 ${BANNER_W},${BANNER_H} ${BANNER_W * 0.4},${BANNER_H}`} fill="url(#gB)" />
+                {/* textura de linhas por cima das cores */}
+                <rect x="0" y="0" width={BANNER_W} height={BANNER_H} fill="url(#stripes)" />
                 {/* faixa dourada da diagonal */}
                 <polygon points={`${BANNER_W * 0.6 - 10},0 ${BANNER_W * 0.6 + 10},0 ${BANNER_W * 0.4 + 10},${BANNER_H} ${BANNER_W * 0.4 - 10},${BANNER_H}`} fill="#c8912b" />
-                {/* escurecimento geral para o texto ler bem */}
-                <rect x="0" y="0" width={BANNER_W} height={BANNER_H} fill="rgba(6,20,15,0.28)" />
+                {/* profundidade: brilho central + vinheta + leve escurecimento p/ leitura */}
+                <rect x="0" y="0" width={BANNER_W} height={BANNER_H} fill="url(#glow)" />
+                <rect x="0" y="0" width={BANNER_W} height={BANNER_H} fill="rgba(6,20,15,0.20)" />
+                <rect x="0" y="0" width={BANNER_W} height={BANNER_H} fill="url(#vignette)" />
               </svg>
             </div>
 
@@ -316,13 +336,13 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
               <div style={{ flexShrink: 0, zIndex: 3, alignSelf: "center", marginTop: "-70px", borderRadius: isPlayed ? "26px" : "50%", background: "#08241b", padding: "8px" }}>
                 {isPlayed ? (
                   <div style={{ minWidth: "170px", height: "170px", borderRadius: "20px", background: "#e0a92e", border: "6px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 22px" }}>
-                    <span style={{ color: "#08241b", fontSize: "80px", fontWeight: 700, lineHeight: 1, whiteSpace: "nowrap", fontFamily: "'Oswald', 'Arial Narrow', sans-serif", letterSpacing: "-0.02em" }}>
+                    <span style={{ color: "#08241b", fontSize: "80px", fontWeight: 700, lineHeight: 1, whiteSpace: "nowrap", fontFamily: "'Oswald', 'Arial Narrow', sans-serif", fontStyle: "italic", letterSpacing: "-0.02em" }}>
                       {match.teamA.score}<span style={{ opacity: 0.65 }}>:</span>{match.teamB.score}
                     </span>
                   </div>
                 ) : (
                   <div style={{ width: "170px", height: "170px", borderRadius: "50%", background: "#e0a92e", border: "7px solid #fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ color: "#08241b", fontSize: "76px", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.02em", fontFamily: "'Oswald', 'Arial Narrow', sans-serif" }}>VS</span>
+                    <span style={{ color: "#08241b", fontSize: "76px", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.02em", fontStyle: "italic", fontFamily: "'Oswald', 'Arial Narrow', sans-serif" }}>VS</span>
                   </div>
                 )}
               </div>
