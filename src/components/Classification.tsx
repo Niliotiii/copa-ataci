@@ -30,6 +30,7 @@ export default function Classification({ sub = "tabela" }: { sub?: "tabela" | "m
                 minHeight: 44,
                 background: active ? "var(--primary)" : "transparent",
                 color: active ? "var(--primary-foreground)" : "var(--muted-foreground)",
+                boxShadow: active ? "var(--shadow-sm)" : "none",
               }}
             >
               {t.label}

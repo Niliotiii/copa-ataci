@@ -14,33 +14,114 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-danger: var(--danger);
   --color-border: var(--border);
   --color-ring: var(--ring);
-  --radius-sm: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 4px);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
 }
 
 :root {
-  --background: #f4f6f9;
-  --foreground: #14171f;
+  /* Paleta com identidade: azul-serra (tinta), verde-campo profundo e dourado
+     de troféu — em vez do emerald-600 genérico. */
+  --background: #f3f6fa;
+  --foreground: #0e1b2c;          /* azul-serra escuro; nunca preto puro */
   --card: #ffffff;
-  --card-foreground: #14171f;
-  --primary: #16a34a;
+  --card-foreground: #0e1b2c;
+  --primary: #0b6e4f;             /* verde-campo profundo */
   --primary-foreground: #ffffff;
-  --secondary: #eef1f6;
-  --secondary-foreground: #3a4353;
-  --muted: #e6eaf0;
-  --muted-foreground: #5b6474;
-  --accent: #8a6508;
-  --accent-foreground: #ffffff;
-  --border: #d7dce5;
-  --ring: #16a34a;
-  --radius: 10px;
+  --primary-soft: rgba(11, 110, 79, 0.08);   /* realce da zona de classificação */
+  --secondary: #eaeef4;
+  --secondary-foreground: #33404f;
+  --muted: #e2e8f0;
+  --muted-foreground: #5a6675;
+  --accent: #c8912b;              /* dourado troféu, quente */
+  --accent-foreground: #3a2a05;
+  --danger: #d92d2d;
+  --border: #d5dce6;
+  --ring: #0b6e4f;
+  --radius: 12px;
+
+  /* Sistema de elevação (sombras neutras à base do azul-serra, nunca coloridas) */
+  --shadow-sm: 0 1px 2px rgba(14, 27, 44, 0.06);
+  --shadow-md: 0 4px 14px rgba(14, 27, 44, 0.10);
+  --shadow-lg: 0 12px 32px rgba(14, 27, 44, 0.16);
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Dígitos com largura fixa: placares e números de tabela param de "dançar". */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Kicker: rótulo pequeno maiúsculo que precede o título da seção. */
+.kicker {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* Título de seção — Oswald ousado com um traço dourado embaixo (assinatura). */
+.section-title {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--foreground);
+  line-height: 1.05;
+  position: relative;
+  display: inline-block;
+}
+.section-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 34px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent), rgba(200, 145, 43, 0));
+}
+
+/* Transição de entrada de página/seção (sutil: fade + 8px para cima). */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-in {
+  animation: page-in 0.28s ease-out both;
+}
+
+/* Skeleton loader (shimmer) para substituir "Carregando…". */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--secondary) 25%, var(--muted) 37%, var(--secondary) 63%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* Dot pulsante do estado "Ao vivo". */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(0.7); }
+}
+.live-dot {
+  animation: live-pulse 1.2s ease-in-out infinite;
 }
 
 /* Foco de teclado visível e consistente (WCAG 2.4.7). Só no foco por teclado

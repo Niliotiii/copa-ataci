@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import MatchShareModal from "./MatchShareModal";
 import Select from "./Select";
+import SectionHeader from "./SectionHeader";
 import { ShareNetwork, MapPin } from "@phosphor-icons/react";
 import { useApi } from "../data/useApi";
 import type { Match } from "../data/types";
@@ -48,24 +49,23 @@ export default function Schedule() {
   return (
     <>
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl uppercase tracking-wide" style={{ fontFamily: "Oswald, sans-serif", fontWeight: 700, color: "var(--foreground)" }}>
-              Calendário
-            </h2>
-          </div>
-          {rounds.length > 0 && (
-            <Select
-              className="w-40"
-              ariaLabel="Rodada"
-              value={activeRound != null ? String(activeRound) : ""}
-              onChange={(v) => setSelectedRound(Number(v))}
-              options={rounds.map((r) => ({ value: String(r), label: `Rodada ${r}` }))}
-            />
-          )}
-        </div>
+        <SectionHeader
+          kicker="Fase de grupos"
+          title="Calendário"
+          right={
+            rounds.length > 0 ? (
+              <Select
+                className="w-40"
+                ariaLabel="Rodada"
+                value={activeRound != null ? String(activeRound) : ""}
+                onChange={(v) => setSelectedRound(Number(v))}
+                options={rounds.map((r) => ({ value: String(r), label: `Rodada ${r}` }))}
+              />
+            ) : undefined
+          }
+        />
 
-        {loading && <LoadingState label="Carregando jogos…" />}
+        {loading && <LoadingState label="Carregando jogos…" rows={4} />}
         {error && <ErrorState message={error} />}
         {!loading && !error && visible.length === 0 && <EmptyState label="Nenhum jogo nesta rodada." />}
 
@@ -75,27 +75,36 @@ export default function Schedule() {
               const isDone = match.status === "finalizado";
               const isLive = match.status === "andamento";
               const badge = isDone
-                ? { label: "Encerrado", bg: "rgba(107,114,128,0.2)", color: "var(--muted-foreground)" }
+                ? { label: "Encerrado", bg: "rgba(90,102,117,0.15)", color: "var(--muted-foreground)", edge: "var(--muted-foreground)" }
                 : isLive
-                  ? { label: "Ao vivo", bg: "rgba(220,38,38,0.15)", color: "#dc2626" }
-                  : { label: "Próximo", bg: "rgba(22,163,74,0.15)", color: "var(--primary)" };
+                  ? { label: "Ao vivo", bg: "rgba(217,45,45,0.15)", color: "var(--danger)", edge: "var(--danger)" }
+                  : { label: "Próximo", bg: "rgba(11,110,79,0.13)", color: "var(--primary)", edge: "var(--primary)" };
+              const aScore = match.teamA.score;
+              const bScore = match.teamB.score;
+              const aWon = isDone && aScore != null && bScore != null && aScore > bScore;
+              const bWon = isDone && aScore != null && bScore != null && bScore > aScore;
               return (
                 <div
                   key={match.id}
-                  className="rounded-xl overflow-hidden w-full"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+                  className="group rounded-xl overflow-hidden w-full transition-all hover:-translate-y-0.5"
+                  style={{
+                    background: "var(--card)",
+                    border: "1px solid var(--border)",
+                    borderLeft: `3px solid ${badge.edge}`,
+                    boxShadow: "var(--shadow-sm)",
+                  }}
                 >
                   {/* Top bar */}
                   <div
                     className="flex items-center justify-between px-4 py-2"
                     style={{ background: "var(--secondary)", borderBottom: "1px solid var(--border)" }}
                   >
-                    <span className="text-xs font-medium" style={{ color: "var(--muted-foreground)" }}>
+                    <span className="text-xs font-medium tnum" style={{ color: "var(--muted-foreground)" }}>
                       {match.date} · {match.time}
                     </span>
                     <div className="flex items-center gap-2">
                       <span
-                        className="text-xs px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider"
+                        className="inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider"
                         style={{
                           fontSize: "10px",
                           background: badge.bg,
@@ -103,13 +112,16 @@ export default function Schedule() {
                           fontFamily: "Oswald, sans-serif",
                         }}
                       >
+                        {isLive && (
+                          <span className="live-dot inline-block rounded-full" style={{ width: 6, height: 6, background: "var(--danger)" }} aria-hidden />
+                        )}
                         {badge.label}
                       </span>
                       <button
                         type="button"
                         onClick={() => setShareMatch({ match, round: roundLabel })}
                         aria-label={`Compartilhar ${match.teamA.name} contra ${match.teamB.name}`}
-                        className="flex items-center justify-center rounded-lg"
+                        className="flex items-center justify-center rounded-lg transition-colors"
                         style={{ width: 32, height: 32, color: "var(--muted-foreground)", background: "transparent" }}
                       >
                         <ShareNetwork size={15} weight="bold" aria-hidden />
@@ -119,32 +131,37 @@ export default function Schedule() {
 
                   {/* Match body */}
                   <div className="px-4 py-5 flex items-center gap-3">
-                    <div className="flex-1 flex flex-col items-center gap-2">
+                    <div className="flex-1 flex flex-col items-center gap-2" style={{ opacity: bWon ? 0.5 : 1 }}>
                       <TeamBadge abbr={match.teamA.abbr ?? "?"} color={match.teamA.color} crestUrl={match.teamA.crestUrl} />
-                      <span className="text-xs lg:text-sm text-center font-medium leading-tight" style={{ color: "var(--foreground)" }}>
+                      <span className="text-xs lg:text-sm text-center leading-tight" style={{ color: "var(--foreground)", fontWeight: aWon ? 700 : 500 }}>
                         {match.teamA.name}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      {match.teamA.score !== null ? (
+                      {aScore !== null ? (
                         <>
-                          <span className="text-3xl lg:text-4xl font-bold w-9 text-center" style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)" }}>
-                            {match.teamA.score}
+                          <span className="text-3xl lg:text-4xl font-bold w-9 text-center tnum" style={{ fontFamily: "Oswald, sans-serif", color: aWon ? "var(--foreground)" : "var(--muted-foreground)" }}>
+                            {aScore}
                           </span>
                           <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>–</span>
-                          <span className="text-3xl lg:text-4xl font-bold w-9 text-center" style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)" }}>
-                            {match.teamB.score}
+                          <span className="text-3xl lg:text-4xl font-bold w-9 text-center tnum" style={{ fontFamily: "Oswald, sans-serif", color: bWon ? "var(--foreground)" : "var(--muted-foreground)" }}>
+                            {bScore}
                           </span>
                         </>
                       ) : (
-                        <span className="text-xl font-bold px-3" style={{ fontFamily: "Oswald, sans-serif", color: "var(--border)" }}>VS</span>
+                        <span
+                          className="inline-flex items-center justify-center rounded-full text-xs font-bold"
+                          style={{ width: 34, height: 34, fontFamily: "Oswald, sans-serif", color: "var(--muted-foreground)", background: "var(--secondary)", border: "1px solid var(--border)" }}
+                        >
+                          VS
+                        </span>
                       )}
                     </div>
 
-                    <div className="flex-1 flex flex-col items-center gap-2">
+                    <div className="flex-1 flex flex-col items-center gap-2" style={{ opacity: aWon ? 0.5 : 1 }}>
                       <TeamBadge abbr={match.teamB.abbr ?? "?"} color={match.teamB.color} crestUrl={match.teamB.crestUrl} />
-                      <span className="text-xs lg:text-sm text-center font-medium leading-tight" style={{ color: "var(--foreground)" }}>
+                      <span className="text-xs lg:text-sm text-center leading-tight" style={{ color: "var(--foreground)", fontWeight: bWon ? 700 : 500 }}>
                         {match.teamB.name}
                       </span>
                     </div>

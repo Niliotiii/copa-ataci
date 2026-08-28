@@ -130,7 +130,7 @@ function Portal({ path }: { path: string }) {
                 aria-current={isActive ? "page" : undefined}
                 aria-label={collapsed ? tab.label : undefined}
                 title={collapsed ? tab.label : undefined}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full transition-all ${collapsed ? "justify-center" : "text-left"}`}
+                className={`relative flex items-center gap-3 px-4 py-3 rounded-xl w-full transition-all ${collapsed ? "justify-center" : "text-left"}`}
                 style={{
                   fontFamily: "Oswald, sans-serif",
                   fontWeight: isActive ? 600 : 400,
@@ -138,9 +138,16 @@ function Portal({ path }: { path: string }) {
                   fontSize: "15px",
                   color: isActive ? "var(--primary-foreground)" : "var(--secondary-foreground)",
                   background: isActive ? "var(--primary)" : "transparent",
-                  boxShadow: isActive ? "0 4px 14px rgba(22,163,74,0.3)" : "none",
+                  boxShadow: isActive ? "var(--shadow-md)" : "none",
                 }}
               >
+                {isActive && !collapsed && (
+                  <span
+                    aria-hidden
+                    className="absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full"
+                    style={{ width: 3, height: 20, background: "var(--accent)" }}
+                  />
+                )}
                 <span className="flex items-center justify-center" style={{ width: "18px" }}><tab.Icon size={18} /></span>
                 {!collapsed && tab.label}
               </button>
@@ -239,7 +246,7 @@ function Portal({ path }: { path: string }) {
                         minHeight: 48,
                         color: isActive ? "var(--primary-foreground)" : "var(--secondary-foreground)",
                         background: isActive ? "var(--primary)" : "transparent",
-                        boxShadow: isActive ? "0 4px 14px rgba(22,163,74,0.3)" : "none",
+                        boxShadow: isActive ? "var(--shadow-md)" : "none",
                       }}
                     >
                       <span className="flex items-center justify-center" style={{ width: "18px" }}><tab.Icon size={18} /></span>
@@ -257,7 +264,7 @@ function Portal({ path }: { path: string }) {
 
         {/* CONTENT */}
         <main className="flex-1 px-4 py-4 lg:px-8 lg:py-6 2xl:px-12">
-          <div className="w-full max-w-[1600px] mx-auto">
+          <div key={activeTab} className="w-full max-w-[1600px] mx-auto page-in">
             {activeTab === "classificacao" && (
               <Classification sub={path === "/mata-mata" ? "mata-mata" : "tabela"} />
             )}
