@@ -10,16 +10,6 @@ interface Props {
   onClose: () => void;
 }
 
-/** Extrai o dia da semana por extenso a partir do campo `date` (ex.: "Sáb, 19 Jul"). */
-function weekday(date: string): string {
-  const map: Record<string, string> = {
-    dom: "Domingo", seg: "Segunda", ter: "Terça", qua: "Quarta",
-    qui: "Quinta", sex: "Sexta", sáb: "Sábado", sab: "Sábado",
-  };
-  const prefix = date.trim().slice(0, 3).toLowerCase();
-  return map[prefix] ?? "Jogo";
-}
-
 /** Escudo grande do time no pôster: usa a imagem quando há, senão círculo com sigla. */
 function BannerCrest({ team }: { team: MatchTeam }) {
   return (
@@ -248,48 +238,50 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
 
           {/* ===== TOPO (alinhado à esquerda, não centralizado) ===== */}
           <div style={{ position: "relative", padding: "22px 22px 0" }}>
-            <div style={{ display: "inline-block", background: "#c8912b", color: "#08241b", fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", padding: "3px 10px" }}>
-              Copa Ataci · 5ª Edição
-            </div>
-            <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "10px", letterSpacing: "0.16em", textTransform: "uppercase", marginTop: "12px" }}>
-              {round} · Society 7×7
-            </div>
-            {/* Dia gigante, alinhado à esquerda, com contraste de peso */}
-            <div style={{ color: "#ffffff", fontSize: "52px", fontWeight: 700, lineHeight: 0.9, letterSpacing: "0.01em", textTransform: "uppercase", marginTop: "2px" }}>
-              {isPlayed ? "Resultado" : weekday(match.date)}
-            </div>
-            {/* data/hora numa linha discreta */}
-            <div style={{ color: "#c8912b", fontSize: "15px", fontWeight: 600, letterSpacing: "0.04em", marginTop: "6px" }}>
-              {match.date} · {match.time}
-              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "11px", fontWeight: 400, marginLeft: "10px", letterSpacing: "0.04em", textTransform: "uppercase" }}>
-                {match.location}
+            {/* Marca: logo Serra Azul + nome do torneio */}
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#c8912b", padding: "4px 12px 4px 6px", borderRadius: "999px" }}>
+              <img src="/serra-azul.png" alt="" width="22" height="22" style={{ display: "block", borderRadius: "50%" }} />
+              <span style={{ color: "#08241b", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                Copa Ataci · 5ª Edição
               </span>
+            </div>
+            {/* Rodada + local na mesma linha */}
+            <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: "14px" }}>
+              {round} <span style={{ color: "#c8912b" }}>·</span> {match.location}
+            </div>
+            {/* Data e hora como destaque principal */}
+            <div style={{ color: "#ffffff", fontSize: "36px", fontWeight: 700, lineHeight: 0.95, letterSpacing: "0.01em", marginTop: "4px", textShadow: "0 2px 12px rgba(0,0,0,0.35)" }}>
+              {match.date} <span style={{ color: "#c8912b" }}>·</span> {match.time}
             </div>
           </div>
 
-          {/* ===== CONFRONTO: escudos assimétricos rompendo o meio ===== */}
+          {/* ===== CONFRONTO: escudos assimétricos com × centralizado ===== */}
           <div style={{ position: "relative", flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 16px" }}>
-            {/* time A: empurrado para a esquerda e um pouco pra cima */}
-            <div style={{ transform: "translate(-6px, -14px)", zIndex: 2 }}>
-              <BannerCrest team={match.teamA} />
+            {/* time A: leve deslocamento para cima */}
+            <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
+              <div style={{ transform: "translateY(-14px)", zIndex: 2 }}>
+                <BannerCrest team={match.teamA} />
+              </div>
             </div>
 
-            {/* placar ou "×" grande no centro, tipografia dominante */}
-            <div style={{ position: "relative", zIndex: 3, margin: "0 -10px", textAlign: "center" }}>
+            {/* placar ou × no centro exato entre os escudos */}
+            <div style={{ flexShrink: 0, width: "64px", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 4 }}>
               {isPlayed ? (
-                <div style={{ color: "#fff", fontSize: "56px", fontWeight: 700, lineHeight: 1, textShadow: "0 4px 16px rgba(0,0,0,0.5)" }}>
-                  {match.teamA.score}<span style={{ color: "#c8912b", margin: "0 4px" }}>:</span>{match.teamB.score}
+                <div style={{ color: "#fff", fontSize: "48px", fontWeight: 700, lineHeight: 1, textShadow: "0 4px 16px rgba(0,0,0,0.6)", whiteSpace: "nowrap" }}>
+                  {match.teamA.score}<span style={{ color: "#c8912b" }}>:</span>{match.teamB.score}
                 </div>
               ) : (
-                <div style={{ color: "#c8912b", fontSize: "64px", fontWeight: 700, lineHeight: 1, fontStyle: "italic", textShadow: "0 4px 16px rgba(0,0,0,0.5)" }}>
+                <div style={{ color: "#c8912b", fontSize: "52px", fontWeight: 700, lineHeight: 1, textShadow: "0 4px 16px rgba(0,0,0,0.6)" }}>
                   ×
                 </div>
               )}
             </div>
 
-            {/* time B: empurrado para a direita e um pouco pra baixo */}
-            <div style={{ transform: "translate(6px, 16px)", zIndex: 2 }}>
-              <BannerCrest team={match.teamB} />
+            {/* time B: leve deslocamento para baixo */}
+            <div style={{ flex: 1, display: "flex", justifyContent: "flex-start" }}>
+              <div style={{ transform: "translateY(16px)", zIndex: 2 }}>
+                <BannerCrest team={match.teamB} />
+              </div>
             </div>
           </div>
 
@@ -308,9 +300,9 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
 
           {/* ===== RODAPÉ: patrocinadores em faixa escura ===== */}
           <div style={{ position: "relative", marginTop: "12px", padding: "10px 16px", background: "#061a14", borderTop: "2px solid #c8912b" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
-              <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "nowrap", overflow: "hidden" }}>
-                {sponsors.slice(0, 4).map((s) => <SponsorLogo key={s.initials} s={s} />)}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px" }}>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap", flex: 1 }}>
+                {sponsors.map((s) => <SponsorLogo key={s.initials} s={s} />)}
               </div>
               <span style={{ color: "#c8912b", fontSize: "12px", fontWeight: 700, letterSpacing: "0.06em", flexShrink: 0 }}>#CopaAtaci</span>
             </div>
