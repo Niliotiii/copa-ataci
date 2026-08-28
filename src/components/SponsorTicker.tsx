@@ -65,28 +65,12 @@ export default function SponsorTicker() {
         height: "48px",
       }}
     >
-      {/* Fixed label */}
-      <div
-        className="absolute left-0 top-0 bottom-0 z-20 flex items-center px-3 flex-shrink-0"
-        style={{
-          background: "var(--accent)",
-          color: "var(--accent-foreground)",
-          fontFamily: "Oswald, sans-serif",
-          letterSpacing: "0.1em",
-          fontSize: "9px",
-          fontWeight: 700,
-          whiteSpace: "nowrap",
-        }}
-      >
-        PATROCINADORES
-      </div>
-
       {/* Left fade */}
       <div
         className="absolute z-10 top-0 bottom-0 pointer-events-none"
         style={{
-          left: "108px",
-          width: "32px",
+          left: "0",
+          width: "40px",
           background: "linear-gradient(to right, var(--secondary), transparent)",
         }}
       />
@@ -99,7 +83,7 @@ export default function SponsorTicker() {
       {/* Scrolling area */}
       <div
         className="absolute top-0 bottom-0 flex items-center"
-        style={{ left: "108px", right: 0, overflow: "hidden" }}
+        style={{ left: "0", right: 0, overflow: "hidden" }}
       >
         <div
           className="flex items-center h-full"
