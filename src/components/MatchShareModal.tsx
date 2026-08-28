@@ -15,11 +15,11 @@ function BannerCrest({ team }: { team: MatchTeam }) {
   return (
     <div
       style={{
-        width: "290px",
-        height: "290px",
+        width: "340px",
+        height: "340px",
         borderRadius: "50%",
         background: team.crestUrl ? "#fff" : team.color,
-        border: "8px solid #ffffff",
+        border: "9px solid #ffffff",
         boxShadow: "0 8px 22px rgba(0,0,0,0.28)",
         display: "flex",
         alignItems: "center",
@@ -27,7 +27,7 @@ function BannerCrest({ team }: { team: MatchTeam }) {
         overflow: "hidden",
         color: "#fff",
         fontWeight: 700,
-        fontSize: "104px",
+        fontSize: "124px",
         fontFamily: "'Oswald', 'Arial Narrow', sans-serif",
         letterSpacing: "-0.04em",
         flexShrink: 0,
@@ -313,7 +313,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
             {/* ===== TOPO: lockup do campeonato (logo + título em destaque) ===== */}
             <div style={{ position: "relative", zIndex: 1, padding: "56px 48px 0", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
               {/* Logo Serra Azul (sem círculo, só brilho para legibilidade) */}
-              <img src="/serra-azul.png" alt="" width="150" height="150" style={{ display: "block", filter: "drop-shadow(0 3px 10px rgba(0,0,0,0.55))" }} />
+              <img src="/serra-azul.png" alt="" width="210" height="210" style={{ display: "block", filter: "drop-shadow(0 3px 10px rgba(0,0,0,0.55))" }} />
 
               {/* Selo de edição */}
               <div style={{ marginTop: "20px", color: "#e0a92e", fontSize: "26px", fontWeight: 700, letterSpacing: "0.32em", textTransform: "uppercase", fontFamily: "'Oswald', sans-serif" }}>
