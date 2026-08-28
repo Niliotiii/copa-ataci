@@ -71,6 +71,17 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
+  // Suporte a compartilhar ARQUIVOS via Web Share API (mobile/PWA). No desktop
+  // comum não existe — nesse caso caímos nos botões Salvar/WhatsApp/Copiar.
+  const [canShareFiles, setCanShareFiles] = useState(false);
+  useEffect(() => {
+    try {
+      const probe = new File([new Blob()], "x.png", { type: "image/png" });
+      setCanShareFiles(typeof navigator.canShare === "function" && navigator.canShare({ files: [probe] }));
+    } catch {
+      setCanShareFiles(false);
+    }
+  }, []);
 
   // Fecha no Esc, move o foco para o botão fechar ao abrir e mantém o foco
   // preso dentro do diálogo (focus-trap) enquanto aberto.
@@ -193,6 +204,33 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
     a.download = fileName();
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  // Compartilhamento nativo: abre a folha do sistema com o PNG anexado
+  // (WhatsApp, Instagram Stories, Telegram…). Só no mobile/PWA com suporte.
+  async function handleNativeShare() {
+    const blob = await exportImage();
+    if (!blob) return;
+    const file = new File([blob], fileName(), { type: "image/png" });
+    try {
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `${match.teamA.name} × ${match.teamB.name}`,
+          text: `⚽ Copa Ataci · ${round} · ${match.date} às ${match.time} · ${match.location}`,
+        });
+      } else {
+        // fallback: baixa o arquivo
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName();
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch {
+      /* usuário cancelou a folha de compartilhamento — silencioso */
+    }
   }
 
   function handleWhatsApp() {
@@ -394,11 +432,31 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
 
         {/* Share buttons */}
         <div className="grid grid-cols-2 gap-2">
+          {canShareFiles && (
+            <button
+              onClick={handleNativeShare}
+              disabled={exporting}
+              className="col-span-2 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-opacity disabled:opacity-50"
+              style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em", boxShadow: "var(--shadow-md)" }}
+            >
+              {exporting ? (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                  <polyline points="16 6 12 2 8 6" />
+                  <line x1="12" y1="2" x2="12" y2="15" />
+                </svg>
+              )}
+              COMPARTILHAR
+            </button>
+          )}
+
           <button
             onClick={handleDownload}
             disabled={exporting}
             className="flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-opacity disabled:opacity-50"
-            style={{ background: "var(--primary)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em", boxShadow: "var(--shadow-md)" }}
+            style={{ background: canShareFiles ? "var(--secondary)" : "var(--primary)", color: canShareFiles ? "var(--foreground)" : "white", border: canShareFiles ? "1px solid var(--border)" : "none", fontFamily: "Oswald, sans-serif", letterSpacing: "0.06em", boxShadow: canShareFiles ? "none" : "var(--shadow-md)" }}
           >
             {exporting ? (
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
