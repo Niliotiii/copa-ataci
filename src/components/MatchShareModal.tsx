@@ -15,23 +15,23 @@ function BannerCrest({ team }: { team: MatchTeam }) {
   return (
     <div
       style={{
-        width: "268px",
-        height: "268px",
+        width: "290px",
+        height: "290px",
         borderRadius: "50%",
         background: team.crestUrl ? "#fff" : team.color,
-        border: "10px solid #ffffff",
-        boxShadow: "0 16px 40px rgba(0,0,0,0.55)",
+        border: "8px solid #ffffff",
+        boxShadow: "0 8px 22px rgba(0,0,0,0.28)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         overflow: "hidden",
         color: "#fff",
         fontWeight: 700,
-        fontSize: "76px",
-        fontFamily: "Oswald, sans-serif",
-        letterSpacing: "0.02em",
+        fontSize: "104px",
+        fontFamily: "'Oswald', 'Arial Narrow', sans-serif",
+        letterSpacing: "-0.04em",
         flexShrink: 0,
-        textShadow: "0 2px 8px rgba(0,0,0,0.5)",
+        textShadow: "0 2px 4px rgba(0,0,0,0.35)",
       }}
     >
       {team.crestUrl ? <img src={team.crestUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} /> : (team.abbr ?? "?")}
@@ -57,7 +57,7 @@ function SponsorLogo({ s }: { s: Sponsor }) {
   return (
     <div
       className="rounded-full flex items-center justify-center text-white font-bold overflow-hidden flex-shrink-0"
-      style={{ width: "88px", height: "88px", background: s.logoUrl ? "#fff" : s.color, fontSize: "26px", fontFamily: "Oswald, sans-serif", border: "3px solid rgba(255,255,255,0.5)" }}
+      style={{ width: "78px", height: "78px", background: s.logoUrl ? "#fff" : s.color, fontSize: "23px", fontFamily: "'Oswald', sans-serif", border: "2px solid rgba(255,255,255,0.35)" }}
       title={s.name}
     >
       {s.logoUrl ? <img src={s.logoUrl} alt={s.name} className="w-full h-full object-contain" /> : s.initials}
@@ -279,7 +279,9 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
 
             {/* ===== TOPO: marca ===== */}
             <div style={{ position: "relative", zIndex: 1, padding: "64px 64px 0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "24px" }}>
-              <img src="/serra-azul.png" alt="" width="160" height="160" style={{ display: "block", filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.5))" }} />
+              <div style={{ width: "168px", height: "168px", borderRadius: "50%", background: "rgba(255,255,255,0.14)", border: "3px solid rgba(255,255,255,0.9)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <img src="/serra-azul.png" alt="" width="140" height="140" style={{ display: "block", filter: "drop-shadow(0 0 6px rgba(255,255,255,0.6))" }} />
+              </div>
               <div style={{ background: "#e0a92e", padding: "14px 34px", borderRadius: "999px", border: "3px solid #fff" }}>
                 <span style={{ color: "#08241b", fontSize: "30px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
                   Copa Ataci · 5ª Edição
@@ -288,14 +290,14 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
             </div>
 
             {/* ===== INFO: rodada/local + data/hora ===== */}
-            <div style={{ position: "relative", zIndex: 1, padding: "56px 64px 0", textAlign: "center" }}>
-              <div style={{ display: "inline-block", color: "#c8912b", fontSize: "28px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", borderTop: "3px solid rgba(200,145,43,0.5)", borderBottom: "3px solid rgba(200,145,43,0.5)", padding: "8px 0" }}>
+            <div style={{ position: "relative", zIndex: 1, padding: "64px 64px 0", textAlign: "center" }}>
+              <div style={{ display: "inline-block", color: "#e0a92e", fontSize: "30px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", borderTop: "6px solid rgba(224,169,46,0.75)", borderBottom: "6px solid rgba(224,169,46,0.75)", padding: "12px 0" }}>
                 {round} · {match.location}
               </div>
-              <div style={{ color: "#ffffff", fontSize: "80px", fontWeight: 700, lineHeight: 1.02, letterSpacing: "0.01em", marginTop: "16px", textShadow: "0 6px 24px rgba(0,0,0,0.5)" }}>
+              <div style={{ color: "#ffffff", fontSize: "104px", fontWeight: 700, lineHeight: 1.0, letterSpacing: "0.01em", marginTop: "24px", textShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
                 {match.date}
               </div>
-              <div style={{ color: "#c8912b", fontSize: "80px", fontWeight: 700, lineHeight: 1, letterSpacing: "0.04em", textShadow: "0 6px 24px rgba(0,0,0,0.5)" }}>
+              <div style={{ color: "#e0a92e", fontSize: "108px", fontWeight: 700, lineHeight: 1, letterSpacing: "0.04em", textShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
                 {match.time}
               </div>
             </div>
@@ -303,9 +305,9 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
             {/* ===== CONFRONTO central (escudo+nome por time + emblema VS) ===== */}
             <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", padding: "60px 24px 40px" }}>
               {/* Time A: escudo + nome */}
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "28px", paddingRight: "10px" }}>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "30px", paddingRight: "10px" }}>
                 <BannerCrest team={match.teamA} />
-                <div style={{ color: "#fff", fontSize: "50px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.05, textAlign: "center", textShadow: "0 3px 12px rgba(0,0,0,0.7)" }}>
+                <div style={{ color: "#fff", fontSize: "56px", fontWeight: 700, letterSpacing: "-0.01em", textTransform: "uppercase", lineHeight: 1.02, textAlign: "center", fontFamily: "'Oswald', 'Arial Narrow', sans-serif", textShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>
                   {match.teamA.name}
                 </div>
               </div>
@@ -314,29 +316,32 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
               <div style={{ flexShrink: 0, zIndex: 3, alignSelf: "center", marginTop: "-70px", borderRadius: isPlayed ? "26px" : "50%", background: "#08241b", padding: "8px" }}>
                 {isPlayed ? (
                   <div style={{ minWidth: "170px", height: "170px", borderRadius: "20px", background: "#e0a92e", border: "6px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 22px" }}>
-                    <span style={{ color: "#08241b", fontSize: "76px", fontWeight: 700, lineHeight: 1, whiteSpace: "nowrap" }}>
+                    <span style={{ color: "#08241b", fontSize: "80px", fontWeight: 700, lineHeight: 1, whiteSpace: "nowrap", fontFamily: "'Oswald', 'Arial Narrow', sans-serif", letterSpacing: "-0.02em" }}>
                       {match.teamA.score}<span style={{ opacity: 0.65 }}>:</span>{match.teamB.score}
                     </span>
                   </div>
                 ) : (
                   <div style={{ width: "170px", height: "170px", borderRadius: "50%", background: "#e0a92e", border: "7px solid #fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ color: "#08241b", fontSize: "72px", fontWeight: 700, lineHeight: 1, letterSpacing: "0.02em" }}>VS</span>
+                    <span style={{ color: "#08241b", fontSize: "76px", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.02em", fontFamily: "'Oswald', 'Arial Narrow', sans-serif" }}>VS</span>
                   </div>
                 )}
               </div>
 
               {/* Time B: escudo + nome */}
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "28px", paddingLeft: "10px" }}>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "30px", paddingLeft: "10px" }}>
                 <BannerCrest team={match.teamB} />
-                <div style={{ color: "#fff", fontSize: "50px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.05, textAlign: "center", textShadow: "0 3px 12px rgba(0,0,0,0.7)" }}>
+                <div style={{ color: "#fff", fontSize: "56px", fontWeight: 700, letterSpacing: "-0.01em", textTransform: "uppercase", lineHeight: 1.02, textAlign: "center", fontFamily: "'Oswald', 'Arial Narrow', sans-serif", textShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>
                   {match.teamB.name}
                 </div>
               </div>
             </div>
 
             {/* ===== RODAPÉ: patrocinadores ===== */}
-            <div style={{ position: "relative", zIndex: 1, marginTop: "48px", padding: "40px 48px", background: "#061a14", borderTop: "6px solid #c8912b" }}>
-              <div style={{ display: "flex", justifyContent: "center", gap: "36px", alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ position: "relative", zIndex: 1, marginTop: "40px", padding: "32px 48px 40px", background: "#061a14", borderTop: "6px solid #e0a92e" }}>
+              <div style={{ textAlign: "center", color: "rgba(255,255,255,0.55)", fontSize: "22px", fontWeight: 600, letterSpacing: "0.28em", textTransform: "uppercase", marginBottom: "22px" }}>
+                Apoio
+              </div>
+              <div style={{ display: "flex", justifyContent: "center", gap: "32px", alignItems: "center", flexWrap: "wrap" }}>
                 {sponsors.map((s) => <SponsorLogo key={s.initials} s={s} />)}
               </div>
             </div>
