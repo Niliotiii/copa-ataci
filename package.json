@@ -6,9 +6,12 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "api": "wrangler pages dev dist --port 8788 --ip 127.0.0.1",
+    "preapi": "node scripts/db-ensure.mjs",
     "dev:full": "npm run build && (npm run api & sleep 3 && npm run dev)",
     "build": "vite build",
     "preview": "npm run build && wrangler pages dev dist",
+    "prepreview": "node scripts/db-ensure.mjs",
+    "db:ensure": "node scripts/db-ensure.mjs",
     "format": "oxfmt",
     "test": "vitest run",
     "test:watch": "vitest",
