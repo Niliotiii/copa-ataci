@@ -14,22 +14,27 @@ interface Props {
 function BannerCrest({ team }: { team: MatchTeam }) {
   return (
     <div
-      className="flex items-center justify-center flex-shrink-0 overflow-hidden"
       style={{
-        width: "230px",
-        height: "230px",
+        width: "268px",
+        height: "268px",
         borderRadius: "50%",
         background: team.crestUrl ? "#fff" : team.color,
-        border: "8px solid #fff",
-        boxShadow: "0 12px 32px rgba(0,0,0,0.4)",
+        border: "10px solid #c8912b",
+        boxShadow: "0 16px 40px rgba(0,0,0,0.5)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
         color: "#fff",
         fontWeight: 700,
-        fontSize: "64px",
+        fontSize: "76px",
         fontFamily: "Oswald, sans-serif",
         letterSpacing: "0.02em",
+        flexShrink: 0,
+        textShadow: "0 2px 8px rgba(0,0,0,0.5)",
       }}
     >
-      {team.crestUrl ? <img src={team.crestUrl} alt="" className="w-full h-full object-contain" /> : (team.abbr ?? "?")}
+      {team.crestUrl ? <img src={team.crestUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} /> : (team.abbr ?? "?")}
     </div>
   );
 }
@@ -266,15 +271,26 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
           >
             {/* Fundo decorativo (atrás de tudo) */}
             <div style={{ position: "absolute", inset: 0, overflow: "hidden", zIndex: 0 }} aria-hidden>
-              <div style={{ position: "absolute", top: "24%", left: 0, width: "100%", height: "40%", background: "linear-gradient(180deg, #0b6e4f 0%, #0e3b2c 100%)" }} />
-              <div style={{ position: "absolute", top: "24%", left: 0, width: "100%", height: "6px", background: "#c8912b" }} />
-              <div style={{ position: "absolute", top: "64%", left: 0, width: "100%", height: "6px", background: "#c8912b" }} />
+              {/* gradiente rico de base */}
+              <div style={{ position: "absolute", inset: 0, background: "radial-gradient(120% 70% at 50% 42%, #0f8f66 0%, #0b6e4f 38%, #093a2c 72%, #061f18 100%)" }} />
+              {/* raios dourados irradiando do centro do confronto */}
+              <svg style={{ position: "absolute", left: "50%", top: "42%", width: "1600px", height: "1600px", transform: "translate(-50%, -50%)", opacity: 0.10 }} viewBox="0 0 100 100" aria-hidden>
+                {Array.from({ length: 24 }).map((_, i) => (
+                  <path key={i} d="M50 50 L50 0 L54 0 Z" fill="#c8912b" transform={`rotate(${i * 15} 50 50)`} />
+                ))}
+              </svg>
+              {/* halos de textura */}
+              <div style={{ position: "absolute", top: "-10%", left: "-10%", width: "60%", height: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.06), transparent 70%)" }} />
+              {/* número da rodada gigante como marca d'água */}
+              <div style={{ position: "absolute", right: "-60px", top: "8%", fontFamily: "Oswald, sans-serif", fontWeight: 700, fontSize: "560px", lineHeight: 0.8, color: "rgba(255,255,255,0.045)", letterSpacing: "-0.05em" }}>
+                {match.round ?? (match.bracketSlot ?? "")}
+              </div>
             </div>
 
             {/* ===== TOPO: marca ===== */}
             <div style={{ position: "relative", zIndex: 1, padding: "64px 64px 0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "24px" }}>
-              <img src="/serra-azul.png" alt="" width="150" height="150" style={{ display: "block", filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.4))" }} />
-              <div style={{ background: "#c8912b", padding: "14px 34px", borderRadius: "999px" }}>
+              <img src="/serra-azul.png" alt="" width="160" height="160" style={{ display: "block", filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.5))" }} />
+              <div style={{ background: "#c8912b", padding: "14px 34px", borderRadius: "999px", boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}>
                 <span style={{ color: "#08241b", fontSize: "30px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
                   Copa Ataci · 5ª Edição
                 </span>
@@ -282,42 +298,41 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
             </div>
 
             {/* ===== INFO: rodada/local + data/hora ===== */}
-            <div style={{ position: "relative", zIndex: 1, padding: "72px 64px 0", textAlign: "center" }}>
-              <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "30px", letterSpacing: "0.16em", textTransform: "uppercase" }}>
-                {round} <span style={{ color: "#c8912b" }}>·</span> {match.location}
+            <div style={{ position: "relative", zIndex: 1, padding: "56px 64px 0", textAlign: "center" }}>
+              <div style={{ display: "inline-block", color: "#c8912b", fontSize: "28px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", borderTop: "3px solid rgba(200,145,43,0.5)", borderBottom: "3px solid rgba(200,145,43,0.5)", padding: "8px 0" }}>
+                {round} · {match.location}
               </div>
-              <div style={{ color: "#ffffff", fontSize: "84px", fontWeight: 700, lineHeight: 1.05, letterSpacing: "0.01em", marginTop: "12px", textShadow: "0 4px 20px rgba(0,0,0,0.4)" }}>
-                {match.date} <span style={{ color: "#c8912b" }}>·</span> {match.time}
+              <div style={{ color: "#ffffff", fontSize: "80px", fontWeight: 700, lineHeight: 1.02, letterSpacing: "0.01em", marginTop: "16px", textShadow: "0 6px 24px rgba(0,0,0,0.5)" }}>
+                {match.date}
+              </div>
+              <div style={{ color: "#c8912b", fontSize: "80px", fontWeight: 700, lineHeight: 1, letterSpacing: "0.04em", textShadow: "0 6px 24px rgba(0,0,0,0.5)" }}>
+                {match.time}
               </div>
             </div>
 
-            {/* ===== CONFRONTO: escudos + × (3 colunas iguais) ===== */}
-            <div style={{ position: "relative", zIndex: 1, flex: 1, display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", padding: "48px 64px" }}>
-              <div style={{ display: "flex", justifyContent: "center" }}>
+            {/* ===== CONFRONTO central (escudos + × + nomes agrupados) ===== */}
+            <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "40px", padding: "40px 48px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "48px" }}>
                 <BannerCrest team={match.teamA} />
-              </div>
-              <div style={{ padding: "0 32px", textAlign: "center" }}>
                 {isPlayed ? (
-                  <span style={{ color: "#fff", fontSize: "120px", fontWeight: 700, lineHeight: 1, textShadow: "0 6px 20px rgba(0,0,0,0.6)", whiteSpace: "nowrap" }}>
+                  <span style={{ color: "#fff", fontSize: "140px", fontWeight: 700, lineHeight: 1, textShadow: "0 6px 24px rgba(0,0,0,0.7)", whiteSpace: "nowrap" }}>
                     {match.teamA.score}<span style={{ color: "#c8912b" }}>:</span>{match.teamB.score}
                   </span>
                 ) : (
-                  <span style={{ color: "#c8912b", fontSize: "120px", fontWeight: 700, lineHeight: 1, textShadow: "0 6px 20px rgba(0,0,0,0.6)" }}>×</span>
+                  <span style={{ color: "#c8912b", fontSize: "110px", fontWeight: 700, lineHeight: 1, textShadow: "0 6px 24px rgba(0,0,0,0.7)" }}>×</span>
                 )}
-              </div>
-              <div style={{ display: "flex", justifyContent: "center" }}>
                 <BannerCrest team={match.teamB} />
               </div>
-            </div>
 
-            {/* ===== NOMES (centralizados) ===== */}
-            <div style={{ position: "relative", zIndex: 1, padding: "0 64px 8px", textAlign: "center" }}>
-              <div style={{ color: "#fff", fontSize: "56px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.15 }}>
-                {match.teamA.name}
-              </div>
-              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "28px", fontWeight: 600, letterSpacing: "0.24em", margin: "10px 0" }}>VS</div>
-              <div style={{ color: "#fff", fontSize: "56px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.15 }}>
-                {match.teamB.name}
+              {/* Nomes agrupados logo abaixo dos escudos */}
+              <div style={{ textAlign: "center" }}>
+                <div style={{ color: "#fff", fontSize: "60px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.1, textShadow: "0 3px 12px rgba(0,0,0,0.5)" }}>
+                  {match.teamA.name}
+                </div>
+                <div style={{ color: "#c8912b", fontSize: "30px", fontWeight: 700, letterSpacing: "0.3em", margin: "12px 0" }}>VS</div>
+                <div style={{ color: "#fff", fontSize: "60px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.1, textShadow: "0 3px 12px rgba(0,0,0,0.5)" }}>
+                  {match.teamB.name}
+                </div>
               </div>
             </div>
 
