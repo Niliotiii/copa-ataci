@@ -141,10 +141,21 @@ export default function Bracket() {
                   className="w-10 lg:w-full"
                   style={{ display: "block", height: COL_H + 24 }}
                 >
-                  <path d={`M0,${CARD_H / 2} H20 V${CARD_H + GAP + CARD_H / 2} H20`} stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke" />
-                  <path d={`M20,${(CARD_H + CARD_H + GAP) / 2} H40`} stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke" />
-                  <path d={`M0,${2 * (CARD_H + GAP) + CARD_H / 2} H20 V${3 * (CARD_H + GAP) + CARD_H / 2} H20`} stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke" />
-                  <path d={`M20,${(2 * (CARD_H + GAP) + 3 * (CARD_H + GAP) + CARD_H) / 2} H40`} stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke" />
+                  {/* Centro da quarta i = i*(CARD_H+GAP) + CARD_H/2.
+                      Cada par (0,1) e (2,3) converge no seu ponto médio. */}
+                  {[0, 1].map((pair) => {
+                    const top = 2 * pair * (CARD_H + GAP) + CARD_H / 2;
+                    const bottom = (2 * pair + 1) * (CARD_H + GAP) + CARD_H / 2;
+                    const mid = (top + bottom) / 2;
+                    return (
+                      <g key={pair}>
+                        {/* verticais dos dois cards do par até o meio */}
+                        <path d={`M0,${top} H20 V${bottom} H0`} stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke" />
+                        {/* saída horizontal do meio até a semi */}
+                        <path d={`M20,${mid} H40`} stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke" />
+                      </g>
+                    );
+                  })}
                 </svg>
               </div>
 
@@ -171,14 +182,19 @@ export default function Bracket() {
                   className="w-10 lg:w-full"
                   style={{ display: "block", height: COL_H + 24 }}
                 >
-                  <path
-                    d={`M0,${(CARD_H + GAP) / 2 + CARD_H / 2} H20 V${(CARD_H + GAP) * 2 + (CARD_H + GAP) / 2 + CARD_H / 2} H20`}
-                    stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke"
-                  />
-                  <path
-                    d={`M20,${((CARD_H + GAP) / 2 + CARD_H / 2 + (CARD_H + GAP) * 2 + (CARD_H + GAP) / 2 + CARD_H / 2) / 2} H40`}
-                    stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke"
-                  />
+                  {/* Centros das semis (mesmo referencial da coluna Semifinal):
+                      SF1 = paddingTop + CARD_H/2; SF2 = SF1 + (altura SF1 + margem) */}
+                  {(() => {
+                    const sf1 = (CARD_H + GAP) / 2 + CARD_H / 2;
+                    const sf2 = sf1 + (CARD_H + (CARD_H + GAP));
+                    const mid = (sf1 + sf2) / 2;
+                    return (
+                      <>
+                        <path d={`M0,${sf1} H20 V${sf2} H0`} stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke" />
+                        <path d={`M20,${mid} H40`} stroke="var(--border)" strokeWidth="1.5" fill="none" vectorEffect="non-scaling-stroke" />
+                      </>
+                    );
+                  })()}
                 </svg>
               </div>
 
