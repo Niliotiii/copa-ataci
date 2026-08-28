@@ -4,6 +4,9 @@ import { Trophy } from "@phosphor-icons/react";
 import SectionHeader from "./SectionHeader";
 import { LoadingState, ErrorState, EmptyState } from "./States";
 
+const COL_W = 240; // largura das colunas quartas/semis
+const COL_W_LG = 288; // largura da final
+
 function MatchCard({ match, size = "sm" }: { match: BracketBox; size?: "sm" | "lg" }) {
   const isLg = size === "lg";
   return (
@@ -11,8 +14,8 @@ function MatchCard({ match, size = "sm" }: { match: BracketBox; size?: "sm" | "l
       className="rounded-xl overflow-hidden tnum"
       style={{
         background: "var(--card)",
-        border: isLg ? "1px solid var(--accent)" : "1px solid var(--border)",
-        width: isLg ? "176px" : "152px",
+        border: isLg ? "2px solid var(--accent)" : "1px solid var(--border)",
+        width: isLg ? `${COL_W_LG}px` : `${COL_W}px`,
         boxShadow: isLg ? "var(--shadow-lg)" : "var(--shadow-sm)",
       }}
     >
@@ -21,20 +24,21 @@ function MatchCard({ match, size = "sm" }: { match: BracketBox; size?: "sm" | "l
         return (
           <div
             key={idx}
-            className="flex items-center gap-2 px-3 py-2"
+            className="flex items-center gap-2.5 px-3.5"
             style={{
+              height: `${(isLg ? CARD_H_LG : CARD_H) / 2}px`,
               borderBottom: idx === 0 ? "1px solid var(--border)" : "none",
               background: isWinner ? "var(--primary-soft)" : "transparent",
-              borderLeft: isWinner ? "2px solid var(--primary)" : "2px solid transparent",
+              borderLeft: isWinner ? "3px solid var(--primary)" : "3px solid transparent",
             }}
           >
             <div
               className="rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden"
               style={{
-                width: isLg ? "22px" : "18px",
-                height: isLg ? "22px" : "18px",
+                width: isLg ? "34px" : "30px",
+                height: isLg ? "34px" : "30px",
                 background: team.crestUrl ? "var(--secondary)" : team.color,
-                fontSize: "7px",
+                fontSize: isLg ? "11px" : "10px",
                 fontFamily: "Oswald, sans-serif",
                 fontWeight: 700,
               }}
@@ -44,26 +48,26 @@ function MatchCard({ match, size = "sm" }: { match: BracketBox; size?: "sm" | "l
             <span
               className="flex-1 truncate"
               style={{
-                fontSize: isLg ? "13px" : "11px",
+                fontSize: isLg ? "16px" : "14px",
                 fontFamily: "Inter, sans-serif",
                 color: isWinner ? "var(--foreground)" : "var(--secondary-foreground)",
-                fontWeight: isWinner ? 600 : 400,
+                fontWeight: isWinner ? 700 : 500,
               }}
             >
               {team.name}
             </span>
             <span
               style={{
-                fontSize: isLg ? "16px" : "14px",
+                fontSize: isLg ? "26px" : "22px",
                 fontFamily: "Oswald, sans-serif",
                 fontWeight: 700,
                 color: isWinner ? "var(--accent)" : team.score !== null ? "var(--muted-foreground)" : "var(--border)",
-                minWidth: "14px",
+                minWidth: "20px",
                 textAlign: "right",
               }}
             >
               {team.score !== null ? team.score : "–"}
-              {team.pens != null && <span style={{ fontSize: "10px" }}> ({team.pens})</span>}
+              {team.pens != null && <span style={{ fontSize: "13px" }}> ({team.pens})</span>}
             </span>
           </div>
         );
@@ -75,16 +79,17 @@ function MatchCard({ match, size = "sm" }: { match: BracketBox; size?: "sm" | "l
 function ColLabel({ label }: { label: string }) {
   return (
     <div
-      className="text-xs font-semibold uppercase tracking-widest mb-3 text-center"
-      style={{ fontFamily: "Oswald, sans-serif", color: "var(--muted-foreground)", letterSpacing: "0.12em" }}
+      className="text-sm font-bold uppercase tracking-widest mb-4 text-center"
+      style={{ fontFamily: "Oswald, sans-serif", color: "var(--muted-foreground)", letterSpacing: "0.14em" }}
     >
       {label}
     </div>
   );
 }
 
-const CARD_H = 62;
-const GAP = 12;
+const CARD_H = 84;
+const CARD_H_LG = 96;
+const GAP = 20;
 const COL_H = 4 * (CARD_H + GAP) - GAP;
 
 export default function Bracket() {
@@ -116,10 +121,10 @@ export default function Bracket() {
       {!loading && !error && quarters.length > 0 && (
         <>
           <div className="overflow-x-auto lg:overflow-x-visible pb-4" style={{ scrollbarWidth: "none" }}>
-            <div className="flex gap-0 items-start lg:w-full" style={{ minWidth: "560px" }}>
+            <div className="flex gap-0 items-start lg:w-full" style={{ minWidth: "880px" }}>
 
               {/* Quarterfinals */}
-              <div className="flex flex-col" style={{ width: "152px" }}>
+              <div className="flex flex-col" style={{ width: `${COL_W}px` }}>
                 <ColLabel label="Quartas" />
                 <div className="flex flex-col" style={{ gap: `${GAP}px` }}>
                   {quarters.map((m) => <MatchCard key={m.id} match={m} />)}
@@ -144,7 +149,7 @@ export default function Bracket() {
               </div>
 
               {/* Semis */}
-              <div style={{ width: "152px" }}>
+              <div style={{ width: `${COL_W}px` }}>
                 <ColLabel label="Semifinal" />
                 <div style={{ paddingTop: `${(CARD_H + GAP) / 2}px` }} className="flex flex-col">
                   {semis[0] && (
@@ -178,14 +183,14 @@ export default function Bracket() {
               </div>
 
               {/* Final */}
-              <div style={{ width: "176px" }}>
+              <div style={{ width: `${COL_W_LG}px` }}>
                 <ColLabel label="Final" />
                 {finalMatch && (
                   <div style={{ paddingTop: `${(CARD_H + GAP) * 1.5 - CARD_H * 0.5}px` }}>
                     <MatchCard match={finalMatch} size="lg" />
-                    <div className="flex items-center justify-center gap-1.5 mt-3">
-                      <Trophy size={14} weight="fill" color="var(--accent)" aria-hidden />
-                      <span className="text-xs font-semibold" style={{ color: "var(--accent)", fontFamily: "Oswald, sans-serif" }}>Campeão</span>
+                    <div className="flex items-center justify-center gap-2 mt-4">
+                      <Trophy size={20} weight="fill" color="var(--accent)" aria-hidden />
+                      <span className="text-sm font-bold uppercase" style={{ color: "var(--accent)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.08em" }}>Campeão</span>
                     </div>
                   </div>
                 )}

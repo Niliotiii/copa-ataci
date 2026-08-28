@@ -221,18 +221,21 @@ npx wrangler pages deploy dist
 Publicações seguintes: `npm run build && npx wrangler pages deploy dist`
 (e `npm run db:migrate:remote` quando houver novas migrations).
 
-### CI/CD via GitHub (recomendado)
+### Deploy manual
 
-O repositório já traz `.github/workflows/ci.yml` (typecheck + testes + build +
-suíte no runtime workerd). Para deploy contínuo, conecte o repo em
-**Cloudflare Pages → Create project → Connect to Git**:
+O deploy é feito manualmente pela linha de comando (sem CI/CD automático):
 
-- Build command: `npm run build`
-- Build output directory: `dist`
+```bash
+npm run build
+npx wrangler pages deploy dist
+# e, quando houver novas migrations:
+npm run db:migrate:remote
+```
+
+Garanta que o projeto no Cloudflare Pages tenha:
+
 - Binding do D1 (`DB` → `copa-ataci`) em *Settings → Functions → D1 database bindings*.
 - Secret `ADMIN_TOKEN` em *Settings → Environment variables and secrets*.
-
-Cada push na branch principal dispara build + deploy automáticos.
 
 ### Notas de produção
 
