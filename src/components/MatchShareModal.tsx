@@ -310,16 +310,26 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
               </svg>
             </div>
 
-            {/* ===== TOPO: marca ===== */}
-            <div style={{ position: "relative", zIndex: 1, padding: "64px 64px 0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "24px" }}>
-              <div style={{ width: "168px", height: "168px", borderRadius: "50%", background: "rgba(255,255,255,0.14)", border: "3px solid rgba(255,255,255,0.9)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <img src="/serra-azul.png" alt="" width="140" height="140" style={{ display: "block", filter: "drop-shadow(0 0 6px rgba(255,255,255,0.6))" }} />
+            {/* ===== TOPO: lockup do campeonato (logo + título em destaque) ===== */}
+            <div style={{ position: "relative", zIndex: 1, padding: "56px 48px 0", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+              {/* Logo Serra Azul (sem círculo, só brilho para legibilidade) */}
+              <img src="/serra-azul.png" alt="" width="150" height="150" style={{ display: "block", filter: "drop-shadow(0 3px 10px rgba(0,0,0,0.55))" }} />
+
+              {/* Selo de edição */}
+              <div style={{ marginTop: "20px", color: "#e0a92e", fontSize: "26px", fontWeight: 700, letterSpacing: "0.32em", textTransform: "uppercase", fontFamily: "'Oswald', sans-serif" }}>
+                5ª Edição
               </div>
-              <div style={{ background: "#e0a92e", padding: "14px 34px", borderRadius: "999px", border: "3px solid #fff" }}>
-                <span style={{ color: "#08241b", fontSize: "30px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                  Copa Ataci · 5ª Edição
+
+              {/* Nome do campeonato como título dominante, com estrelas laterais */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "22px", marginTop: "6px" }}>
+                <span style={{ color: "#e0a92e", fontSize: "34px", lineHeight: 1 }}>★</span>
+                <span style={{ color: "#fff", fontSize: "96px", fontWeight: 700, lineHeight: 0.95, letterSpacing: "-0.02em", textTransform: "uppercase", fontFamily: "'Oswald', 'Arial Narrow', sans-serif", textShadow: "0 3px 10px rgba(0,0,0,0.45)" }}>
+                  Copa Ataci
                 </span>
+                <span style={{ color: "#e0a92e", fontSize: "34px", lineHeight: 1 }}>★</span>
               </div>
+              {/* Régua dourada sob o título */}
+              <div style={{ width: "360px", height: "5px", background: "linear-gradient(90deg, transparent, #e0a92e, transparent)", marginTop: "16px" }} />
             </div>
 
             {/* ===== INFO: rodada/local + data/hora ===== */}
