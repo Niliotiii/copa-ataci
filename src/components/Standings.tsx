@@ -1,18 +1,7 @@
 import { useApi } from "../data/useApi";
 import type { StandingRow } from "../data/types";
-import { textColorOn } from "../data/color";
+import TeamCrest from "./TeamCrest";
 import { LoadingState, ErrorState, EmptyState } from "./States";
-
-function TeamAvatar({ abbr, color }: { abbr: string; color: string }) {
-  return (
-    <div
-      className="w-7 h-7 rounded-full flex items-center justify-center font-bold flex-shrink-0"
-      style={{ background: color, color: textColorOn(color), fontSize: "9px", fontFamily: "Oswald, sans-serif" }}
-    >
-      {abbr}
-    </div>
-  );
-}
 
 export default function Standings() {
   const { data, loading, error } = useApi<StandingRow[]>("/api/standings");
@@ -87,7 +76,7 @@ export default function Standings() {
                       </th>
                       <td className="py-3">
                         <div className="flex items-center gap-2 min-w-0">
-                          <TeamAvatar abbr={team.abbr} color={team.color} />
+                          <TeamCrest abbr={team.abbr} color={team.color} crestUrl={team.crestUrl} size={28} />
                           <span className="text-sm font-medium truncate" style={{ color: "var(--foreground)" }}>{team.name}</span>
                         </div>
                       </td>

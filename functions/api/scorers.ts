@@ -10,6 +10,7 @@ export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
          e.team_id AS teamId,
          t.name AS teamName,
          t.color AS teamColor,
+         t.crest_url AS teamCrest,
          COUNT(*) AS goals
        FROM match_events e
        LEFT JOIN teams t ON t.id = e.team_id

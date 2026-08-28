@@ -26,17 +26,17 @@ function MatchCard({ match, size = "sm" }: { match: BracketBox; size?: "sm" | "l
             }}
           >
             <div
-              className="rounded-full flex items-center justify-center text-white font-bold flex-shrink-0"
+              className="rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden"
               style={{
                 width: isLg ? "22px" : "18px",
                 height: isLg ? "22px" : "18px",
-                background: team.color,
+                background: team.crestUrl ? "var(--secondary)" : team.color,
                 fontSize: "7px",
                 fontFamily: "Oswald, sans-serif",
                 fontWeight: 700,
               }}
             >
-              {(team.abbr ?? "?").slice(0, 3)}
+              {team.crestUrl ? <img src={team.crestUrl} alt="" className="w-full h-full object-contain" /> : (team.abbr ?? "?").slice(0, 3)}
             </div>
             <span
               className="flex-1 truncate"

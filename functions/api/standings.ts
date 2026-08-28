@@ -19,6 +19,7 @@ export type Row = {
   abbr: string;
   name: string;
   color: string;
+  crestUrl: string | null;
   j: number; v: number; e: number; d: number;
   gp: number; gc: number; sg: number; pts: number;
   red: number; yellow: number; fouls: number;
@@ -71,7 +72,7 @@ export async function computeStandings(db: PagesContext["env"]["DB"]): Promise<R
           COALESCE(SUM(fouls),0) AS fouls
         FROM results GROUP BY team_id
       )
-      SELECT t.id AS abbr, t.name AS name, t.color AS color,
+      SELECT t.id AS abbr, t.name AS name, t.color AS color, t.crest_url AS crestUrl,
         COALESCE(a.j,0) AS j, COALESCE(a.v,0) AS v, COALESCE(a.e,0) AS e, COALESCE(a.d,0) AS d,
         COALESCE(a.gp,0) AS gp, COALESCE(a.gc,0) AS gc,
         COALESCE(a.gp,0)-COALESCE(a.gc,0) AS sg,

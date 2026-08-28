@@ -11,8 +11,8 @@ export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
         m.home_score AS homeScore, m.away_score AS awayScore,
         m.home_pens AS homePens, m.away_pens AS awayPens,
         m.home_placeholder AS homePlaceholder, m.away_placeholder AS awayPlaceholder,
-        ht.id AS homeAbbr, ht.name AS homeName, ht.color AS homeColor,
-        at.id AS awayAbbr, at.name AS awayName, at.color AS awayColor
+        ht.id AS homeAbbr, ht.name AS homeName, ht.color AS homeColor, ht.crest_url AS homeCrest,
+        at.id AS awayAbbr, at.name AS awayName, at.color AS awayColor, at.crest_url AS awayCrest
       FROM matches m
       LEFT JOIN teams ht ON ht.id = m.home_team_id
       LEFT JOIN teams at ON at.id = m.away_team_id
@@ -41,6 +41,7 @@ export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
           abbr: (r.homeAbbr as string) ?? "???",
           name: (r.homeName as string) ?? (r.homePlaceholder as string) ?? "A definir",
           color: (r.homeColor as string) ?? "#6b7280",
+          crestUrl: (r.homeCrest as string) ?? null,
           score: homeScore,
           pens: homePens,
         },
@@ -48,6 +49,7 @@ export const onRequestGet = async (ctx: PagesContext): Promise<Response> => {
           abbr: (r.awayAbbr as string) ?? "???",
           name: (r.awayName as string) ?? (r.awayPlaceholder as string) ?? "A definir",
           color: (r.awayColor as string) ?? "#6b7280",
+          crestUrl: (r.awayCrest as string) ?? null,
           score: awayScore,
           pens: awayPens,
         },

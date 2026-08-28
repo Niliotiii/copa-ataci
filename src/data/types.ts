@@ -10,6 +10,7 @@ export interface StandingRow {
   abbr: string;
   name: string;
   color: string;
+  crestUrl: string | null;
   pts: number;
   j: number;
   v: number;
@@ -27,6 +28,7 @@ export interface MatchTeam {
   abbr: string | null;
   name: string;
   color: string;
+  crestUrl?: string | null;
   score: number | null;
   pens?: number | null;
   red?: number;
@@ -136,6 +138,7 @@ export interface Scorer {
   teamId: string;
   teamName: string | null;
   teamColor: string | null;
+  teamCrest?: string | null;
   goals: number;
 }
 
@@ -150,4 +153,5 @@ export interface Suspension {
   teamId: string;
   teamName: string | null;
   teamColor: string | null;
+  teamCrest?: string | null;
 }

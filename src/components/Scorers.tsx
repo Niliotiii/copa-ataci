@@ -1,6 +1,6 @@
 import { useApi } from "../data/useApi";
 import type { Scorer } from "../data/types";
-import { textColorOn } from "../data/color";
+import TeamCrest from "./TeamCrest";
 import { LoadingState, ErrorState, EmptyState } from "./States";
 
 export default function Scorers() {
@@ -42,10 +42,7 @@ export default function Scorers() {
                   <td className="py-3 text-sm font-medium" style={{ color: "var(--foreground)" }}>{s.playerName}</td>
                   <td className="py-3">
                     <span className="inline-flex items-center gap-2 min-w-0">
-                      <span className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0"
-                        style={{ background: s.teamColor ?? "#6b7280", color: textColorOn(s.teamColor ?? "#6b7280"), fontFamily: "Oswald, sans-serif" }}>
-                        {s.teamId}
-                      </span>
+                      <TeamCrest abbr={s.teamId} color={s.teamColor} crestUrl={s.teamCrest} size={24} fontSize={9} />
                       <span className="text-sm truncate" style={{ color: "var(--muted-foreground)" }}>{s.teamName ?? s.teamId}</span>
                     </span>
                   </td>

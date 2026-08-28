@@ -4,13 +4,13 @@ import { useApi } from "../data/useApi";
 import type { Match } from "../data/types";
 import { LoadingState, ErrorState, EmptyState } from "./States";
 
-function TeamBadge({ abbr, color }: { abbr: string; color: string }) {
+function TeamBadge({ abbr, color, crestUrl }: { abbr: string; color: string; crestUrl?: string | null }) {
   return (
     <div
-      className="w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0"
-      style={{ background: color, fontSize: "11px", fontFamily: "Oswald, sans-serif" }}
+      className="w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden"
+      style={{ background: crestUrl ? "var(--secondary)" : color, fontSize: "11px", fontFamily: "Oswald, sans-serif" }}
     >
-      {abbr}
+      {crestUrl ? <img src={crestUrl} alt="" className="w-full h-full object-contain" /> : abbr}
     </div>
   );
 }
@@ -122,7 +122,7 @@ export default function Schedule() {
                   {/* Match body */}
                   <div className="px-4 py-5 flex items-center gap-3">
                     <div className="flex-1 flex flex-col items-center gap-2">
-                      <TeamBadge abbr={match.teamA.abbr ?? "?"} color={match.teamA.color} />
+                      <TeamBadge abbr={match.teamA.abbr ?? "?"} color={match.teamA.color} crestUrl={match.teamA.crestUrl} />
                       <span className="text-xs lg:text-sm text-center font-medium leading-tight" style={{ color: "var(--foreground)" }}>
                         {match.teamA.name}
                       </span>
@@ -145,7 +145,7 @@ export default function Schedule() {
                     </div>
 
                     <div className="flex-1 flex flex-col items-center gap-2">
-                      <TeamBadge abbr={match.teamB.abbr ?? "?"} color={match.teamB.color} />
+                      <TeamBadge abbr={match.teamB.abbr ?? "?"} color={match.teamB.color} crestUrl={match.teamB.crestUrl} />
                       <span className="text-xs lg:text-sm text-center font-medium leading-tight" style={{ color: "var(--foreground)" }}>
                         {match.teamB.name}
                       </span>

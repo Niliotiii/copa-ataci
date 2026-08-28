@@ -1,6 +1,6 @@
 import { useApi } from "../data/useApi";
 import type { Suspension } from "../data/types";
-import { textColorOn } from "../data/color";
+import TeamCrest from "./TeamCrest";
 import { LoadingState, ErrorState, EmptyState } from "./States";
 
 const REASON_LABEL: Record<Suspension["reason"], string> = {
@@ -29,10 +29,7 @@ export default function Suspensions() {
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
           {list.map((s) => (
             <div key={s.id} className="rounded-xl px-4 py-3 flex items-center gap-3" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
-              <span className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                style={{ background: s.teamColor ?? "#6b7280", color: textColorOn(s.teamColor ?? "#6b7280"), fontFamily: "Oswald, sans-serif" }}>
-                {s.teamId}
-              </span>
+              <TeamCrest abbr={s.teamId} color={s.teamColor} crestUrl={s.teamCrest} size={36} />
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold truncate" style={{ color: "var(--foreground)" }}>
                   {s.playerName}{s.playerNumber != null ? ` · #${s.playerNumber}` : ""}
