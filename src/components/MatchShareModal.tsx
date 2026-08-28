@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useApi } from "../data/useApi";
 import type { Match, Sponsor } from "../data/types";
 import { CloseIcon } from "./icons";
@@ -137,7 +138,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
   const topSponsors = sponsors.slice(0, 4);
   const bottomSponsors = sponsors.slice(4);
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: "rgba(0,0,0,0.8)", backdropFilter: "blur(6px)" }}
@@ -430,6 +431,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
         </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

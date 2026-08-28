@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 /**
  * Modal de confirmação in-app (substitui window.confirm). Acessível: role=dialog,
@@ -42,7 +43,7 @@ export default function ConfirmDialog({
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[80] flex items-center justify-center px-4" role="dialog" aria-modal="true" aria-label={title}>
       <button aria-label={cancelLabel} onClick={onCancel} className="absolute inset-0 w-full h-full" style={{ background: "rgba(0,0,0,0.5)", border: "none" }} />
       <div className="relative w-full max-w-sm rounded-2xl p-5" style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)" }}>
@@ -59,6 +60,7 @@ export default function ConfirmDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
