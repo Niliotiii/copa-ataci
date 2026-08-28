@@ -207,7 +207,7 @@ export default function AdminTeams({ token }: { token: string }) {
                 </div>
               </div>
               <div>
-                <ImageUpload label="Escudo / Logo" value={crestUrl} onChange={setCrestUrl} />
+                <ImageUpload label="Escudo / Logo" value={crestUrl} token={token} onChange={setCrestUrl} />
               </div>
             </div>
             <button onClick={saveTeam} disabled={savingTeam || !token}

@@ -12,3 +12,11 @@ binding = "DB"
 database_name = "copa-ataci"
 database_id = "REPLACE_WITH_D1_DATABASE_ID"
 migrations_dir = "migrations"
+
+# Binding do R2 para as imagens (escudos de times e logos de patrocinadores).
+# Crie o bucket uma vez com:
+#   npx wrangler r2 bucket create copa-ataci-media
+# Em dev local, o wrangler cria um bucket local automaticamente.
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "copa-ataci-media"

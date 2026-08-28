@@ -94,7 +94,7 @@ export default function AdminSponsors({ token }: { token: string }) {
                     <CloseIcon size={14} />
                   </button>
                 </div>
-                <ImageUpload label="Logo" value={s.logoUrl} onChange={(v) => update(i, { logoUrl: v })} />
+                <ImageUpload label="Logo" value={s.logoUrl} token={token} onChange={(v) => update(i, { logoUrl: v })} />
               </div>
             ))}
             {items.length === 0 && (

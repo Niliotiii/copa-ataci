@@ -128,6 +128,7 @@ React decide o que renderizar — deep-links funcionam sem configuração extra.
 | GET | `/api/scorers` | Artilharia (gols por jogador) |
 | GET | `/api/suspensions` | Jogadores suspensos (pendentes) |
 | GET | `/api/matches/:id/events` | Eventos (gols/cartões) de um jogo |
+| GET | `/api/uploads/:key` | Serve uma imagem (escudo/logo) do R2 |
 
 ### Escrita (protegida por token)
 
@@ -149,6 +150,7 @@ Todas as rotas de escrita exigem o header `Authorization: Bearer <ADMIN_TOKEN>`.
 | POST | `/api/matches/generate-groups` | Gera a tabela da fase de grupos (todos-contra-todos, turno único; preserva agenda) |
 | POST | `/api/matches/generate-bracket` | Gera o mata-mata a partir da classificação (4 classificados: 1º×4º, 2º×3º) |
 | POST | `/api/admin/verify` | Valida o token de admin (login do painel `/admin`) |
+| POST | `/api/uploads` | Envia uma imagem (escudo/logo) para o R2; retorna a URL |
 
 **`PUT /api/matches/:id`** — campos aceitos (todos opcionais):
 
@@ -191,6 +193,10 @@ npx wrangler login
 
 # 2. Criar o banco D1 (uma vez) e copiar o database_id retornado
 npx wrangler d1 create copa-ataci
+
+# 2b. Criar o bucket R2 das imagens (escudos/logos). O nome deve bater com o
+#     bucket_name do wrangler.toml (copa-ataci-media).
+npx wrangler r2 bucket create copa-ataci-media
 
 # 3. Colar o database_id no wrangler.toml (campo database_id)
 

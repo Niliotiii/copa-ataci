@@ -1,37 +1,55 @@
 import { useRef, useState } from "react";
 import { adminStyles, labelClass } from "./shared";
 
-const MAX_BYTES = 500 * 1024; // ~500 KB
+const MAX_BYTES = 2 * 1024 * 1024; // 2 MB
 const ACCEPT = "image/png,image/jpeg,image/webp,image/gif";
 
 /**
- * Upload de imagem que converte o arquivo em data URI (base64) e devolve via
- * onChange. Mostra preview e botão para remover. Sem storage externo — a imagem
- * fica no próprio registro (D1), com teto de tamanho.
+ * Upload de imagem: envia o arquivo para o R2 via POST /api/uploads e devolve
+ * a URL (/api/uploads/:key) por onChange. Mostra preview e permite remover.
+ * Compatível com data URIs antigos (o preview também os renderiza).
  */
 export default function ImageUpload({
   label,
   value,
+  token,
   onChange,
 }: {
   label: string;
   value: string | null | undefined;
-  onChange: (dataUri: string | null) => void;
+  token: string;
+  onChange: (url: string | null) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
-  function handleFile(file: File | undefined) {
+  async function handleFile(file: File | undefined) {
     setErr(null);
     if (!file) return;
     if (file.size > MAX_BYTES) {
-      setErr("Imagem muito grande (máx. 500KB).");
+      setErr("Imagem muito grande (máx. 2MB).");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => onChange(typeof reader.result === "string" ? reader.result : null);
-    reader.onerror = () => setErr("Falha ao ler o arquivo.");
-    reader.readAsDataURL(file);
+    setUploading(true);
+    try {
+      const res = await fetch("/api/uploads", {
+        method: "POST",
+        headers: { authorization: `Bearer ${token}`, "content-type": file.type },
+        body: file,
+      });
+      if (!res.ok) {
+        const b = (await res.json().catch(() => ({}))) as { error?: string };
+        setErr(res.status === 401 ? "Token inválido ou ausente." : b.error ?? `Falha (HTTP ${res.status}).`);
+        return;
+      }
+      const { url } = (await res.json()) as { url: string };
+      onChange(url);
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setUploading(false);
+    }
   }
 
   return (
@@ -58,10 +76,11 @@ export default function ImageUpload({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="text-xs px-3 py-2 rounded-lg font-semibold"
+          disabled={uploading || !token}
+          className="text-xs px-3 py-2 rounded-lg font-semibold disabled:opacity-50"
           style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", fontFamily: "Oswald, sans-serif" }}
         >
-          {value ? "Trocar imagem" : "Enviar imagem"}
+          {uploading ? "Enviando…" : value ? "Trocar imagem" : "Enviar imagem"}
         </button>
         {value && (
           <button

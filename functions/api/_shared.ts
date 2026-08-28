@@ -3,6 +3,8 @@
 // Binding do D1 configurado no wrangler.toml (database_id / binding = "DB")
 export interface Env {
   DB: D1Database;
+  // Bucket R2 para imagens (escudos/logos). Binding no wrangler.toml.
+  MEDIA?: R2Bucket;
   // Secret usado para autenticar chamadas de escrita.
   // Definir com: npx wrangler pages secret put ADMIN_TOKEN
   // Em dev local, definir em .dev.vars (ADMIN_TOKEN=...).
