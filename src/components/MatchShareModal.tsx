@@ -103,6 +103,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
   // exatamente o que o html2canvas exporta. Aqui só medimos a largura disponível
   // no modal para escalar visualmente o palco (o banner real continua 1080px).
   const stageRef = useRef<HTMLDivElement>(null);
+  const scaleWrapRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.2);
   useEffect(() => {
     const el = stageRef.current;
@@ -136,6 +137,17 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
   async function exportImage(): Promise<Blob | null> {
     if (!bannerRef.current) return null;
     setExporting(true);
+    // Neutraliza a escala visual do wrapper durante a captura, para o html2canvas
+    // renderizar o banner no tamanho REAL (1080×1920), e restaura depois.
+    const wrap = scaleWrapRef.current;
+    const prevCss = wrap?.style.cssText ?? "";
+    if (wrap) {
+      // Renderiza em tamanho real, fora da tela, para o html2canvas capturar 1080×1920.
+      wrap.style.transform = "none";
+      wrap.style.position = "fixed";
+      wrap.style.left = "-10000px";
+      wrap.style.top = "0";
+    }
     try {
       const { default: html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(bannerRef.current, {
@@ -150,6 +162,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
       });
       return await new Promise<Blob | null>((res) => canvas.toBlob(res, "image/png"));
     } finally {
+      if (wrap) wrap.style.cssText = prevCss;
       setExporting(false);
     }
   }
@@ -236,7 +249,7 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
           style={{ position: "relative", width: "100%", height: `${BANNER_H * scale}px`, borderRadius: "16px", overflow: "hidden", background: "#08241b" }}
         >
           {/* Wrapper que aplica APENAS a escala visual (o banner real fica 1080×1920) */}
-          <div style={{ position: "absolute", top: 0, left: "50%", transform: `translateX(-50%) scale(${scale})`, transformOrigin: "top center" }}>
+          <div ref={scaleWrapRef} style={{ position: "absolute", top: 0, left: "50%", transform: `translateX(-50%) scale(${scale})`, transformOrigin: "top center" }}>
           {/* ===== BANNER (tamanho FIXO 1080×1920 — story do Instagram) ===== */}
           <div
             ref={bannerRef}
