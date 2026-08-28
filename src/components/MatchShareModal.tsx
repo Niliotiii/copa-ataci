@@ -16,15 +16,15 @@ function BannerCrest({ team }: { team: MatchTeam }) {
     <div
       className="flex items-center justify-center flex-shrink-0 overflow-hidden"
       style={{
-        width: "80px",
-        height: "80px",
+        width: "230px",
+        height: "230px",
         borderRadius: "50%",
         background: team.crestUrl ? "#fff" : team.color,
-        border: "3px solid #fff",
-        boxShadow: "0 6px 18px rgba(0,0,0,0.35)",
+        border: "8px solid #fff",
+        boxShadow: "0 12px 32px rgba(0,0,0,0.4)",
         color: "#fff",
         fontWeight: 700,
-        fontSize: "22px",
+        fontSize: "64px",
         fontFamily: "Oswald, sans-serif",
         letterSpacing: "0.02em",
       }}
@@ -34,11 +34,14 @@ function BannerCrest({ team }: { team: MatchTeam }) {
   );
 }
 
+const BANNER_W = 1080;
+const BANNER_H = 1920;
+
 function SponsorLogo({ s }: { s: Sponsor }) {
   return (
     <div
       className="rounded-full flex items-center justify-center text-white font-bold overflow-hidden flex-shrink-0"
-      style={{ width: "30px", height: "30px", background: s.logoUrl ? "#fff" : s.color, fontSize: "9px", fontFamily: "Oswald, sans-serif", border: "1px solid rgba(255,255,255,0.5)" }}
+      style={{ width: "88px", height: "88px", background: s.logoUrl ? "#fff" : s.color, fontSize: "26px", fontFamily: "Oswald, sans-serif", border: "3px solid rgba(255,255,255,0.5)" }}
       title={s.name}
     >
       {s.logoUrl ? <img src={s.logoUrl} alt={s.name} className="w-full h-full object-contain" /> : s.initials}
@@ -96,6 +99,29 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
   const { data: sponsorData } = useApi<Sponsor[]>("/api/sponsors");
   const sponsors = sponsorData ?? [];
 
+  // O banner tem tamanho FIXO (1080×1350) para ser determinístico: o que se vê é
+  // exatamente o que o html2canvas exporta. Aqui só medimos a largura disponível
+  // no modal para escalar visualmente o palco (o banner real continua 1080px).
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.2);
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const update = () => {
+      // Escala pela largura, mas limita a altura do preview a ~48vh para não
+      // empurrar os botões para fora do modal.
+      const maxH = Math.max(240, window.innerHeight * 0.48);
+      const byWidth = el.clientWidth / BANNER_W;
+      const byHeight = maxH / BANNER_H;
+      setScale(Math.min(byWidth, byHeight));
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener("resize", update);
+    return () => { ro.disconnect(); window.removeEventListener("resize", update); };
+  }, []);
+
   const isPlayed = match.status === "finalizado";
 
   /** Nome de arquivo limpo (slug), evitando acentos/espaços no download. */
@@ -113,10 +139,14 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
     try {
       const { default: html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(bannerRef.current, {
-        scale: 2,
+        scale: 1,
         useCORS: true,
-        backgroundColor: null,
+        backgroundColor: "#08241b",
         logging: false,
+        width: BANNER_W,
+        height: BANNER_H,
+        windowWidth: BANNER_W,
+        windowHeight: BANNER_H,
       });
       return await new Promise<Blob | null>((res) => canvas.toBlob(res, "image/png"));
     } finally {
@@ -200,115 +230,91 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
         {/* Corpo com o banner + botões */}
         <div className="p-5 flex flex-col gap-4">
 
-        {/* ===== BANNER (pôster matchday, vertical) ===== */}
+        {/* PALCO: mede a largura e escala o banner de tamanho fixo (story 1080×1920) */}
         <div
-          ref={bannerRef}
-          style={{
-            position: "relative",
-            background: "#08241b",
-            borderRadius: "16px",
-            overflow: "hidden",
-            fontFamily: "Oswald, sans-serif",
-            width: "100%",
-            aspectRatio: "5 / 6",
-            display: "flex",
-            flexDirection: "column",
-          }}
+          ref={stageRef}
+          style={{ position: "relative", width: "100%", height: `${BANNER_H * scale}px`, borderRadius: "16px", overflow: "hidden", background: "#08241b" }}
         >
-          {/* Camada 1: bloco diagonal de cor (quebra a simetria) */}
-          <div style={{ position: "absolute", inset: 0, overflow: "hidden" }} aria-hidden>
-            <div style={{ position: "absolute", top: "-20%", left: "-30%", width: "160%", height: "88%", background: "linear-gradient(135deg, #0b6e4f 0%, #0e3b2c 100%)", transform: "rotate(-9deg)", transformOrigin: "top left" }} />
-            {/* fio dourado da diagonal */}
-            <div style={{ position: "absolute", top: "60%", left: "-10%", width: "130%", height: "3px", background: "#c8912b", transform: "rotate(-9deg)" }} />
-          </div>
-
-          {/* Camada 2: número da rodada GIGANTE como marca d'água (assimétrico, cortado) */}
+          {/* Wrapper que aplica APENAS a escala visual (o banner real fica 1080×1920) */}
+          <div style={{ position: "absolute", top: 0, left: "50%", transform: `translateX(-50%) scale(${scale})`, transformOrigin: "top center" }}>
+          {/* ===== BANNER (tamanho FIXO 1080×1920 — story do Instagram) ===== */}
           <div
-            aria-hidden
+            ref={bannerRef}
             style={{
-              position: "absolute",
-              right: "-4%",
-              top: "2%",
+              width: `${BANNER_W}px`,
+              height: `${BANNER_H}px`,
+              position: "relative",
+              background: "#08241b",
+              overflow: "hidden",
               fontFamily: "Oswald, sans-serif",
-              fontWeight: 700,
-              fontSize: "220px",
-              lineHeight: 0.8,
-              color: "rgba(255,255,255,0.05)",
-              letterSpacing: "-0.04em",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            {match.round ?? (match.bracketSlot ?? "")}
-          </div>
+            {/* Fundo decorativo (atrás de tudo) */}
+            <div style={{ position: "absolute", inset: 0, overflow: "hidden", zIndex: 0 }} aria-hidden>
+              <div style={{ position: "absolute", top: "24%", left: 0, width: "100%", height: "40%", background: "linear-gradient(180deg, #0b6e4f 0%, #0e3b2c 100%)" }} />
+              <div style={{ position: "absolute", top: "24%", left: 0, width: "100%", height: "6px", background: "#c8912b" }} />
+              <div style={{ position: "absolute", top: "64%", left: 0, width: "100%", height: "6px", background: "#c8912b" }} />
+            </div>
 
-          {/* ===== TOPO ===== */}
-          <div style={{ position: "relative", padding: "20px 22px 0" }}>
-            {/* Logo Serra Azul grande à esquerda + badge do torneio no lado oposto */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
-              <img src="/serra-azul.png" alt="" width="56" height="56" style={{ display: "block", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.4))" }} />
-              <div style={{ background: "#c8912b", padding: "5px 14px", borderRadius: "999px" }}>
-                <span style={{ color: "#08241b", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            {/* ===== TOPO: marca ===== */}
+            <div style={{ position: "relative", zIndex: 1, padding: "64px 64px 0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "24px" }}>
+              <img src="/serra-azul.png" alt="" width="150" height="150" style={{ display: "block", filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.4))" }} />
+              <div style={{ background: "#c8912b", padding: "14px 34px", borderRadius: "999px" }}>
+                <span style={{ color: "#08241b", fontSize: "30px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
                   Copa Ataci · 5ª Edição
                 </span>
               </div>
             </div>
-            {/* Rodada + local na mesma linha */}
-            <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: "14px" }}>
-              {round} <span style={{ color: "#c8912b" }}>·</span> {match.location}
-            </div>
-            {/* Data e hora como destaque principal */}
-            <div style={{ color: "#ffffff", fontSize: "36px", fontWeight: 700, lineHeight: 0.95, letterSpacing: "0.01em", marginTop: "4px", textShadow: "0 2px 12px rgba(0,0,0,0.35)" }}>
-              {match.date} <span style={{ color: "#c8912b" }}>·</span> {match.time}
-            </div>
-          </div>
 
-          {/* ===== CONFRONTO: escudos assimétricos com × centralizado ===== */}
-          <div style={{ position: "relative", flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 16px" }}>
-            {/* time A: leve deslocamento para cima */}
-            <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
-              <div style={{ transform: "translateY(-10px)", zIndex: 2 }}>
-                <BannerCrest team={match.teamA} />
+            {/* ===== INFO: rodada/local + data/hora ===== */}
+            <div style={{ position: "relative", zIndex: 1, padding: "72px 64px 0", textAlign: "center" }}>
+              <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "30px", letterSpacing: "0.16em", textTransform: "uppercase" }}>
+                {round} <span style={{ color: "#c8912b" }}>·</span> {match.location}
+              </div>
+              <div style={{ color: "#ffffff", fontSize: "84px", fontWeight: 700, lineHeight: 1.05, letterSpacing: "0.01em", marginTop: "12px", textShadow: "0 4px 20px rgba(0,0,0,0.4)" }}>
+                {match.date} <span style={{ color: "#c8912b" }}>·</span> {match.time}
               </div>
             </div>
 
-            {/* placar ou × no centro exato entre os escudos */}
-            <div style={{ flexShrink: 0, width: "64px", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 4 }}>
-              {isPlayed ? (
-                <div style={{ color: "#fff", fontSize: "44px", fontWeight: 700, lineHeight: 1, textShadow: "0 4px 16px rgba(0,0,0,0.6)", whiteSpace: "nowrap" }}>
-                  {match.teamA.score}<span style={{ color: "#c8912b" }}>:</span>{match.teamB.score}
-                </div>
-              ) : (
-                <div style={{ color: "#c8912b", fontSize: "48px", fontWeight: 700, lineHeight: 1, textShadow: "0 4px 16px rgba(0,0,0,0.6)" }}>
-                  ×
-                </div>
-              )}
-            </div>
-
-            {/* time B: leve deslocamento para baixo */}
-            <div style={{ flex: 1, display: "flex", justifyContent: "flex-start" }}>
-              <div style={{ transform: "translateY(10px)", zIndex: 2 }}>
+            {/* ===== CONFRONTO: escudos + × (3 colunas iguais) ===== */}
+            <div style={{ position: "relative", zIndex: 1, flex: 1, display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", padding: "48px 64px" }}>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <BannerCrest team={match.teamA} />
+              </div>
+              <div style={{ padding: "0 32px", textAlign: "center" }}>
+                {isPlayed ? (
+                  <span style={{ color: "#fff", fontSize: "120px", fontWeight: 700, lineHeight: 1, textShadow: "0 6px 20px rgba(0,0,0,0.6)", whiteSpace: "nowrap" }}>
+                    {match.teamA.score}<span style={{ color: "#c8912b" }}>:</span>{match.teamB.score}
+                  </span>
+                ) : (
+                  <span style={{ color: "#c8912b", fontSize: "120px", fontWeight: 700, lineHeight: 1, textShadow: "0 6px 20px rgba(0,0,0,0.6)" }}>×</span>
+                )}
+              </div>
+              <div style={{ display: "flex", justifyContent: "center" }}>
                 <BannerCrest team={match.teamB} />
               </div>
             </div>
-          </div>
 
-          {/* ===== NOMES (empilhados à esquerda, tipografia forte) ===== */}
-          <div style={{ position: "relative", padding: "0 22px 4px", marginTop: "8px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ width: "6px", height: "20px", background: match.teamA.color, display: "inline-block", flexShrink: 0 }} />
-              <span style={{ color: "#fff", fontSize: "21px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1 }}>{match.teamA.name}</span>
+            {/* ===== NOMES (centralizados) ===== */}
+            <div style={{ position: "relative", zIndex: 1, padding: "0 64px 8px", textAlign: "center" }}>
+              <div style={{ color: "#fff", fontSize: "56px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.15 }}>
+                {match.teamA.name}
+              </div>
+              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "28px", fontWeight: 600, letterSpacing: "0.24em", margin: "10px 0" }}>VS</div>
+              <div style={{ color: "#fff", fontSize: "56px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1.15 }}>
+                {match.teamB.name}
+              </div>
             </div>
-            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "11px", fontWeight: 600, letterSpacing: "0.2em", margin: "4px 0 4px 14px" }}>VS</div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ width: "6px", height: "20px", background: match.teamB.color, display: "inline-block", flexShrink: 0 }} />
-              <span style={{ color: "#fff", fontSize: "21px", fontWeight: 700, letterSpacing: "0.01em", textTransform: "uppercase", lineHeight: 1 }}>{match.teamB.name}</span>
+
+            {/* ===== RODAPÉ: patrocinadores ===== */}
+            <div style={{ position: "relative", zIndex: 1, marginTop: "48px", padding: "40px 48px", background: "#061a14", borderTop: "6px solid #c8912b" }}>
+              <div style={{ display: "flex", justifyContent: "center", gap: "36px", alignItems: "center", flexWrap: "wrap" }}>
+                {sponsors.map((s) => <SponsorLogo key={s.initials} s={s} />)}
+              </div>
             </div>
           </div>
-
-          {/* ===== RODAPÉ: patrocinadores em faixa escura ===== */}
-          <div style={{ position: "relative", marginTop: "12px", padding: "12px 16px", background: "#061a14", borderTop: "2px solid #c8912b" }}>
-            <div style={{ display: "flex", justifyContent: "center", gap: "16px", alignItems: "center", flexWrap: "wrap" }}>
-              {sponsors.map((s) => <SponsorLogo key={s.initials} s={s} />)}
-            </div>
           </div>
         </div>
 
