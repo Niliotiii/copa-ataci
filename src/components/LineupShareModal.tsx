@@ -246,8 +246,12 @@ export default function LineupShareModal({ team, onField, onBench, onClose }: Pr
                     </svg>
                     {onField.map((p) => (
                       <div key={p.key} style={{ position: "absolute", left: `${p.posX}%`, top: `${p.posY}%`, transform: "translate(-50%, -50%)", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        <div style={{ width: "76px", height: "76px", borderRadius: "50%", background: team.color, color: "#fff", border: "4px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "30px", fontFamily: "'Oswald',sans-serif", boxShadow: "0 4px 12px rgba(0,0,0,0.6)" }}>
-                          {p.number ?? initials(p.name)}
+                        {/* Sombra via drop-shadow no wrapper: no snapdom/WebKit o box-shadow
+                            com blur num círculo vira um retângulo atrás. */}
+                        <div style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.55))" }}>
+                          <div style={{ width: "76px", height: "76px", borderRadius: "50%", background: team.color, color: "#fff", border: "4px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "30px", fontFamily: "'Oswald',sans-serif" }}>
+                            {p.number ?? initials(p.name)}
+                          </div>
                         </div>
                         <div style={{ marginTop: "6px", padding: "4px 10px", borderRadius: "6px", background: "rgba(0,0,0,0.72)", color: "#fff", fontSize: "20px", fontWeight: 600, fontFamily: "'Inter',sans-serif", whiteSpace: "nowrap", maxWidth: "220px", overflow: "hidden", textOverflow: "ellipsis" }}>
                           {p.name}
