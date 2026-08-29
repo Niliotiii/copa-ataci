@@ -2,6 +2,11 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Copa Ataci — smoke E2E", () => {
 
+  // Pula o splash inicial (3s) para não sobrepor a interação a cada navegação.
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => sessionStorage.setItem("nosplash", "1"));
+  });
+
   test("roteamento por path: deep-links, navegação e histórico", async ({ page }) => {
     // Deep-links diretos (SPA fallback serve o index.html em qualquer path).
     await page.goto("/jogos");

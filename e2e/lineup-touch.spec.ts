@@ -2,6 +2,10 @@ import { test, expect } from "@playwright/test";
 
 test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem("nosplash", "1"));
+});
+
 test("long-press arrasta o jogador sem rolar", async ({ page }) => {
   await page.goto("/times/ATA");
   await page.getByRole("button", { name: "Limpar campo" }).waitFor();

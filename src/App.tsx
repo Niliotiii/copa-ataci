@@ -3,6 +3,7 @@ import Classification from "./components/Classification";
 import Schedule from "./components/Schedule";
 import TeamLineup from "./components/TeamLineup";
 import SponsorTicker from "./components/SponsorTicker";
+import SplashScreen from "./components/SplashScreen";
 import Footer from "./components/Footer";
 import AdminRoute from "./components/AdminRoute";
 import Scorers from "./components/Scorers";
@@ -31,8 +32,19 @@ function tabForPath(path: string): string {
 
 export default function App() {
   const path = usePath();
-  if (path === "/admin") return <AdminRoute />;
-  return <Portal path={path} />;
+  // Splash inicial: aparece ao abrir a página (uma vez por carregamento).
+  // Pode ser desativado com ?nosplash na URL (usado pelos testes E2E) para não
+  // sobrepor a interação por 3s a cada navegação.
+  const skipSplash =
+    (typeof location !== "undefined" && /(?:\?|&)nosplash\b/.test(location.search)) ||
+    (typeof sessionStorage !== "undefined" && sessionStorage.getItem("nosplash") === "1");
+  const [showSplash, setShowSplash] = useState(!skipSplash);
+  return (
+    <>
+      {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
+      {path === "/admin" ? <AdminRoute /> : <Portal path={path} />}
+    </>
+  );
 }
 
 function Portal({ path }: { path: string }) {
