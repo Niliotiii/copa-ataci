@@ -222,12 +222,12 @@ export default function LineupBoard({
                 <div
                   className="rounded-full flex items-center justify-center font-bold border-2 border-white"
                   style={{
-                    width: "32px",
-                    height: "32px",
+                    width: "44px",
+                    height: "44px",
                     background: teamColor,
                     color: "#fff",
                     fontFamily: "Oswald, sans-serif",
-                    fontSize: "11px",
+                    fontSize: "15px",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.6)",
                   }}
                 >
@@ -236,11 +236,11 @@ export default function LineupBoard({
                 <div
                   className="mt-0.5 px-1.5 py-0.5 rounded text-white whitespace-nowrap"
                   style={{
-                    fontSize: "8px",
+                    fontSize: "9px",
                     fontWeight: 600,
                     background: "rgba(0,0,0,0.7)",
                     fontFamily: "Inter, sans-serif",
-                    maxWidth: "56px",
+                    maxWidth: "72px",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                   }}
@@ -330,7 +330,7 @@ export default function LineupBoard({
         >
           <div
             className="rounded-full flex items-center justify-center font-bold border-2 border-white"
-            style={{ width: "34px", height: "34px", background: teamColor, color: "#fff", fontFamily: "Oswald, sans-serif", fontSize: "12px", boxShadow: "0 6px 16px rgba(0,0,0,0.5)" }}
+            style={{ width: "48px", height: "48px", background: teamColor, color: "#fff", fontFamily: "Oswald, sans-serif", fontSize: "16px", boxShadow: "0 6px 16px rgba(0,0,0,0.5)" }}
           >
             {draggingPlayer.number ?? initials(draggingPlayer.name)}
           </div>
