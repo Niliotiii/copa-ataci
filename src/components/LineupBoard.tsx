@@ -73,47 +73,61 @@ export default function LineupBoard({
     const player = board.find((p) => p.key === key);
     const wasOnField = player?.onField ?? false;
 
-    // Só "assume" o arrasto após um pequeno movimento. Assim, num toque cujo
-    // gesto é claramente vertical (rolar a página), NÃO sequestramos o jogador
-    // — deixamos o scroll acontecer. No mouse, ativa de imediato.
-    let active = !isTouch;
-    if (active) {
-      e.preventDefault();
+    // Mouse: arrasta de imediato. Toque: só ativa após um "long-press" (segurar
+    // ~200ms), para que um toque rápido / gesto de rolagem NÃO mova o jogador
+    // sem querer. Uma vez ativo, o jogador arrasta em QUALQUER direção.
+    let active = false;
+    let holdTimer: ReturnType<typeof setTimeout> | null = null;
+    const HOLD_MS = 200;
+    const CANCEL_MOVE = 12; // px: mover além disso antes do hold = scroll, cancela
+
+    function activate(clientX: number, clientY: number) {
+      if (active) return;
+      active = true;
+      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
       target.setPointerCapture?.(pointerId);
       setDragKey(key);
-      setGhost({ x: startX, y: startY, over: overTarget(startX, startY) });
+      setGhost({ x: clientX, y: clientY, over: overTarget(clientX, clientY) });
+      // Vibração curta no mobile sinalizando que "pegou" o jogador.
+      if (isTouch) { try { navigator.vibrate?.(15); } catch { /* ignore */ } }
     }
 
-    const THRESHOLD = 8; // px
+    if (!isTouch) {
+      // Desktop/mouse: começa a arrastar imediatamente.
+      e.preventDefault();
+      activate(startX, startY);
+    } else {
+      // Toque: agenda a ativação por long-press.
+      holdTimer = setTimeout(() => activate(startX, startY), HOLD_MS);
+    }
 
     const move = (ev: PointerEvent) => {
       if (!active) {
+        // Ainda no período do long-press: se o dedo se mexer bastante, o usuário
+        // está rolando/deslizando → cancela o arrasto e libera o scroll.
         const dx = Math.abs(ev.clientX - startX);
         const dy = Math.abs(ev.clientY - startY);
-        if (dx < THRESHOLD && dy < THRESHOLD) return; // ainda indefinido
-        // Gesto predominantemente vertical → é scroll: aborta o arrasto.
-        if (dy > dx) {
+        if (dx > CANCEL_MOVE || dy > CANCEL_MOVE) {
+          if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
           window.removeEventListener("pointermove", move);
           window.removeEventListener("pointerup", up);
-          return;
         }
-        // Gesto horizontal (ou diagonal) → inicia o arrasto de fato.
-        active = true;
-        target.setPointerCapture?.(pointerId);
-        setDragKey(key);
+        return;
       }
+      // Arrasto ativo: impede o scroll e move o jogador.
+      ev.preventDefault();
       const over = overTarget(ev.clientX, ev.clientY);
       setGhost({ x: ev.clientX, y: ev.clientY, over });
-      // Reposiciona ao vivo só quando está sobre o campo (feedback imediato).
       if (over === "field") {
         const p = fieldPercentFromClient(ev.clientX, ev.clientY);
         if (p) onMoveOnField(key, p.x, p.y);
       }
     };
     const up = (ev: PointerEvent) => {
+      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
-      if (!active) return; // foi um toque/scroll, não um arrasto
+      if (!active) return; // toque curto / scroll — não foi arrasto
       const over = overTarget(ev.clientX, ev.clientY);
       if (over === "bench") {
         onSendToBench(key);
@@ -180,7 +194,7 @@ export default function LineupBoard({
                   opacity: isDragging ? 0.35 : 1,
                   touchAction: "pan-y",
                 }}
-                title={`${p.name} — arraste para reposicionar ou solte no banco`}
+                title={`${p.name} — segure e arraste para mover ou levar ao banco`}
               >
                 <div
                   className="rounded-full flex items-center justify-center font-bold border-2 border-white"

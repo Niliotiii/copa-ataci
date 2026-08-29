@@ -83,7 +83,7 @@ test.describe("Copa Ataci — smoke E2E", () => {
     await expect(page.getByRole("button", { name: /Ver elenco de Leões/ })).toBeVisible();
   });
 
-  test("times mobile: página rola com o campo grande; drag horizontal move o jogador", async ({ page }) => {
+  test("times mobile: página rola com o campo grande; arrasto (mouse) move o jogador", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/times/ATA");
     await expect(page.getByRole("button", { name: "Limpar campo" })).toBeVisible();
@@ -95,7 +95,7 @@ test.describe("Copa Ataci — smoke E2E", () => {
     const y = await page.evaluate(() => window.scrollY);
     expect(y).toBeGreaterThan(100);
 
-    // Arrasto horizontal com mouse reposiciona um jogador (regressão do drag).
+    // Arrasto com mouse reposiciona um jogador (mouse ativa de imediato).
     await page.evaluate(() => window.scrollTo(0, 0));
     const marker = page.locator('[title*="reposicionar"]').first();
     const before = await marker.boundingBox();
