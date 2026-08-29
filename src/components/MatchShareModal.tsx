@@ -168,26 +168,29 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
       wrap.style.top = "0";
     }
     try {
-      // Garante que as fontes (Oswald bold/italic, Inter) estejam carregadas
-      // antes de capturar, para o texto sair com a tipografia correta.
+      // Garante que as fontes estejam carregadas antes de capturar (com timeout
+      // de segurança para não pendurar em navegadores móveis).
       if (document.fonts) {
         try {
-          await Promise.all([
+          const fontsReady = Promise.all([
             document.fonts.load("700 100px Oswald"),
             document.fonts.load("italic 700 100px Oswald"),
             document.fonts.load("400 100px Inter"),
+          ]).then(() => document.fonts.ready);
+          await Promise.race([
+            fontsReady,
+            new Promise((r) => setTimeout(r, 2500)),
           ]);
-          await document.fonts.ready;
         } catch {
           /* segue mesmo se a API de fontes falhar */
         }
       }
-      // snapdom captura via <foreignObject> (o próprio navegador rasteriza),
-      // então o PNG fica fiel ao que se vê. embedFonts inclui as @font-face.
+      // snapdom captura via <foreignObject> (o próprio navegador rasteriza).
+      // scale 1 => 1080×1920 (story cheio) — leve o suficiente para o mobile.
       const { snapdom } = await import("@zumer/snapdom");
       return await snapdom.toBlob(bannerRef.current, {
         type: "png",
-        scale: 2,
+        scale: 1,
         embedFonts: true,
         backgroundColor: "#08241b",
         width: BANNER_W,
@@ -206,10 +209,14 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
     if (!canShareFiles) return;
     let cancelled = false;
     (async () => {
-      const blob = await exportImage();
-      if (!cancelled && blob) {
-        sharedBlobRef.current = blob;
-        setShareReady(true);
+      try {
+        const blob = await exportImage();
+        if (!cancelled && blob) sharedBlobRef.current = blob;
+      } catch {
+        /* falha na pré-geração — o clique tenta gerar na hora / baixa */
+      } finally {
+        // Libera o botão de qualquer forma: nunca deixa preso em "Preparando".
+        if (!cancelled) setShareReady(true);
       }
     })();
     return () => { cancelled = true; };
