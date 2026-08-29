@@ -109,9 +109,6 @@ export default function TeamLineup() {
                   >
                     {teamDetail.name}
                   </div>
-                  <div className="text-xs mt-0.5 tnum" style={{ color: "var(--muted-foreground)" }}>
-                    {onField.length} em campo · {onBench.length} no banco
-                  </div>
                 </div>
                 {board.length > 0 && (
                   <button
@@ -127,12 +124,6 @@ export default function TeamLineup() {
                   </button>
                 )}
               </div>
-
-              {/* Aviso: prancheta pública, não salva */}
-              <p className="text-xs mb-3" style={{ color: "var(--muted-foreground)" }}>
-                Monte sua escalação arrastando os jogadores — no campo ou entre campo e banco. As
-                mudanças ficam só no seu navegador.
-              </p>
 
               {teamDetail.players.length === 0 ? (
                 <EmptyState label="Elenco não cadastrado." />

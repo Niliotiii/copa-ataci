@@ -203,10 +203,7 @@ export default function LineupBoard({
           outlineOffset: "-3px",
         }}
       >
-        <div className="flex items-center justify-between gap-2 px-3 py-2.5" style={{ background: "var(--secondary)", borderBottom: "1px solid var(--border)" }}>
-          <span className="text-xs font-bold uppercase tracking-wider" style={{ fontFamily: "Oswald, sans-serif", color: "var(--muted-foreground)", letterSpacing: "0.08em" }}>
-            Banco
-          </span>
+        <div className="flex items-center justify-end gap-2 px-3 py-2.5" style={{ background: "var(--secondary)", borderBottom: "1px solid var(--border)" }}>
           <span className="text-xs tnum" style={{ color: "var(--muted-foreground)" }}>{onBench.length}</span>
         </div>
 
