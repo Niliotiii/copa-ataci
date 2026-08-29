@@ -402,33 +402,36 @@ export default function MatchShareModal({ match, round, onClose }: Props) {
             {/* ===== CONFRONTO central (escudo+nome por time + emblema VS) ===== */}
             <div style={{ position: "relative", zIndex: 1, flex: 1, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", padding: "60px 24px 40px" }}>
               {/* Time A: escudo + nome */}
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "30px", paddingRight: "10px" }}>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "30px" }}>
                 <BannerCrest team={match.teamA} />
                 <div style={{ color: "#fff", fontSize: "56px", fontWeight: 700, letterSpacing: "-0.01em", textTransform: "uppercase", lineHeight: 1.02, textAlign: "center", fontFamily: "'Oswald', 'Arial Narrow', sans-serif", textShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>
                   {match.teamA.name}
                 </div>
               </div>
 
-              {/* Emblema central: VS ou placar (anel escuro real, sem box-shadow spread) */}
-              <div style={{ flexShrink: 0, zIndex: 3, alignSelf: "center", marginTop: "-70px", borderRadius: isPlayed ? "26px" : "50%", background: "#08241b", padding: "8px" }}>
-                {isPlayed ? (
-                  <div style={{ minWidth: "170px", height: "170px", borderRadius: "20px", background: "#e0a92e", border: "6px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 22px" }}>
-                    <span style={{ color: "#08241b", fontSize: "80px", fontWeight: 700, lineHeight: 1, whiteSpace: "nowrap", fontFamily: "'Oswald', 'Arial Narrow', sans-serif", fontStyle: "italic", letterSpacing: "-0.02em" }}>
-                      {match.teamA.score}<span style={{ opacity: 0.65 }}>:</span>{match.teamB.score}
-                    </span>
-                  </div>
-                ) : (
-                  <div style={{ width: "170px", height: "170px", borderRadius: "50%", background: "#e0a92e", border: "7px solid #fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ color: "#08241b", fontSize: "76px", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.02em", fontStyle: "italic", fontFamily: "'Oswald', 'Arial Narrow', sans-serif" }}>VS</span>
-                  </div>
-                )}
-              </div>
-
               {/* Time B: escudo + nome */}
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "30px", paddingLeft: "10px" }}>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "30px" }}>
                 <BannerCrest team={match.teamB} />
                 <div style={{ color: "#fff", fontSize: "56px", fontWeight: 700, letterSpacing: "-0.01em", textTransform: "uppercase", lineHeight: 1.02, textAlign: "center", fontFamily: "'Oswald', 'Arial Narrow', sans-serif", textShadow: "0 2px 6px rgba(0,0,0,0.4)" }}>
                   {match.teamB.name}
+                </div>
+              </div>
+
+              {/* Emblema central: VS ou placar — centro EXATO do banner,
+                  alinhado verticalmente ao centro dos escudos (top 60 + raio 170 = 230). */}
+              <div style={{ position: "absolute", left: "50%", top: "230px", transform: "translate(-50%, -50%)", zIndex: 3 }}>
+                <div style={{ borderRadius: isPlayed ? "26px" : "50%", background: "#08241b", padding: "8px", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                  {isPlayed ? (
+                    <div style={{ minWidth: "170px", height: "170px", borderRadius: "20px", background: "#e0a92e", border: "6px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 22px" }}>
+                      <span style={{ color: "#08241b", fontSize: "80px", fontWeight: 700, lineHeight: 1, whiteSpace: "nowrap", fontFamily: "'Oswald', 'Arial Narrow', sans-serif", fontStyle: "italic", letterSpacing: "-0.02em" }}>
+                        {match.teamA.score}<span style={{ opacity: 0.65 }}>:</span>{match.teamB.score}
+                      </span>
+                    </div>
+                  ) : (
+                    <div style={{ width: "170px", height: "170px", borderRadius: "50%", background: "#e0a92e", border: "7px solid #fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ color: "#08241b", fontSize: "76px", fontWeight: 700, lineHeight: 1, letterSpacing: "-0.02em", fontStyle: "italic", fontFamily: "'Oswald', 'Arial Narrow', sans-serif" }}>VS</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
