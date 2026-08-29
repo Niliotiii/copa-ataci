@@ -13,28 +13,28 @@ interface Props {
 /** Escudo grande do time no pôster: usa a imagem quando há, senão círculo com sigla. */
 function BannerCrest({ team }: { team: MatchTeam }) {
   return (
-    <div
-      style={{
-        width: "340px",
-        height: "340px",
-        borderRadius: "50%",
-        background: team.crestUrl ? "#fff" : team.color,
-        border: "9px solid #ffffff",
-        boxShadow: "0 8px 22px rgba(0,0,0,0.28)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-        color: "#fff",
-        fontWeight: 700,
-        fontSize: "124px",
-        fontFamily: "'Oswald', 'Arial Narrow', sans-serif",
-        letterSpacing: "-0.04em",
-        flexShrink: 0,
-        textShadow: "0 2px 4px rgba(0,0,0,0.35)",
-      }}
-    >
-      {team.crestUrl ? <img src={team.crestUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} /> : (team.abbr ?? "?")}
+    <div style={{ flexShrink: 0, filter: "drop-shadow(0 10px 16px rgba(0,0,0,0.30))" }}>
+      <div
+        style={{
+          width: "340px",
+          height: "340px",
+          borderRadius: "50%",
+          background: team.crestUrl ? "#fff" : team.color,
+          border: "9px solid #ffffff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: "124px",
+          fontFamily: "'Oswald', 'Arial Narrow', sans-serif",
+          letterSpacing: "-0.04em",
+          textShadow: "0 2px 4px rgba(0,0,0,0.35)",
+        }}
+      >
+        {team.crestUrl ? <img src={team.crestUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} /> : (team.abbr ?? "?")}
+      </div>
     </div>
   );
 }
