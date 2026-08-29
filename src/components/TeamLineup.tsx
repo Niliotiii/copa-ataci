@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ShareNetwork } from "@phosphor-icons/react";
 import { useApi } from "../data/useApi";
 import type { Team, TeamDetail } from "../data/types";
 import { textColorOn } from "../data/color";
@@ -112,15 +113,13 @@ export default function TeamLineup() {
                 </div>
                 {board.length > 0 && (
                   <button
+                    type="button"
                     onClick={() => setShareOpen(true)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold flex-shrink-0 transition-opacity"
-                    style={{ background: "var(--primary)", color: "#fff", fontFamily: "Oswald, sans-serif", letterSpacing: "0.04em", boxShadow: "var(--shadow-sm)" }}
+                    className="flex items-center justify-center rounded-lg flex-shrink-0 transition-colors"
+                    style={{ width: 32, height: 32, color: "var(--muted-foreground)", background: "transparent" }}
                     aria-label="Compartilhar escalação"
                   >
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><polyline points="16 6 12 2 8 6" /><line x1="12" y1="2" x2="12" y2="15" />
-                    </svg>
-                    <span className="hidden sm:inline">Compartilhar</span>
+                    <ShareNetwork size={15} weight="bold" aria-hidden />
                   </button>
                 )}
               </div>

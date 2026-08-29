@@ -19,6 +19,17 @@ function initials(name: string) {
   return name.split(" ").map((w) => w[0]).join("").slice(0, 2);
 }
 
+/** Escurece uma cor hex (#rrggbb) por um fator 0..1, para dar profundidade ao fundo. */
+function darken(hex: string, factor = 0.55): string {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  const r = Math.round(((n >> 16) & 255) * factor);
+  const g = Math.round(((n >> 8) & 255) * factor);
+  const b = Math.round((n & 255) * factor);
+  return `rgb(${r},${g},${b})`;
+}
+
 function SponsorLogo({ s }: { s: Sponsor }) {
   return (
     <div
@@ -46,6 +57,9 @@ export default function LineupShareModal({ team, onField, onBench, onClose }: Pr
 
   const { data: sponsorData } = useApi<Sponsor[]>("/api/sponsors");
   const sponsors = sponsorData ?? [];
+
+  // Fundo do banner derivado da cor do time (escurecida para legibilidade).
+  const bgDark = darken(team.color, 0.16);
 
   useEffect(() => {
     try {
@@ -114,7 +128,7 @@ export default function LineupShareModal({ team, onField, onBench, onClose }: Pr
       }
       const { snapdom } = await import("@zumer/snapdom");
       return await snapdom.toBlob(bannerRef.current, {
-        type: "png", scale: 1, embedFonts: true, backgroundColor: "#08241b", width: BANNER_W, height: BANNER_H,
+        type: "png", scale: 1, embedFonts: true, backgroundColor: bgDark, width: BANNER_W, height: BANNER_H,
       });
     } finally {
       if (wrap) wrap.style.cssText = prevCss;
@@ -183,20 +197,20 @@ export default function LineupShareModal({ team, onField, onBench, onClose }: Pr
         </div>
 
         <div className="p-5 flex flex-col gap-4">
-          <div ref={stageRef} style={{ position: "relative", width: "100%", height: `${BANNER_H * scale}px`, borderRadius: "16px", overflow: "hidden", background: "#08241b" }}>
+          <div ref={stageRef} style={{ position: "relative", width: "100%", height: `${BANNER_H * scale}px`, borderRadius: "16px", overflow: "hidden", background: bgDark }}>
             <div ref={scaleWrapRef} style={{ position: "absolute", top: 0, left: "50%", transform: `translateX(-50%) scale(${scale})`, transformOrigin: "top center" }}>
               {/* ===== BANNER 1080×1920 ===== */}
               <div
                 ref={bannerRef}
-                style={{ width: `${BANNER_W}px`, height: `${BANNER_H}px`, position: "relative", background: "#08241b", overflow: "hidden", fontFamily: "Oswald, sans-serif", display: "flex", flexDirection: "column" }}
+                style={{ width: `${BANNER_W}px`, height: `${BANNER_H}px`, position: "relative", background: bgDark, overflow: "hidden", fontFamily: "Oswald, sans-serif", display: "flex", flexDirection: "column" }}
               >
                 {/* Fundo */}
                 <div style={{ position: "absolute", inset: 0, zIndex: 0 }} aria-hidden>
                   <svg width={BANNER_W} height={BANNER_H} viewBox={`0 0 ${BANNER_W} ${BANNER_H}`} style={{ display: "block" }}>
                     <defs>
                       <linearGradient id="lg" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0" stopColor="#0b3d2a" />
-                        <stop offset="1" stopColor="#061a14" />
+                        <stop offset="0" stopColor={darken(team.color, 0.5)} />
+                        <stop offset="1" stopColor={darken(team.color, 0.18)} />
                       </linearGradient>
                       <pattern id="lstripes" width="46" height="46" patternTransform="rotate(-12)" patternUnits="userSpaceOnUse">
                         <rect width="46" height="46" fill="none" />
