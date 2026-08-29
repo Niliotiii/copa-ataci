@@ -1,26 +1,13 @@
 import { useState } from "react";
 import { useApi } from "../data/useApi";
-import type { Team, TeamDetail, Player, Position } from "../data/types";
+import type { Team, TeamDetail } from "../data/types";
 import { textColorOn } from "../data/color";
 import { usePath, navigate } from "../router";
+import { useLineupBoard } from "../data/useLineupBoard";
+import LineupBoard from "./LineupBoard";
+import LineupShareModal from "./LineupShareModal";
 import SectionHeader from "./SectionHeader";
 import { LoadingState, ErrorState, EmptyState } from "./States";
-
-const positionColors: Record<Position, string> = {
-  GOL: "#f59e0b",
-  DEF: "#3b82f6",
-  ALA: "#8b5cf6",
-  MED: "#06b6d4",
-  ATA: "#ef4444",
-};
-
-const positionLabels: { key: Position; label: string }[] = [
-  { key: "GOL", label: "Goleiro" },
-  { key: "DEF", label: "Defensores" },
-  { key: "ALA", label: "Alas" },
-  { key: "MED", label: "Meias" },
-  { key: "ATA", label: "Atacantes" },
-];
 
 function initials(name: string | undefined | null) {
   if (!name) return "";
@@ -41,7 +28,14 @@ export default function TeamLineup() {
     selectedId ? `/api/teams/${selectedId}` : "/api/teams",
   );
 
-  const byPosition = (pos: Position) => (squad?.players ?? []).filter((p) => p.position === pos);
+  // Prancheta pública ("Modo Cartola" interativo): estado no navegador, sem salvar no servidor.
+  const isTeam = !!squad && !Array.isArray(squad) && Array.isArray(squad.players);
+  const teamDetail = isTeam ? (squad as TeamDetail) : null;
+  const { board, onField, onBench, moveOnField, sendToBench, sendToField, clearField } = useLineupBoard(
+    selectedId,
+    teamDetail?.players,
+  );
+  const [shareOpen, setShareOpen] = useState(false);
 
   return (
     <div>
@@ -92,175 +86,80 @@ export default function TeamLineup() {
       {squadError && <ErrorState message={squadError} />}
 
       {selectedId && !teamsError && !squadError && (
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Pitch */}
-          <div className="flex-1 min-w-0">
-            {squadLoading && <LoadingState label="Carregando elenco…" />}
+        <div>
+          {squadLoading && <LoadingState label="Carregando elenco…" />}
 
-            {!squadLoading && squad && !Array.isArray(squad) && Array.isArray(squad.players) && (
-              <>
-                {/* Team info strip */}
+          {!squadLoading && teamDetail && (
+            <>
+              {/* Team info strip + ação de compartilhar */}
+              <div
+                className="rounded-xl p-3 flex items-center gap-3 mb-4"
+                style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
+              >
                 <div
-                  className="rounded-xl p-3 flex items-center gap-3 mb-4"
-                  style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-base flex-shrink-0 overflow-hidden"
+                  style={{ background: teamDetail.crestUrl ? "var(--secondary)" : teamDetail.color, fontFamily: "Oswald, sans-serif" }}
                 >
+                  {teamDetail.crestUrl ? <img src={teamDetail.crestUrl} alt="" className="w-full h-full object-contain" /> : initials(teamDetail.name)}
+                </div>
+                <div className="flex-1 min-w-0">
                   <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-base flex-shrink-0 overflow-hidden"
-                    style={{ background: squad.crestUrl ? "var(--secondary)" : squad.color, fontFamily: "Oswald, sans-serif" }}
+                    className="text-base font-bold uppercase tracking-wide truncate"
+                    style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)" }}
                   >
-                    {squad.crestUrl ? <img src={squad.crestUrl} alt="" className="w-full h-full object-contain" /> : initials(squad.name)}
+                    {teamDetail.name}
                   </div>
-                  <div className="flex-1">
-                    <div
-                      className="text-base font-bold uppercase tracking-wide"
-                      style={{ fontFamily: "Oswald, sans-serif", color: "var(--foreground)" }}
-                    >
-                      {squad.name}
-                    </div>
-                    <div className="text-xs mt-0.5 tnum" style={{ color: "var(--muted-foreground)" }}>
-                      {squad.players.length} jogadores
-                    </div>
+                  <div className="text-xs mt-0.5 tnum" style={{ color: "var(--muted-foreground)" }}>
+                    {onField.length} em campo · {onBench.length} no banco
                   </div>
                 </div>
-
-                {/* Society pitch */}
-                <div
-                  className="relative rounded-2xl overflow-hidden"
-                  style={{
-                    background:
-                      "linear-gradient(180deg,#1a5c2a 0%,#1e6b31 20%,#1a5c2a 40%,#1e6b31 60%,#1a5c2a 80%,#1e6b31 100%)",
-                    aspectRatio: "2/3",
-                    border: "3px solid #2a7a3a",
-                    boxShadow: "inset 0 0 50px rgba(0,0,0,0.4)",
-                  }}
-                >
-                  {/* Field markings */}
-                  <svg
-                    className="absolute inset-0 w-full h-full"
-                    viewBox="0 0 100 150"
-                    preserveAspectRatio="none"
-                    style={{ opacity: 0.4 }}
+                {board.length > 0 && (
+                  <button
+                    onClick={() => setShareOpen(true)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold flex-shrink-0 transition-opacity"
+                    style={{ background: "var(--primary)", color: "#fff", fontFamily: "Oswald, sans-serif", letterSpacing: "0.04em", boxShadow: "var(--shadow-sm)" }}
+                    aria-label="Compartilhar escalação"
                   >
-                    <rect x="4" y="4" width="92" height="142" rx="1" fill="none" stroke="white" strokeWidth="1" />
-                    <line x1="4" y1="75" x2="96" y2="75" stroke="white" strokeWidth="1" />
-                    <circle cx="50" cy="75" r="10" fill="none" stroke="white" strokeWidth="1" />
-                    <circle cx="50" cy="75" r="1" fill="white" />
-                    <rect x="24" y="4" width="52" height="18" fill="none" stroke="white" strokeWidth="1" />
-                    <rect x="36" y="4" width="28" height="8" fill="none" stroke="white" strokeWidth="1" />
-                    <circle cx="50" cy="14" r="1" fill="white" />
-                    <rect x="24" y="128" width="52" height="18" fill="none" stroke="white" strokeWidth="1" />
-                    <rect x="36" y="138" width="28" height="8" fill="none" stroke="white" strokeWidth="1" />
-                    <circle cx="50" cy="136" r="1" fill="white" />
-                  </svg>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><polyline points="16 6 12 2 8 6" /><line x1="12" y1="2" x2="12" y2="15" />
+                    </svg>
+                    <span className="hidden sm:inline">Compartilhar</span>
+                  </button>
+                )}
+              </div>
 
-                  {/* Players — posicionados por coordenadas pos_x / pos_y (PRD 3.4) */}
-                  {squad.players.map((player: Player, i) => (
-                    <div
-                      key={`${player.name}-${i}`}
-                      className="absolute flex flex-col items-center"
-                      style={{
-                        left: `${player.posX}%`,
-                        top: `${player.posY}%`,
-                        transform: "translate(-50%, -50%)",
-                      }}
-                    >
-                      <div
-                        className="rounded-full flex items-center justify-center font-bold border-2 border-white"
-                        style={{
-                          width: "32px",
-                          height: "32px",
-                          background: squad.color,
-                          color: "#ffffff",
-                          fontFamily: "Oswald, sans-serif",
-                          fontSize: "11px",
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.6)",
-                        }}
-                      >
-                        {player.number ?? initials(player.name)}
-                      </div>
-                      <div
-                        className="mt-0.5 px-1.5 py-0.5 rounded text-white whitespace-nowrap"
-                        style={{
-                          fontSize: "8px",
-                          fontWeight: 600,
-                          background: "rgba(0,0,0,0.7)",
-                          fontFamily: "Inter, sans-serif",
-                          backdropFilter: "blur(2px)",
-                          maxWidth: "56px",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {player.name}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
+              {/* Aviso: prancheta pública, não salva */}
+              <p className="text-xs mb-3" style={{ color: "var(--muted-foreground)" }}>
+                Monte sua escalação arrastando os jogadores — no campo ou entre campo e banco. As
+                mudanças ficam só no seu navegador.
+              </p>
 
-          {/* Player list by position */}
-          {!squadLoading && squad && !Array.isArray(squad) && Array.isArray(squad.players) && (
-            <div
-              className="w-full lg:w-60 xl:w-64 lg:self-start rounded-xl overflow-hidden"
-              style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
-            >
-              {squad.players.length === 0 && <EmptyState label="Elenco não cadastrado." />}
-              {positionLabels.map(({ key, label }) => {
-                const group = byPosition(key);
-                if (group.length === 0) return null;
-                return (
-                  <div key={key}>
-                    <div
-                      className="flex items-center gap-2 px-4 py-2"
-                      style={{ background: "var(--secondary)", borderBottom: "1px solid var(--border)" }}
-                    >
-                      <span
-                        className="text-xs font-bold px-1.5 py-0.5 rounded"
-                        style={{
-                          background: positionColors[key],
-                          color: "#fff",
-                          fontFamily: "Oswald, sans-serif",
-                          letterSpacing: "0.06em",
-                        }}
-                      >
-                        {key}
-                      </span>
-                      <span
-                        className="text-xs font-semibold uppercase tracking-wider"
-                        style={{ fontFamily: "Oswald, sans-serif", color: "var(--muted-foreground)", letterSpacing: "0.08em" }}
-                      >
-                        {label}
-                      </span>
-                      <span className="ml-auto text-xs" style={{ color: "var(--muted-foreground)" }}>
-                        {group.length}
-                      </span>
-                    </div>
-
-                    {group.map((p, i) => (
-                      <div
-                        key={`${p.name}-${i}`}
-                        className="flex items-center gap-3 px-4 py-2.5"
-                        style={{ borderBottom: "1px solid var(--border)", background: "var(--card)" }}
-                      >
-                        <div
-                          className="w-7 h-7 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0"
-                          style={{ background: squad.color, fontSize: "10px", fontFamily: "Oswald, sans-serif" }}
-                        >
-                          {p.number ?? initials(p.name)}
-                        </div>
-                        <span className="text-sm flex-1" style={{ color: "var(--foreground)" }}>
-                          {p.name}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })}
-            </div>
+              {teamDetail.players.length === 0 ? (
+                <EmptyState label="Elenco não cadastrado." />
+              ) : (
+                <LineupBoard
+                  board={board}
+                  onField={onField}
+                  onBench={onBench}
+                  teamColor={teamDetail.color}
+                  onMoveOnField={moveOnField}
+                  onSendToBench={sendToBench}
+                  onSendToField={sendToField}
+                  onClear={clearField}
+                />
+              )}
+            </>
           )}
         </div>
+      )}
+
+      {shareOpen && teamDetail && (
+        <LineupShareModal
+          team={teamDetail}
+          onField={onField}
+          onBench={onBench}
+          onClose={() => setShareOpen(false)}
+        />
       )}
     </div>
   );

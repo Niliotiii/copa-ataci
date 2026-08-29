@@ -64,13 +64,21 @@ test.describe("Copa Ataci — smoke E2E", () => {
     await expect(page.getByText("Gols casa")).toHaveCount(0);
   });
 
-  test("abre a aba Times: lista → detalhe do elenco (regressão: tela preta)", async ({ page }) => {
+  test("abre a aba Times: lista → prancheta interativa (campo + banco)", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("button", { name: "Times" }).first().click();
-    // Primeiro a lista de times; clicar num time abre o elenco.
+    // Primeiro a lista de times; clicar num time abre a prancheta.
     await page.getByRole("button", { name: /Ver elenco de Ataci FC/ }).click();
-    // A tela de elenco chegou a quebrar com tela preta (crash de render).
-    await expect(page.getByText("Goleiro").first()).toBeVisible();
+    // A prancheta pública mostra o banco de reserva e o botão de limpar campo.
+    await expect(page.getByText("Banco").first()).toBeVisible();
+    await expect(page.getByRole("button", { name: "Limpar campo" })).toBeVisible();
+    // "Limpar campo" manda todos para o banco (contador em campo zera).
+    await page.getByRole("button", { name: "Limpar campo" }).click();
+    await expect(page.getByText(/0 em campo/)).toBeVisible();
+    // Compartilhar abre o modal de escalação.
+    await page.getByRole("button", { name: "Compartilhar escalação" }).click();
+    await expect(page.getByRole("dialog", { name: "Compartilhar Escalação" })).toBeVisible();
+    await page.getByRole("button", { name: "Fechar" }).click();
     // Voltar à lista.
     await page.getByRole("button", { name: /Todos os times/ }).click();
     await expect(page.getByRole("button", { name: /Ver elenco de Leões/ })).toBeVisible();
