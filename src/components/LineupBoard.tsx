@@ -63,59 +63,86 @@ export default function LineupBoard({
     return "field";
   }
 
-  function startDrag(key: number, e: React.PointerEvent) {
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const pointerId = e.pointerId;
-    const target = e.target as HTMLElement;
-    const isTouch = e.pointerType === "touch";
+  function commitDrop(key: number, wasOnField: boolean, clientX: number, clientY: number) {
+    const over = overTarget(clientX, clientY);
+    if (over === "bench") {
+      onSendToBench(key);
+    } else {
+      const p = fieldPercentFromClient(clientX, clientY);
+      if (p) {
+        if (wasOnField) onMoveOnField(key, p.x, p.y);
+        else onSendToField(key, p.x, p.y);
+      }
+    }
+    setDragKey(null);
+    setGhost(null);
+  }
 
+  // --- TOQUE (mobile): long-press ativa; touchmove NÃO-passivo bloqueia o scroll ---
+  function startDragTouch(key: number, el: HTMLElement, startX: number, startY: number) {
     const player = board.find((p) => p.key === key);
     const wasOnField = player?.onField ?? false;
 
-    // Mouse: arrasta de imediato. Toque: só ativa após um "long-press" (segurar
-    // ~200ms), para que um toque rápido / gesto de rolagem NÃO mova o jogador
-    // sem querer. Uma vez ativo, o jogador arrasta em QUALQUER direção.
     let active = false;
-    let holdTimer: ReturnType<typeof setTimeout> | null = null;
-    const HOLD_MS = 200;
-    const CANCEL_MOVE = 12; // px: mover além disso antes do hold = scroll, cancela
-
-    function activate(clientX: number, clientY: number) {
-      if (active) return;
+    const HOLD_MS = 220;
+    const CANCEL_MOVE = 10; // mover além disso antes do hold = scroll → cancela
+    let holdTimer: ReturnType<typeof setTimeout> | null = setTimeout(() => {
       active = true;
-      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
-      target.setPointerCapture?.(pointerId);
+      holdTimer = null;
       setDragKey(key);
-      setGhost({ x: clientX, y: clientY, over: overTarget(clientX, clientY) });
-      // Vibração curta no mobile sinalizando que "pegou" o jogador.
-      if (isTouch) { try { navigator.vibrate?.(15); } catch { /* ignore */ } }
-    }
+      setGhost({ x: startX, y: startY, over: overTarget(startX, startY) });
+      try { navigator.vibrate?.(15); } catch { /* ignore */ }
+    }, HOLD_MS);
 
-    if (!isTouch) {
-      // Desktop/mouse: começa a arrastar imediatamente.
-      e.preventDefault();
-      activate(startX, startY);
-    } else {
-      // Toque: agenda a ativação por long-press.
-      holdTimer = setTimeout(() => activate(startX, startY), HOLD_MS);
-    }
-
-    const move = (ev: PointerEvent) => {
+    // touchmove precisa ser NÃO-passivo para que preventDefault() cancele o
+    // scroll de forma confiável (o React registra onTouchMove como passivo).
+    const move = (ev: TouchEvent) => {
+      const pt = ev.touches[0];
+      if (!pt) return;
       if (!active) {
-        // Ainda no período do long-press: se o dedo se mexer bastante, o usuário
-        // está rolando/deslizando → cancela o arrasto e libera o scroll.
-        const dx = Math.abs(ev.clientX - startX);
-        const dy = Math.abs(ev.clientY - startY);
-        if (dx > CANCEL_MOVE || dy > CANCEL_MOVE) {
-          if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
-          window.removeEventListener("pointermove", move);
-          window.removeEventListener("pointerup", up);
+        if (Math.abs(pt.clientX - startX) > CANCEL_MOVE || Math.abs(pt.clientY - startY) > CANCEL_MOVE) {
+          cleanup(); // deslizou antes do hold → é scroll
         }
         return;
       }
-      // Arrasto ativo: impede o scroll e move o jogador.
-      ev.preventDefault();
+      ev.preventDefault(); // bloqueia o scroll durante o arrasto
+      const over = overTarget(pt.clientX, pt.clientY);
+      setGhost({ x: pt.clientX, y: pt.clientY, over });
+      if (over === "field") {
+        const p = fieldPercentFromClient(pt.clientX, pt.clientY);
+        if (p) onMoveOnField(key, p.x, p.y);
+      }
+    };
+    const end = (ev: TouchEvent) => {
+      const wasActive = active;
+      const pt = ev.changedTouches[0];
+      cleanup();
+      if (wasActive && pt) commitDrop(key, wasOnField, pt.clientX, pt.clientY);
+    };
+    function cleanup() {
+      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+      active = false;
+      el.removeEventListener("touchmove", move);
+      el.removeEventListener("touchend", end);
+      el.removeEventListener("touchcancel", end);
+    }
+    el.addEventListener("touchmove", move, { passive: false });
+    el.addEventListener("touchend", end);
+    el.addEventListener("touchcancel", end);
+  }
+
+  // --- MOUSE (desktop): arrasta imediatamente ---
+  function startDragMouse(key: number, e: React.PointerEvent) {
+    e.preventDefault();
+    const target = e.target as HTMLElement;
+    const pointerId = e.pointerId;
+    const player = board.find((p) => p.key === key);
+    const wasOnField = player?.onField ?? false;
+    target.setPointerCapture?.(pointerId);
+    setDragKey(key);
+    setGhost({ x: e.clientX, y: e.clientY, over: overTarget(e.clientX, e.clientY) });
+
+    const move = (ev: PointerEvent) => {
       const over = overTarget(ev.clientX, ev.clientY);
       setGhost({ x: ev.clientX, y: ev.clientY, over });
       if (over === "field") {
@@ -124,25 +151,21 @@ export default function LineupBoard({
       }
     };
     const up = (ev: PointerEvent) => {
-      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
-      if (!active) return; // toque curto / scroll — não foi arrasto
-      const over = overTarget(ev.clientX, ev.clientY);
-      if (over === "bench") {
-        onSendToBench(key);
-      } else {
-        const p = fieldPercentFromClient(ev.clientX, ev.clientY);
-        if (p) {
-          if (wasOnField) onMoveOnField(key, p.x, p.y);
-          else onSendToField(key, p.x, p.y);
-        }
-      }
-      setDragKey(null);
-      setGhost(null);
+      commitDrop(key, wasOnField, ev.clientX, ev.clientY);
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
+  }
+
+  // Dispatcher no pointerdown: toque → long-press; mouse/caneta → imediato.
+  function onPointerDown(key: number, e: React.PointerEvent) {
+    if (e.pointerType === "touch") {
+      startDragTouch(key, e.currentTarget as HTMLElement, e.clientX, e.clientY);
+    } else {
+      startDragMouse(key, e);
+    }
   }
 
   const draggingPlayer = dragKey != null ? board.find((p) => p.key === dragKey) : null;
@@ -184,7 +207,7 @@ export default function LineupBoard({
             return (
               <div
                 key={p.key}
-                onPointerDown={(e) => startDrag(p.key, e)}
+                onPointerDown={(e) => onPointerDown(p.key, e)}
                 className="absolute flex flex-col items-center cursor-grab active:cursor-grabbing"
                 style={{
                   left: `${p.posX}%`,
@@ -192,7 +215,7 @@ export default function LineupBoard({
                   transform: "translate(-50%, -50%)",
                   zIndex: isDragging ? 20 : 1,
                   opacity: isDragging ? 0.35 : 1,
-                  touchAction: "pan-y",
+                  touchAction: "manipulation",
                 }}
                 title={`${p.name} — segure e arraste para mover ou levar ao banco`}
               >
@@ -265,13 +288,13 @@ export default function LineupBoard({
             return (
               <div
                 key={p.key}
-                onPointerDown={(e) => startDrag(p.key, e)}
+                onPointerDown={(e) => onPointerDown(p.key, e)}
                 className="flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-grab active:cursor-grabbing"
                 style={{
                   background: "var(--secondary)",
                   border: "1px solid var(--border)",
                   opacity: isDragging ? 0.35 : 1,
-                  touchAction: "pan-y",
+                  touchAction: "manipulation",
                 }}
                 title={`${p.name} — arraste para o campo para escalar`}
               >
