@@ -223,9 +223,6 @@ export default function LineupShareModal({ team, onField, onBench, onClose }: Pr
                       <div style={{ color: "#fff", fontSize: "80px", fontWeight: 700, lineHeight: 0.98, textTransform: "uppercase", letterSpacing: "-0.01em", fontFamily: "'Oswald','Arial Narrow',sans-serif", textShadow: "0 3px 8px rgba(0,0,0,0.4)" }}>
                         {team.name}
                       </div>
-                      <div style={{ color: "#e0a92e", fontSize: "30px", fontWeight: 600, letterSpacing: "0.1em", marginTop: "8px" }}>
-                        {onField.length} em campo · {onBench.length} no banco
-                      </div>
                     </div>
                   </div>
                   <div style={{ width: "420px", height: "5px", background: "linear-gradient(90deg, transparent, #e0a92e, transparent)", marginTop: "26px" }} />
@@ -264,11 +261,8 @@ export default function LineupShareModal({ team, onField, onBench, onClose }: Pr
                     )}
                   </div>
 
-                  {/* Banco de reserva */}
+                  {/* Reservas (sem rótulo) */}
                   <div style={{ marginTop: "22px", borderRadius: "18px", background: "rgba(6,26,20,0.72)", border: "2px solid rgba(224,169,46,0.4)", padding: "18px 22px" }}>
-                    <div style={{ color: "#e0a92e", fontSize: "24px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: "14px" }}>
-                      Banco
-                    </div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
                       {onBench.length === 0 && (
                         <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "24px", fontFamily: "'Inter',sans-serif" }}>Sem reservas</span>
