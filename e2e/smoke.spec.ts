@@ -97,14 +97,14 @@ test.describe("Copa Ataci — smoke E2E", () => {
 
     // Arrasto com mouse reposiciona um jogador (mouse ativa de imediato).
     await page.evaluate(() => window.scrollTo(0, 0));
-    const marker = page.locator('[title*="reposicionar"]').first();
+    const marker = page.locator('[title*="segure e arraste"]').first();
     const before = await marker.boundingBox();
     if (!before) throw new Error("sem jogador em campo");
     await page.mouse.move(before.x + before.width / 2, before.y + before.height / 2);
     await page.mouse.down();
     await page.mouse.move(before.x + 90, before.y + before.height / 2, { steps: 8 });
     await page.mouse.up();
-    const after = await page.locator('[title*="reposicionar"]').first().boundingBox();
+    const after = await page.locator('[title*="segure e arraste"]').first().boundingBox();
     expect(after && Math.abs(after.x - before.x) > 20).toBe(true);
   });
 
