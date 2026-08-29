@@ -3,7 +3,11 @@ export default function Footer() {
   return (
     <footer
       className="mt-auto px-4 py-5 lg:px-8 border-t"
-      style={{ borderColor: "var(--border)", background: "var(--card)" }}
+      style={{
+        borderColor: "var(--border)",
+        background: "var(--card)",
+        paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))",
+      }}
     >
       <div className="w-full max-w-[1600px] mx-auto flex justify-center">
         <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--muted-foreground)" }}>

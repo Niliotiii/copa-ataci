@@ -138,7 +138,11 @@ html, body, #root {
 }
 
 body {
-  background-color: var(--background);
+  /* Fundo na cor do footer/header (--card). A área de overscroll e a
+     safe-area inferior do Safari mobile passam a seguir a cor do footer,
+     em vez de aparecer com o cinza do conteúdo. O conteúdo principal usa
+     var(--background) no <div> raiz do App. */
+  background-color: var(--card);
   color: var(--foreground);
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
