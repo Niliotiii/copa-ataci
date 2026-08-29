@@ -64,15 +64,44 @@ export default function LineupBoard({
   }
 
   function startDrag(key: number, e: React.PointerEvent) {
-    e.preventDefault();
-    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-    setDragKey(key);
-    setGhost({ x: e.clientX, y: e.clientY, over: overTarget(e.clientX, e.clientY) });
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const pointerId = e.pointerId;
+    const target = e.target as HTMLElement;
+    const isTouch = e.pointerType === "touch";
 
     const player = board.find((p) => p.key === key);
     const wasOnField = player?.onField ?? false;
 
+    // Só "assume" o arrasto após um pequeno movimento. Assim, num toque cujo
+    // gesto é claramente vertical (rolar a página), NÃO sequestramos o jogador
+    // — deixamos o scroll acontecer. No mouse, ativa de imediato.
+    let active = !isTouch;
+    if (active) {
+      e.preventDefault();
+      target.setPointerCapture?.(pointerId);
+      setDragKey(key);
+      setGhost({ x: startX, y: startY, over: overTarget(startX, startY) });
+    }
+
+    const THRESHOLD = 8; // px
+
     const move = (ev: PointerEvent) => {
+      if (!active) {
+        const dx = Math.abs(ev.clientX - startX);
+        const dy = Math.abs(ev.clientY - startY);
+        if (dx < THRESHOLD && dy < THRESHOLD) return; // ainda indefinido
+        // Gesto predominantemente vertical → é scroll: aborta o arrasto.
+        if (dy > dx) {
+          window.removeEventListener("pointermove", move);
+          window.removeEventListener("pointerup", up);
+          return;
+        }
+        // Gesto horizontal (ou diagonal) → inicia o arrasto de fato.
+        active = true;
+        target.setPointerCapture?.(pointerId);
+        setDragKey(key);
+      }
       const over = overTarget(ev.clientX, ev.clientY);
       setGhost({ x: ev.clientX, y: ev.clientY, over });
       // Reposiciona ao vivo só quando está sobre o campo (feedback imediato).
@@ -82,6 +111,9 @@ export default function LineupBoard({
       }
     };
     const up = (ev: PointerEvent) => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      if (!active) return; // foi um toque/scroll, não um arrasto
       const over = overTarget(ev.clientX, ev.clientY);
       if (over === "bench") {
         onSendToBench(key);
@@ -94,8 +126,6 @@ export default function LineupBoard({
       }
       setDragKey(null);
       setGhost(null);
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
@@ -104,7 +134,7 @@ export default function LineupBoard({
   const draggingPlayer = dragKey != null ? board.find((p) => p.key === dragKey) : null;
 
   return (
-    <div className="flex flex-col lg:flex-row gap-3 select-none" style={{ touchAction: "none" }}>
+    <div className="flex flex-col lg:flex-row gap-3 select-none">
       {/* CAMPO */}
       <div className="flex-1 min-w-0">
         <div
@@ -116,7 +146,10 @@ export default function LineupBoard({
             aspectRatio: "2/3",
             border: "3px solid #2a7a3a",
             boxShadow: "inset 0 0 50px rgba(0,0,0,0.4)",
-            touchAction: "none",
+            // pan-y em todo o campo e nos jogadores: gestos verticais rolam a
+            // página; gestos horizontais sobre um jogador iniciam o arrasto
+            // (com threshold no JS). Evita "prender" o scroll no mobile.
+            touchAction: "pan-y",
             outline: ghost?.over === "field" ? "3px solid rgba(224,169,46,0.6)" : "none",
             outlineOffset: "-3px",
           }}
@@ -145,7 +178,7 @@ export default function LineupBoard({
                   transform: "translate(-50%, -50%)",
                   zIndex: isDragging ? 20 : 1,
                   opacity: isDragging ? 0.35 : 1,
-                  touchAction: "none",
+                  touchAction: "pan-y",
                 }}
                 title={`${p.name} — arraste para reposicionar ou solte no banco`}
               >
@@ -224,7 +257,7 @@ export default function LineupBoard({
                   background: "var(--secondary)",
                   border: "1px solid var(--border)",
                   opacity: isDragging ? 0.35 : 1,
-                  touchAction: "none",
+                  touchAction: "pan-y",
                 }}
                 title={`${p.name} — arraste para o campo para escalar`}
               >

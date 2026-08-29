@@ -83,6 +83,31 @@ test.describe("Copa Ataci — smoke E2E", () => {
     await expect(page.getByRole("button", { name: /Ver elenco de Leões/ })).toBeVisible();
   });
 
+  test("times mobile: página rola com o campo grande; drag horizontal move o jogador", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/times/ATA");
+    await expect(page.getByRole("button", { name: "Limpar campo" })).toBeVisible();
+
+    // A página deve poder rolar (o conteúdo é mais alto que a viewport).
+    const scrollable = await page.evaluate(() => document.documentElement.scrollHeight > window.innerHeight);
+    expect(scrollable).toBe(true);
+    await page.evaluate(() => window.scrollTo(0, 400));
+    const y = await page.evaluate(() => window.scrollY);
+    expect(y).toBeGreaterThan(100);
+
+    // Arrasto horizontal com mouse reposiciona um jogador (regressão do drag).
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const marker = page.locator('[title*="reposicionar"]').first();
+    const before = await marker.boundingBox();
+    if (!before) throw new Error("sem jogador em campo");
+    await page.mouse.move(before.x + before.width / 2, before.y + before.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(before.x + 90, before.y + before.height / 2, { steps: 8 });
+    await page.mouse.up();
+    const after = await page.locator('[title*="reposicionar"]').first().boundingBox();
+    expect(after && Math.abs(after.x - before.x) > 20).toBe(true);
+  });
+
   test("admin fica em /admin e exige login válido (fora do menu)", async ({ page }) => {
     await page.goto("/");
     // Não há mais aba Admin no menu do portal.
