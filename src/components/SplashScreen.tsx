@@ -51,7 +51,9 @@ export default function SplashScreen({ onDone, minMs = 3000 }: Props) {
       aria-label="Carregando a Copa Ataci"
       className="fixed inset-0 z-[100] flex items-center justify-center transition-opacity duration-[400ms]"
       style={{
-        background: "var(--background)",
+        background: "rgba(243, 246, 250, 0.55)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
         opacity: leaving ? 0 : 1,
         pointerEvents: leaving ? "none" : "auto",
       }}
@@ -123,27 +125,20 @@ export default function SplashScreen({ onDone, minMs = 3000 }: Props) {
           </div>
         </div>
 
-        {/* Título + barra de progresso sutil */}
-        <div className="flex flex-col items-center gap-3">
+        {/* Título */}
+        <div className="flex flex-col items-center">
           <span
             className="uppercase"
             style={{ fontFamily: "'Oswald', sans-serif", fontWeight: 700, letterSpacing: "0.16em", color: "var(--foreground)", fontSize: "18px" }}
           >
             Copa Ataci
           </span>
-          <div style={{ width: "120px", height: "4px", borderRadius: "999px", background: "var(--secondary)", overflow: "hidden" }}>
-            <div style={{ height: "100%", width: "40%", borderRadius: "999px", background: "var(--accent)", animation: "splash-bar 1.1s ease-in-out infinite" }} />
-          </div>
         </div>
       </div>
 
       <style>{`
         @keyframes splash-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes splash-spin-rev { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
-        @keyframes splash-bar {
-          0%   { transform: translateX(-120%); }
-          100% { transform: translateX(320%); }
-        }
         @media (prefers-reduced-motion: reduce) {
           [aria-label="Carregando a Copa Ataci"] * { animation-duration: 0s !important; }
         }
