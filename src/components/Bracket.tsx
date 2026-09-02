@@ -1,6 +1,6 @@
 import { useApi } from "../data/useApi";
 import type { Bracket as BracketData, BracketBox, Tournament } from "../data/types";
-import { Trophy } from "@phosphor-icons/react";
+import { TrophyIcon } from "./icons";
 import SectionHeader from "./SectionHeader";
 import { LoadingState, ErrorState, EmptyState } from "./States";
 
@@ -209,7 +209,7 @@ export default function Bracket() {
                   <div style={{ paddingTop: `${(CARD_H + GAP) * 1.5 - CARD_H * 0.5}px` }}>
                     <MatchCard match={finalMatch} size="lg" />
                     <div className="flex items-center justify-center gap-2 mt-4">
-                      <Trophy size={20} weight="fill" color="var(--accent)" aria-hidden />
+                      <TrophyIcon size={20} weight="fill" color="var(--accent)" />
                       <span className="text-sm font-bold uppercase" style={{ color: "var(--accent)", fontFamily: "Oswald, sans-serif", letterSpacing: "0.08em" }}>Campeão</span>
                     </div>
                   </div>

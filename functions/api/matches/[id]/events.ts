@@ -64,7 +64,7 @@ export const onRequestPut = async (ctx: PagesContext): Promise<Response> => {
     for (let i = 0; i < events.length; i++) {
       const ev = events[i];
       if (typeof ev.type !== "string" || !TYPES.has(ev.type)) {
-        return error(`evento ${i}: type inválido (gol|amarelo|vermelho).`, 400);
+        return error(`evento ${i}: type inválido (gol|gol_contra|amarelo|vermelho).`, 400);
       }
       if (typeof ev.playerId !== "number" || !Number.isInteger(ev.playerId)) {
         return error(`evento ${i}: playerId inválido.`, 400);

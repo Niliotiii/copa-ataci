@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShareNetwork } from "@phosphor-icons/react";
+import { ShareIcon } from "./icons";
 import { useApi } from "../data/useApi";
 import type { Team, TeamDetail } from "../data/types";
 import { textColorOn } from "../data/color";
@@ -119,7 +119,7 @@ export default function TeamLineup() {
                     style={{ width: 32, height: 32, color: "var(--muted-foreground)", background: "transparent" }}
                     aria-label="Compartilhar escalação"
                   >
-                    <ShareNetwork size={15} weight="bold" aria-hidden />
+                    <ShareIcon size={15} />
                   </button>
                 )}
               </div>

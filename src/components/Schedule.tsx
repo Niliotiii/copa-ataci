@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import MatchShareModal from "./MatchShareModal";
 import Select from "./Select";
 import SectionHeader from "./SectionHeader";
-import { ShareNetwork, MapPin } from "@phosphor-icons/react";
+import { ShareIcon, MapPinIcon } from "./icons";
 import { useApi } from "../data/useApi";
 import type { Match } from "../data/types";
 import { LoadingState, ErrorState, EmptyState } from "./States";
@@ -124,7 +124,7 @@ export default function Schedule() {
                         className="flex items-center justify-center rounded-lg transition-colors"
                         style={{ width: 32, height: 32, color: "var(--muted-foreground)", background: "transparent" }}
                       >
-                        <ShareNetwork size={15} weight="bold" aria-hidden />
+                        <ShareIcon size={15} />
                       </button>
                     </div>
                   </div>
@@ -169,7 +169,7 @@ export default function Schedule() {
 
                   {/* Location */}
                   <div className="flex items-center gap-1.5 px-4 pb-3" style={{ color: "var(--muted-foreground)" }}>
-                    <MapPin size={12} weight="bold" aria-hidden />
+                    <MapPinIcon size={12} />
                     <span className="text-xs">{match.location}</span>
                   </div>
                 </div>

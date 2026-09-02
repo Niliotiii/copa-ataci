@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { CaretDown, Check } from "@phosphor-icons/react";
+import { CaretDownIcon, CheckIcon } from "./icons";
 
 export type SelectOption = { value: string; label: string; disabled?: boolean };
 
@@ -126,7 +126,7 @@ export default function Select({
         }}
       >
         <span className="truncate">{selected ? selected.label : placeholder}</span>
-        <CaretDown size={16} weight="bold" style={{ flexShrink: 0, opacity: 0.7, transform: open ? "rotate(180deg)" : "none", transition: "transform .15s" }} aria-hidden />
+        <CaretDownIcon size={16} style={{ flexShrink: 0, opacity: 0.7, transform: open ? "rotate(180deg)" : "none", transition: "transform .15s" }} />
       </button>
 
       {open && (
@@ -165,7 +165,7 @@ export default function Select({
               >
                 <span className="truncate">{opt.label}</span>
                 {isSelected && !isActive && (
-                  <Check size={14} weight="bold" color="var(--primary)" style={{ flexShrink: 0 }} aria-hidden />
+                  <CheckIcon size={14} color="var(--primary)" style={{ flexShrink: 0 }} />
                 )}
               </li>
             );
