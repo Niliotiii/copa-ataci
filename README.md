@@ -88,11 +88,14 @@ Scripts de banco disponíveis:
 
 | Script | O que faz |
 |--------|-----------|
-| `npm run db:schema` | Aplica `db/schema.sql` no D1 local |
+| `npm run db:schema` | Aplica `db/schema.sql` no D1 local (recria tabelas — DROP) |
 | `npm run db:seed` | Aplica `db/seed.sql` no D1 local |
 | `npm run db:reset` | schema + seed no local |
-| `npm run db:schema:remote` | Aplica o schema no D1 **de produção** |
+| `npm run db:migrate` | Aplica `migrations/*.sql` no D1 local (incremental) |
+| `npm run db:ensure` | Cria tabelas no D1 local só se estiverem faltando (idempotente) |
+| `npm run db:schema:remote` | Aplica o schema no D1 **de produção** (recria tabelas — DROP) |
 | `npm run db:seed:remote` | Aplica o seed no D1 **de produção** |
+| `npm run db:migrate:remote` | Aplica `migrations/*.sql` no D1 **de produção** (incremental) |
 
 ## Rotas do portal (frontend)
 
@@ -290,12 +293,16 @@ npm run test:watch
 
 Os testes (Vitest 4) exercitam as Pages Functions contra um **SQLite real**
 (via `better-sqlite3`), aplicando `db/schema.sql` + `db/seed.sql` num banco em
-memória e chamando os handlers diretamente. São **42 testes** cobrindo:
-cálculo/ordenação da classificação e seu recálculo após um placar, filtros de
-jogos, montagem do chaveamento (vencedor derivado e placeholders), elenco com
-`posX`/`posY`, patrocinadores, e todas as rotas de escrita protegidas
-(401/400/404/200 + persistência): placar/dados do jogo, dados do time,
-substituição de elenco e substituição da lista de patrocinadores.
+memória e chamando os handlers diretamente. São **123 testes** (14 arquivos)
+cobrindo: cálculo/ordenação da classificação e seu recálculo após um placar,
+todos os critérios de desempate, filtros de jogos, montagem e propagação do
+chaveamento (vencedor derivado, pênaltis, reversão em cascata e placeholders),
+geração da tabela de grupos (round-robin) e do mata-mata, eventos por jogador
+(gols/gol contra/cartões) com derivação de placar, artilharia e suspensões,
+elenco com `posX`/`posY`, torneio, upload de imagens (R2), e todas as rotas de
+escrita protegidas (401/400/404/200 + persistência). Inclui também testes de
+componentes do frontend (React Testing Library): `Standings`, `PitchEditor` e o
+hook `useApi`.
 
 ### 2. Suíte no runtime real (workerd + D1 nativo)
 
@@ -322,8 +329,11 @@ npm run test:e2e
 ```
 
 Sobe o app real (build + `wrangler pages dev` + D1 local, com o banco resetado)
-e roda 2 smokes no Chromium: navegação pelas abas com a classificação calculada,
-e o fluxo do admin (colar token → finalizar um jogo → salvar → ver o sucesso).
+e roda os smokes no Chromium (`e2e/*.spec.ts`): roteamento por path (deep-links,
+navegação e histórico), classificação calculada ao navegar pelas abas, artilharia
+não-vazia do seed, fluxo do admin (colar token → registrar eventos → salvar → ver
+o sucesso), a prancheta interativa de Times (campo + banco) e o arrastar por
+long-press no toque.
 Requer o browser do Playwright: `npx playwright install chromium`.
 
 ## Atualizando os dados do torneio

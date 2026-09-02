@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Roteador mínimo baseado na History API — sem dependências externas.
@@ -31,14 +31,4 @@ export function usePath(): string {
     return () => window.removeEventListener("popstate", onPop);
   }, []);
   return path;
-}
-
-/** Handler para <a> que navega pelo roteador em vez de recarregar a página. */
-export function useLinkHandler() {
-  return useCallback((e: React.MouseEvent, to: string) => {
-    // Respeita cliques com modificadores / botão do meio (abrir em nova aba).
-    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    e.preventDefault();
-    navigate(to);
-  }, []);
 }
