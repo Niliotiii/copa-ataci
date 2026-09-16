@@ -283,7 +283,7 @@ export default function LineupShareModal({ team, onField, onBench, onClose }: Pr
                   <div style={{ marginTop: "22px", borderRadius: "18px", background: "rgba(6,26,20,0.72)", border: "2px solid rgba(224,169,46,0.4)", padding: "18px 22px" }}>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
                       {onBench.length === 0 && (
-                        <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "24px", fontFamily: "'Inter',sans-serif" }}>Sem reservas</span>
+                        <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "24px", fontFamily: "'Inter',sans-serif" }}> </span>
                       )}
                       {onBench.map((p) => (
                         <div key={p.key} style={{ display: "flex", alignItems: "center", gap: "10px", background: "rgba(255,255,255,0.08)", borderRadius: "999px", padding: "8px 18px 8px 8px" }}>
