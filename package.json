@@ -17,6 +17,7 @@
     "test:watch": "vitest",
     "test:workerd": "cd test-workerd && npm install --silent && npm test",
     "test:e2e": "playwright test",
+    "og:build": "node scripts/og-image/build-og.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p functions/tsconfig.json --noEmit",
     "db:schema": "wrangler d1 execute copa-ataci --local --file=./db/schema.sql",
     "db:seed": "wrangler d1 execute copa-ataci --local --file=./db/seed.sql",

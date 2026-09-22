@@ -1,0 +1,174 @@
+<!doctype html>
+<!--
+  Fonte EDITÁVEL do banner de compartilhamento (Open Graph) — public/og-image.png.
+
+  NÃO edite o PNG à mão: edite este arquivo e rode `npm run og:build`, que renderiza
+  esta página no Chromium (via Playwright) para public/og-image.png em 1200×630.
+
+  Os marcadores __PLACEHOLDER__ abaixo são preenchidos pelo gerador (build-og.mjs):
+    - Fontes (Oswald/Inter) e o logo são injetados como data URIs → HTML autocontido.
+    - Os textos vêm de config (defaults no gerador; sobrescreva por variáveis de ambiente).
+  Para mudar layout/cores/tipografia, edite o CSS aqui — é só HTML/CSS padrão.
+-->
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      /* Fontes self-hosted (mesmas do portal), embutidas pelo gerador. */
+      @font-face {
+        font-family: 'Oswald';
+        font-style: normal;
+        font-weight: 600;
+        src: url(__OSWALD_FONT__) format('woff2');
+      }
+      @font-face {
+        font-family: 'Oswald';
+        font-style: normal;
+        font-weight: 700;
+        src: url(__OSWALD_FONT__) format('woff2');
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 500;
+        src: url(__INTER_FONT__) format('woff2');
+      }
+
+      :root {
+        /* Paleta — espelha src/index.css */
+        --navy: #0e1b2c;        /* azul-serra escuro */
+        --navy-2: #060c14;      /* fim do gradiente, quase preto */
+        --accent: #c8912b;      /* dourado troféu */
+        --accent-2: #e0a93a;    /* dourado mais claro p/ realce */
+        --white: #f5f7fa;
+        --muted: #94a3b8;       /* cinza-azulado da linha de recursos */
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      html, body { width: 1200px; height: 630px; }
+
+      /* Palco do banner. #stage é o alvo do screenshot (1200×630 exatos). */
+      #stage {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background:
+          radial-gradient(120% 140% at 78% 12%, rgba(200, 145, 43, 0.10), transparent 55%),
+          linear-gradient(120deg, var(--navy) 0%, #0a1420 55%, var(--navy-2) 100%);
+        font-family: 'Inter', system-ui, sans-serif;
+      }
+
+      /* Barras douradas topo/base — assinatura do banner. */
+      #stage::before,
+      #stage::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 14px;
+        background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 50%, var(--accent) 100%);
+      }
+      #stage::before { top: 0; }
+      #stage::after { bottom: 0; }
+
+      /* Leve textura de "gramado" em diagonal, bem sutil, p/ dar profundidade. */
+      .grain {
+        position: absolute;
+        inset: 14px 0;
+        background-image: repeating-linear-gradient(
+          115deg,
+          rgba(255, 255, 255, 0.018) 0px,
+          rgba(255, 255, 255, 0.018) 2px,
+          transparent 2px,
+          transparent 26px
+        );
+        pointer-events: none;
+      }
+
+      .content {
+        position: absolute;
+        inset: 14px 0;
+        display: flex;
+        align-items: center;
+        gap: 72px;
+        padding: 0 88px;
+      }
+
+      .logo-wrap {
+        flex: 0 0 auto;
+        width: 300px;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* halo dourado suave atrás do escudo */
+        background: radial-gradient(circle at 50% 45%, rgba(200, 145, 43, 0.16), transparent 62%);
+      }
+      .logo-wrap img {
+        width: 300px;
+        height: 300px;
+        object-fit: contain;
+        filter: drop-shadow(0 10px 26px rgba(0, 0, 0, 0.45));
+      }
+
+      .text { display: flex; flex-direction: column; min-width: 0; }
+
+      .title {
+        font-family: 'Oswald', sans-serif;
+        font-weight: 700;
+        font-size: 128px;
+        line-height: 0.92;
+        letter-spacing: 0.5px;
+        color: var(--white);
+        text-transform: uppercase;
+        text-shadow: 0 3px 22px rgba(0, 0, 0, 0.45);
+      }
+
+      .subtitle {
+        margin-top: 18px;
+        font-family: 'Oswald', sans-serif;
+        font-weight: 600;
+        font-size: 39px;
+        letter-spacing: 4px;
+        color: var(--accent-2);
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      /* Régua dourada curta separando subtítulo dos recursos. */
+      .rule {
+        margin-top: 26px;
+        width: 132px;
+        height: 5px;
+        border-radius: 3px;
+        background: linear-gradient(90deg, var(--accent-2), var(--accent));
+      }
+
+      .features {
+        margin-top: 22px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: 31px;
+        letter-spacing: 0.4px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .features .dot { color: var(--accent); padding: 0 8px; }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <div class="grain"></div>
+      <div class="content">
+        <div class="logo-wrap">
+          <img src="__LOGO__" alt="" />
+        </div>
+        <div class="text">
+          <div class="title">__TITLE__</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

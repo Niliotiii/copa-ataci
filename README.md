@@ -242,9 +242,11 @@ Garanta que o projeto no Cloudflare Pages tenha:
 
 ### Notas de produção
 
-- **OG image:** o banner de compartilhamento fica em `public/og-image.png`
-  (1200×630, referenciado por `site.config.json`). Para trocar a arte, substitua
-  o PNG mantendo as dimensões.
+- **OG image:** o banner de compartilhamento (`public/og-image.png`, 1200×630,
+  referenciado por `site.config.json`) é **gerado** a partir de uma fonte editável
+  em `scripts/og-image/og-image.html`. Para trocar a arte, edite o HTML/CSS (ou
+  passe `OG_TITLE` / `OG_SUBTITLE` / `OG_FEATURES`) e rode `npm run og:build`, que
+  renderiza a página no Chromium (Playwright) para o PNG. Não edite o PNG à mão.
 - **Fontes:** Inter e Oswald são *self-hosted* (`public/fonts/*.woff2`), sem
   dependência do Google Fonts em runtime.
 - **Cache:** leituras (`GET /api/*`) têm `cache-control` curto no edge; mutações
