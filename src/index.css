@@ -1,6 +1,11 @@
 @import './fonts.css';
 @import 'tailwindcss';
 
+/* "Mobile deitado": paisagem com pouca altura (telefone na horizontal).
+   Usado para revelar as colunas extras da classificação sem afetar
+   desktop/tablet, que têm mais altura mesmo em paisagem. */
+@custom-variant mobile-landscape (@media (orientation: landscape) and (max-height: 600px));
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

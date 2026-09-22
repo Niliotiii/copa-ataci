@@ -50,15 +50,15 @@ export default function Standings() {
                   <th scope="col" className="text-left py-2.5">Time</th>
                   <th scope="col" className="text-center py-2.5 w-11"><abbr title="Pontos">PTS</abbr></th>
                   <th scope="col" className="text-center py-2.5 w-8"><abbr title="Jogos">J</abbr></th>
-                  <th scope="col" className="hidden lg:table-cell text-center py-2.5 w-8"><abbr title="Vitórias">V</abbr></th>
-                  <th scope="col" className="hidden lg:table-cell text-center py-2.5 w-8"><abbr title="Empates">E</abbr></th>
-                  <th scope="col" className="hidden lg:table-cell text-center py-2.5 w-8"><abbr title="Derrotas">D</abbr></th>
+                  <th scope="col" className="hidden lg:table-cell mobile-landscape:table-cell text-center py-2.5 w-8"><abbr title="Vitórias">V</abbr></th>
+                  <th scope="col" className="hidden lg:table-cell mobile-landscape:table-cell text-center py-2.5 w-8"><abbr title="Empates">E</abbr></th>
+                  <th scope="col" className="hidden lg:table-cell mobile-landscape:table-cell text-center py-2.5 w-8"><abbr title="Derrotas">D</abbr></th>
                   <th scope="col" className="text-center py-2.5 w-9"><abbr title="Saldo de gols">SG</abbr></th>
-                  <th scope="col" className="hidden lg:table-cell text-center py-2.5 w-9"><abbr title="Gols pró">GP</abbr></th>
-                  <th scope="col" className="hidden xl:table-cell text-center py-2.5 w-9"><abbr title="Gols contra">GC</abbr></th>
-                  <th scope="col" className="hidden xl:table-cell text-center py-2.5 w-8"><abbr title="Cartões vermelhos">CV</abbr></th>
-                  <th scope="col" className="hidden xl:table-cell text-center py-2.5 w-8"><abbr title="Cartões amarelos">CA</abbr></th>
-                  <th scope="col" className="hidden xl:table-cell text-center py-2.5 w-9 pr-3"><abbr title="Faltas">F</abbr></th>
+                  <th scope="col" className="hidden lg:table-cell mobile-landscape:table-cell text-center py-2.5 w-9"><abbr title="Gols pró">GP</abbr></th>
+                  <th scope="col" className="hidden xl:table-cell mobile-landscape:table-cell text-center py-2.5 w-9"><abbr title="Gols contra">GC</abbr></th>
+                  <th scope="col" className="hidden xl:table-cell mobile-landscape:table-cell text-center py-2.5 w-8"><abbr title="Cartões vermelhos">CV</abbr></th>
+                  <th scope="col" className="hidden xl:table-cell mobile-landscape:table-cell text-center py-2.5 w-8"><abbr title="Cartões amarelos">CA</abbr></th>
+                  <th scope="col" className="hidden xl:table-cell mobile-landscape:table-cell text-center py-2.5 w-9 pr-3"><abbr title="Faltas">F</abbr></th>
                 </tr>
               </thead>
               <tbody>
@@ -97,15 +97,15 @@ export default function Standings() {
                       </td>
                       <td className="text-center text-sm font-bold" style={{ fontFamily: "Oswald, sans-serif", color: "var(--accent)" }}>{team.pts}</td>
                       <td className="text-center text-sm" style={{ color: "var(--muted-foreground)" }}>{team.j}</td>
-                      <td className="hidden lg:table-cell text-center text-sm font-semibold" style={{ color: "var(--primary)" }}>{team.v}</td>
-                      <td className="hidden lg:table-cell text-center text-sm" style={{ color: "var(--muted-foreground)" }}>{team.e}</td>
-                      <td className="hidden lg:table-cell text-center text-sm" style={{ color: "var(--danger)" }}>{team.d}</td>
+                      <td className="hidden lg:table-cell mobile-landscape:table-cell text-center text-sm font-semibold" style={{ color: "var(--primary)" }}>{team.v}</td>
+                      <td className="hidden lg:table-cell mobile-landscape:table-cell text-center text-sm" style={{ color: "var(--muted-foreground)" }}>{team.e}</td>
+                      <td className="hidden lg:table-cell mobile-landscape:table-cell text-center text-sm" style={{ color: "var(--danger)" }}>{team.d}</td>
                       <td className="text-center text-sm font-medium" style={{ color: sgColor }}>{team.sg > 0 ? `+${team.sg}` : team.sg}</td>
-                      <td className="hidden lg:table-cell text-center text-sm" style={{ color: "var(--muted-foreground)" }}>{team.gp}</td>
-                      <td className="hidden xl:table-cell text-center text-sm" style={{ color: "var(--muted-foreground)" }}>{team.gc}</td>
-                      <td className="hidden xl:table-cell text-center text-sm" style={{ color: "var(--danger)" }}>{team.red}</td>
-                      <td className="hidden xl:table-cell text-center text-sm" style={{ color: "#a16207" }}>{team.yellow}</td>
-                      <td className="hidden xl:table-cell text-center text-sm pr-3" style={{ color: "var(--muted-foreground)" }}>{team.fouls}</td>
+                      <td className="hidden lg:table-cell mobile-landscape:table-cell text-center text-sm" style={{ color: "var(--muted-foreground)" }}>{team.gp}</td>
+                      <td className="hidden xl:table-cell mobile-landscape:table-cell text-center text-sm" style={{ color: "var(--muted-foreground)" }}>{team.gc}</td>
+                      <td className="hidden xl:table-cell mobile-landscape:table-cell text-center text-sm" style={{ color: "var(--danger)" }}>{team.red}</td>
+                      <td className="hidden xl:table-cell mobile-landscape:table-cell text-center text-sm" style={{ color: "#a16207" }}>{team.yellow}</td>
+                      <td className="hidden xl:table-cell mobile-landscape:table-cell text-center text-sm pr-3" style={{ color: "var(--muted-foreground)" }}>{team.fouls}</td>
                     </tr>
                   );
                 })}
