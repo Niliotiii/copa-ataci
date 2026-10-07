@@ -7,6 +7,41 @@ import { useApi } from "../data/useApi";
 import type { Match } from "../data/types";
 import { LoadingState, ErrorState, EmptyState } from "./States";
 
+const PT_MONTHS: Record<string, number> = {
+  jan: 1, fev: 2, mar: 3, abr: 4, mai: 5, jun: 6,
+  jul: 7, ago: 8, set: 9, out: 10, nov: 11, dez: 12,
+};
+
+// Constrói uma chave numérica ordenável (aaaammddHHMM) a partir dos rótulos
+// de data/hora, que são texto livre. Suporta "dd/mm/aaaa", "dd/mm" e o formato
+// pt-BR abreviado ("Sáb, 12 Jul"). Datas não reconhecidas (ex.: "A definir")
+// vão para o fim; o horário "HH:MM" ainda é usado como desempate.
+function sortKey(m: { date: string; time: string }): number {
+  const date = (m.date ?? "").trim().toLowerCase();
+  let y = 9999, mo = 12, d = 31;
+
+  const slash = date.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
+  if (slash) {
+    d = Number(slash[1]);
+    mo = Number(slash[2]);
+    if (slash[3]) y = Number(slash[3].length === 2 ? `20${slash[3]}` : slash[3]);
+    else y = 0; // sem ano: mantém dia/mês, ano neutro
+  } else {
+    const ptbr = date.match(/(\d{1,2})\s+([a-zç]{3})/);
+    if (ptbr) {
+      d = Number(ptbr[1]);
+      mo = PT_MONTHS[ptbr[2]] ?? 12;
+      y = 0;
+    }
+  }
+
+  const tm = (m.time ?? "").match(/(\d{1,2}):(\d{2})/);
+  const hh = tm ? Number(tm[1]) : 99;
+  const mm = tm ? Number(tm[2]) : 99;
+
+  return ((y * 12 + mo) * 31 + d) * 1440 + hh * 60 + mm;
+}
+
 function TeamBadge({ abbr, color, crestUrl }: { abbr: string; color: string; crestUrl?: string | null }) {
   return (
     <div
@@ -43,7 +78,14 @@ export default function Schedule() {
   }, [rounds, matches]);
 
   const activeRound = selectedRound ?? defaultRound;
-  const visible = matches.filter((m) => m.round === activeRound);
+  const visible = useMemo(
+    () =>
+      matches
+        .filter((m) => m.round === activeRound)
+        .slice()
+        .sort((a, b) => sortKey(a) - sortKey(b) || a.id - b.id),
+    [matches, activeRound],
+  );
   const roundLabel = activeRound != null ? `Rodada ${activeRound}` : "";
 
   return (
