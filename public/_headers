@@ -1,0 +1,5 @@
+# Permite que o dashboard do Umami embuta as páginas do portal num iframe,
+# necessário para o preview visual dos heatmaps (click/scroll overlay).
+# Ref.: https://umami.is/docs/heatmaps#allowing-the-page-preview
+/*
+  Content-Security-Policy: frame-ancestors 'self' https://umami.niliotiii.com.br;

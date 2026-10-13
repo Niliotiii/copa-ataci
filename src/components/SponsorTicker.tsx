@@ -1,4 +1,5 @@
 import { useApi } from "../data/useApi";
+import { trackEvent } from "../data/track";
 import type { Sponsor } from "../data/types";
 
 function SponsorItem({ sponsor }: { sponsor: Sponsor }) {
@@ -34,6 +35,12 @@ function SponsorItem({ sponsor }: { sponsor: Sponsor }) {
         target="_blank"
         rel="noopener noreferrer sponsored"
         title={`Visitar ${sponsor.name}`}
+        onClick={() =>
+          trackEvent("sponsor-click", {
+            sponsor: sponsor.name,
+            url: sponsor.linkUrl,
+          })
+        }
         className="flex items-center gap-2.5 flex-shrink-0 px-6 transition-opacity hover:opacity-80"
         style={{ borderRight: "1px solid var(--border)", textDecoration: "none", cursor: "pointer" }}
       >
